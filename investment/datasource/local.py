@@ -68,7 +68,7 @@ class LocalDataSource(BaseDataSource):
     def _portfolio_mapping() -> pd.DataFrame:
         return pd.read_csv(f"{BASE_PATH}/portfolio_mapping.csv")
         
-    def get_all_available_securities(self, as_instance: bool = False) -> List[Union[str, Security]]
+    def get_all_available_securities(self, as_instance: bool = False) -> List[Union[str, Security]]:
         """
         List all available securities.
         """
