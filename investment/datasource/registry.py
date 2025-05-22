@@ -3,6 +3,7 @@ from typing import List, TYPE_CHECKING
 from .alpha_vantage import AlphaVantageDataSource
 from .bloomberg import BloombergDataSource
 from .local import LocalDataSource
+from .twelve_data import TwelveDataDataSource
 from .yahoo_finance import YahooFinanceDataSource
 
 if TYPE_CHECKING:
@@ -12,7 +13,8 @@ all_data_source: List["BaseDataSource"] = [
     AlphaVantageDataSource,
     BloombergDataSource,
     LocalDataSource,
-    YahooFinanceDataSource
+    TwelveDataDataSource,
+    YahooFinanceDataSource,
 ]
 
 data_source_registry = {
