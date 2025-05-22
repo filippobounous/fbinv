@@ -10,9 +10,11 @@ from private.consts.api_key import TWELVE_DATA_API_KEY
 if TYPE_CHECKING:
     from ..core import Security
 
+# https://github.com/twelvedata/twelvedata-python
+
 class TwelveDataDataSource(BaseDataSource):
     name: str = "twelve_data"
-    INTERVALS: List[str] = [
+    allowed_intervals: List[str] = [
         '1min', '5min', '15min', '30min', '45min',
         '1h', '2h', '4h', '8h', '1day',
         '1week', '1month'
@@ -29,14 +31,14 @@ class TwelveDataDataSource(BaseDataSource):
 
         td = TDClient(apikey=TWELVE_DATA_API_KEY)
         
-        if interval in self.INTERVALS:
+        if interval in self.allowed_intervals:
             df = td.time_series(
                 symbol=symbol,
                 interval=interval,
             ).as_pandas()
             return df
         else:
-            raise ValueError(f"Interval {interval} not acceptable, please pass one of {self.INTERVALS}.")
+            raise ValueError(f"Interval {interval} not acceptable, please pass one of {self.allowed_intervals}.")
     
     @staticmethod
     def _get_symbol(isin_code: str) -> str:
