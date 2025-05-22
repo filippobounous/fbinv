@@ -1,3 +1,3 @@
 import datetime
 
-DATA_START_DATE = datetime.datetime(1990, 1, 1)
+DATA_START_DATE = datetime.datetime(1900, 1, 1)
