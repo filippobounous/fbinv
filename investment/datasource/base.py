@@ -7,7 +7,6 @@ from typing import Dict, Optional
 
 from ..core import Security
 from private.consts.file_paths import HISTORICAL_DATA_PATH
-from ..utils.consts import DATA_START_DATE
 
 class BaseDataSource(BaseModel):
     name: str = "base"
@@ -75,9 +74,6 @@ class BaseDataSource(BaseModel):
 
         return di
     
-    def update_all_securities(
-        self,
-        start_date: datetime.datetime = DATA_START_DATE,
-        end_date: Optional[datetime.datetime] = None
-    ) -> None:
-        column = f"{self.name}_code"
+    @abstractmethod
+    def update_all_securities(self) -> Dict[str, bool]:
+        pass
