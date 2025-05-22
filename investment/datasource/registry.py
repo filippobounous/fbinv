@@ -1,4 +1,4 @@
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Dict
 
 from .alpha_vantage import AlphaVantageDataSource
 from .bloomberg import BloombergDataSource
@@ -17,7 +17,7 @@ all_data_source: List["BaseDataSource"] = [
     YahooFinanceDataSource,
 ]
 
-data_source_registry = {
+data_source_registry: Dict[str, "BaseDataSource"] = {
     i.name: i
     for i in all_data_source
 }
