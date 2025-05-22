@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, List, Dict, Union
 from twelvedata import TDClient
 
 from .base import BaseDataSource
+from ..core.security.currency_cross import CurrencyCross
 from private.consts.api_key import TWELVE_DATA_API_KEY
 
 if TYPE_CHECKING:
@@ -18,7 +19,10 @@ class TwelveDataDataSource(BaseDataSource):
     ]
 
     def _get_ts_from_remote(self, security: Security, interval: str = '1day') -> pd.DataFrame:
-        symbol = self._get_symbol(isin_code=security.code)
+        if isinstance(security, CurrencyCross):
+            symbol = f"{security.currency_vs}/{security.currency}"
+        else:
+            symbol = self._get_symbol(isin_code=security.code)
 
         if symbol is None:
             raise ValueError(f"Security {security.code} not found in {self.name} data source.")
