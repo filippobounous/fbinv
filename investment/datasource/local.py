@@ -4,10 +4,12 @@ from typing import Any, Dict, Union, List, TYPE_CHECKING
 
 from .base import BaseDataSource
 from ..core import Portfolio
+from ..core.security.registry import security_registry
 from private.consts.file_paths import PORTFOLIO_PATH, BASE_PATH
 
 if TYPE_CHECKING:
-    from ..core import Security, BaseMappingEntity
+    from ..core import Security
+    from ..core.mapping import BaseMappingEntity
 
 class LocalDataSource(BaseDataSource):
     name: str = "local"
@@ -15,22 +17,20 @@ class LocalDataSource(BaseDataSource):
     def _get_ts_from_remote(self, security: "Security") -> pd.DataFrame:
         raise NotImplementedError(f"No remote source for {self.name} datasource.")
 
-    @staticmethod
-    def load_portfolio(portfolio: "Portfolio") -> Dict[str, Any]:
+    def load_portfolio(self, portfolio: "Portfolio") -> Dict[str, Any]:
         """
         Load a portfolio from the csv file.
         """
-        df = pd.read_csv(f"{BASE_PATH}/portfolio_mapping.csv")
+        df = self._portfolio_mapping()
         row = df.loc[df.code == portfolio.code]
 
         return LocalDataSource._load(df=row, entity=portfolio)
 
-    @staticmethod
-    def load_security(security: "Security") -> Dict[str, Any]:
+    def load_security(self, security: "Security") -> Dict[str, Any]:
         """
         Load a portfolio from the csv file.
         """
-        df = pd.read_csv(f"{BASE_PATH}/security_mapping.csv")
+        df = self._security_mapping()
         row = df.loc[df.code == security.code]
 
         return LocalDataSource._load(df=row, entity=security)
@@ -59,3 +59,33 @@ class LocalDataSource(BaseDataSource):
             return [Portfolio(name) for name, _ in di.items()]
         else:
             return di
+    
+    @staticmethod
+    def _security_mapping() -> pd.DataFrame:
+        return pd.read_csv(f"{BASE_PATH}/security_mapping.csv")
+
+    @staticmethod
+    def _portfolio_mapping() -> pd.DataFrame:
+        return pd.read_csv(f"{BASE_PATH}/portfolio_mapping.csv")
+        
+    def get_all_available_securities(self, as_instance: bool = False) -> List[Union[str, Security]]
+        """
+        List all available securities.
+        """
+        li = []
+
+        df = self._security_mapping()
+        
+        if as_instance:
+            for _, row in df.iterrows():
+                code = row.get("code")
+                entity_type = row.get("type")
+
+                obj  = security_registry.get(entity_type)
+
+                if obj:
+                    li.append(obj(code))
+        else:
+            li = df["code"].to_list()
+        
+        return li
