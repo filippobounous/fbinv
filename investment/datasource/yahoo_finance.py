@@ -1,8 +1,11 @@
 import pandas as pd
+from typing import TYPE_CHECKING
 import yfinance as yf
 
 from .base import BaseDataSource
-from ..core import Security
+
+if TYPE_CHECKING:
+    from ..core import Security
 
 class YahooFinanceDataSource(BaseDataSource):
     name: str = "yahoo_finance"
