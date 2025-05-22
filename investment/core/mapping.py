@@ -10,11 +10,11 @@ class BaseMappingEntity(BaseModel):
         super().__init__(**kwargs)
 
         load_methods = {
-            "security": LocalDataSource.load_security,
-            "currency_cross": LocalDataSource.load_security,
-            "etf": LocalDataSource.load_security,
-            "fund": LocalDataSource.load_security,
-            "portfolio": LocalDataSource.load_portfolio,
+            "security": LocalDataSource().load_security,
+            "currency_cross": LocalDataSource().load_security,
+            "etf": LocalDataSource().load_security,
+            "fund": LocalDataSource().load_security,
+            "portfolio": LocalDataSource().load_portfolio,
         }
 
         init_method = load_methods.get(self.entity_type)
