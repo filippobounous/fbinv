@@ -69,6 +69,6 @@ class Transactions(BaseModel):
     def _load_transactions(self) -> pd.DataFrame:
         return pd.read_excel(self.file_path, sheet_name=self.sheet_name)
     
-    def update(self):
+    def update(self) -> None:
         self.extract_and_save_investment_transactions()
         self.load_and_save_cash_positions()

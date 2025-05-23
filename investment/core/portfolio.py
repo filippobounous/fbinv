@@ -21,7 +21,7 @@ class Portfolio(BaseMappingEntity):
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    def __init__(self, code: Optional[str] = None, **kwargs):
+    def __init__(self, code: Optional[str] = None, **kwargs) -> None:
 
         if code is not None:
             kwargs["code"] = code

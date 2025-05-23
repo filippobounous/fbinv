@@ -16,7 +16,7 @@ class Security(BaseMappingEntity):
     alpha_vantage_code: Optional[str] = None
     multiplier: Optional[float] = None
 
-    def __init__(self, code: Optional[str] = None, **kwargs):
+    def __init__(self, code: Optional[str] = None, **kwargs) -> None:
         from ...datasource.registry import data_source_codes
         
         if code is not None:
