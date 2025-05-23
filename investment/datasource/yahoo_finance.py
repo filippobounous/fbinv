@@ -1,5 +1,6 @@
 import datetime
 import pandas as pd
+import re
 from typing import TYPE_CHECKING, ClassVar
 import yfinance as yf
 
@@ -51,7 +52,7 @@ class YahooFinanceDataSource(BaseDataSource):
     def _format_ts_from_remote(df: pd.DataFrame) -> pd.DataFrame:
         df_simple = df.copy().reset_index()
         df_simple.columns = [
-            col.lower()
+            re.sub(r"\s+", "_", col.lower())
             for col in df_simple.columns.get_level_values(0)
         ]
         df_simple = df_simple.rename(columns={"date": "as_of_date"})
@@ -62,6 +63,9 @@ class YahooFinanceDataSource(BaseDataSource):
         symbol: str, intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
+        if symbol is None:
+            return pd.DataFrame()
+        
         interval =  "1m" if intraday else "1d"
 
         end_date = end_date + datetime.timedelta(days=2) # required by API
