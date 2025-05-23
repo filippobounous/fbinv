@@ -21,10 +21,12 @@ class Portfolio(BaseMappingEntity):
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    def __init__(self, **kwargs):
+    def __init__(self, code: Optional[str] = None, **kwargs):
 
+        if code is not None:
+            kwargs["code"] = code
         if "code" not in kwargs:
-            kwargs.update({"code": DEFAULT_NAME})
+            kwargs["code"] = DEFAULT_NAME
 
         super().__init__(**kwargs)
 
