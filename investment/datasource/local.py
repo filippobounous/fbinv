@@ -3,9 +3,9 @@ import pandas as pd
 from typing import Any, Dict, Union, List, TYPE_CHECKING
 
 from .base import BaseDataSource
+from ..config import PORTFOLIO_PATH, BASE_PATH
 from ..core import Portfolio
 from ..core.security.registry import security_registry
-from ..config import PORTFOLIO_PATH, BASE_PATH
 
 if TYPE_CHECKING:
     from ..core import Security

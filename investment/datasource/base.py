@@ -3,10 +3,10 @@ import datetime
 import pandas as pd
 from pathlib import Path
 from pydantic import BaseModel
-from typing import Dict, Optional
+from typing import Dict
 
-from ..core import Security
 from ..config import HISTORICAL_DATA_PATH
+from ..core import Security
 
 class BaseDataSource(BaseModel):
     name: str = "base"

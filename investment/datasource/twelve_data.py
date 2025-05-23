@@ -4,8 +4,8 @@ from typing import TYPE_CHECKING, List, Dict, Union
 from twelvedata import TDClient
 
 from .base import BaseDataSource
-from ..core.security.currency_cross import CurrencyCross
 from ..config import TWELVE_DATA_API_KEY
+from ..core.security.currency_cross import CurrencyCross
 
 if TYPE_CHECKING:
     from ..core import Security

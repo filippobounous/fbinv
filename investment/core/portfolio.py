@@ -3,8 +3,8 @@ import pandas as pd
 from pydantic import ConfigDict, Field
 from typing import Optional
 
-from .mapping import BaseMappingEntity
 from ..config import PORTFOLIO_PATH, DEFAULT_NAME
+from .mapping import BaseMappingEntity
 from ..utils.date_utils import today_midnight
 
 class Portfolio(BaseMappingEntity):
