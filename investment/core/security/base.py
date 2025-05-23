@@ -6,7 +6,6 @@ from ..mapping import BaseMappingEntity
 class Security(BaseMappingEntity):
     entity_type: ClassVar[str] = "security"
     name: Optional[str] = None
-    isin_code: Optional[str] = None
     reporting_currency: Optional[str] = None
     currency: Optional[str] = None
     financial_times_code: Optional[str] = None
@@ -17,7 +16,22 @@ class Security(BaseMappingEntity):
     alpha_vantage_code: Optional[str] = None
     multiplier: Optional[float] = None
 
+    def __init__(self, code: Optional[str] = None, **kwargs):
+        if code is not None:
+            kwargs["code"] = code
+
+        super().__init__(**kwargs)
+
+        missing = [
+            k
+            for k, v
+            in self.__dict__.items()
+            if v is None and k != "entity_type"
+        ]
+        if missing:
+            raise ValueError(f"Missing required values for: {missing}.")
+
     def get_file_path(self, datasource_name: str, intraday: bool) -> str:
         file_name = getattr(self, f"{datasource_name}_code", None)
         folder_name = "intraday" if intraday else "daily"
-        return f"{HISTORICAL_DATA_PATH}/{folder_name}/{datasource_name}/{file_name}_{folder_name}"
+        return f"{HISTORICAL_DATA_PATH}/{folder_name}/{datasource_name}/{file_name}_{folder_name}.csv"
