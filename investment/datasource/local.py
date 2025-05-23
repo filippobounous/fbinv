@@ -28,7 +28,7 @@ class LocalDataSource(BaseDataSource):
 
     def load_security(self, security: "Security") -> Dict[str, Any]:
         """
-        Load a portfolio from the csv file.
+        Load a security from the csv file.
         """
         df = self._security_mapping()
         row = df.loc[df.code == security.code]
