@@ -106,5 +106,12 @@ class BaseDataSource(BaseModel):
 
         return di
     
-    def update_all_securities(self) -> Dict[str, bool]:
-        pass # TODO
+    def update_all_securities(self, intraday: bool = False) -> Dict[str, bool]:
+        from .local import LocalDataSource
+        li = LocalDataSource().get_all_available_securities(as_instance=True)
+
+        for security in li:
+            try:
+                self.get_timeseries(security=security, intraday=intraday)
+            except Exception as e:
+                print(f"Failure for {security.code} by {e}")
