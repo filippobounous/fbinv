@@ -22,7 +22,6 @@ class Portfolio(BaseMappingEntity):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     def __init__(self, **kwargs):
-        from ..datasource.local import LocalDataSource
 
         if "code" not in kwargs:
             kwargs.update({"code": DEFAULT_NAME})

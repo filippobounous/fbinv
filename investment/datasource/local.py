@@ -24,7 +24,7 @@ class LocalDataSource(BaseDataSource):
         df = self._portfolio_mapping()
         row = df.loc[df.code == portfolio.code]
 
-        return LocalDataSource._load(df=row, entity=portfolio)
+        return self._load(df=row, entity=portfolio)
 
     def load_security(self, security: "Security") -> Dict[str, Any]:
         """
@@ -33,7 +33,7 @@ class LocalDataSource(BaseDataSource):
         df = self._security_mapping()
         row = df.loc[df.code == security.code]
 
-        return LocalDataSource._load(df=row, entity=security)
+        return self._load(df=row, entity=security)
         
     def _load(df: pd.DataFrame, entity: "BaseMappingEntity") -> Dict[str, Any]:
         if len(df) > 1:
