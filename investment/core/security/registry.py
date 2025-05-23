@@ -1,6 +1,8 @@
 from typing import TYPE_CHECKING, List, Dict
 
 from .currency_cross import CurrencyCross
+from .equity import Equity
+from .etf import ETF
 from .fund import Fund
 
 if TYPE_CHECKING:
@@ -8,6 +10,8 @@ if TYPE_CHECKING:
 
 all_securities: List['Security']= [
     CurrencyCross,
+    Equity,
+    ETF,
     Fund,
 ]
 
