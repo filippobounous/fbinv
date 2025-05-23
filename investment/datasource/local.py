@@ -1,6 +1,6 @@
 import datetime
 import pandas as pd
-from typing import Any, Dict, Union, List, TYPE_CHECKING
+from typing import Any, Dict, Union, List, TYPE_CHECKING, ClassVar
 
 from .base import BaseDataSource
 from ..config import PORTFOLIO_PATH, BASE_PATH
@@ -13,18 +13,34 @@ if TYPE_CHECKING:
     from ..core.security.registry import CurrencyCross, Equity, ETF, Fund
 
 class LocalDataSource(BaseDataSource):
-    name: str = "local"
+    name: ClassVar[str] = "local"
 
-    def _get_currency_cross_ts_from_remote(self, security: 'CurrencyCross', intraday: bool) -> pd.DataFrame:
+    def _get_currency_cross_ts_from_remote(
+        self,
+        security: 'CurrencyCross', intraday: bool,
+        start_date: datetime.datetime, end_date: datetime.datetime,
+    ) -> pd.DataFrame:
         raise NotImplementedError(f"No remote source for {self.name} datasource.")
 
-    def _get_equity_ts_from_remote(self, security: 'Equity', intraday: bool) -> pd.DataFrame:
+    def _get_equity_ts_from_remote(
+        self,
+        security: 'Equity', intraday: bool,
+        start_date: datetime.datetime, end_date: datetime.datetime,
+    ) -> pd.DataFrame:
         raise NotImplementedError(f"No remote source for {self.name} datasource.")
 
-    def _get_etf_ts_from_remote(self, security: 'ETF', intraday: bool) -> pd.DataFrame:
+    def _get_etf_ts_from_remote(
+        self,
+        security: 'ETF', intraday: bool,
+        start_date: datetime.datetime, end_date: datetime.datetime,
+    ) -> pd.DataFrame:
         raise NotImplementedError(f"No remote source for {self.name} datasource.")
 
-    def _get_fund_ts_from_remote(self, security: 'Fund', intraday: bool) -> pd.DataFrame:
+    def _get_fund_ts_from_remote(
+        self,
+        security: 'Fund', intraday: bool,
+        start_date: datetime.datetime, end_date: datetime.datetime,
+    ) -> pd.DataFrame:
         raise NotImplementedError(f"No remote source for {self.name} datasource.")
     
     @staticmethod
