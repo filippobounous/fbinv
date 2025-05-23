@@ -15,6 +15,7 @@ if TYPE_CHECKING:
 
 class TwelveDataDataSource(BaseDataSource):
     name: ClassVar[str] = "twelve_data"
+    base_url: str = "https://api.twelvedata.com"
     td: TDClient = TDClient(apikey=TWELVE_DATA_API_KEY)
     output_size: int = 5000
     data_start_date: datetime.datetime = datetime.datetime(2003,12,1)
@@ -54,16 +55,6 @@ class TwelveDataDataSource(BaseDataSource):
         raise NotImplementedError("Method not implemented.")
     
     @staticmethod
-    def _get_symbol(isin_code: str) -> str:
-        url = f"https://api.twelvedata.com/symbol_search?isin={isin_code}"
-        response = requests.get(url)
-        
-        li : List[Dict[str, Union[float, str]]]= response.json()["data"]
-        
-        if len(li) > 0:
-            return li[0].get("symbol")
-    
-    @staticmethod
     def _format_ts_from_remote(df: pd.DataFrame) -> pd.DataFrame:
         return df.reset_index().rename(columns={"datetime": "as_of_date"})
     
@@ -78,7 +69,7 @@ class TwelveDataDataSource(BaseDataSource):
         shifted_end_date = end_date + datetime.timedelta(days=2) # required by API
 
         delta = (
-            timedelta(minutes=self.output_size)
+            datetime.timedelta(minutes=self.output_size)
             if intraday
             else datetime.timedelta(days=self.output_size - 1)
         )
@@ -116,3 +107,22 @@ class TwelveDataDataSource(BaseDataSource):
     
     def usage(self) -> Dict[str, Any]:
         return self.td.api_usage().as_json()
+
+    def available_data(self, entity_type: str) -> pd.DataFrame:
+        available_entities = {
+            "currency_cross": "forex_pairs",
+            "equtiy": "stocks",
+            "crypto": "cryptocurrencies",
+            "fund": "funds",
+            "bond": "bonds",
+            "etf": "etfs",
+            "commodity": "commodities",
+            "exchange": "exchanges",
+        }
+        code = available_entities.get(entity_type)
+        if code:
+            url = f"{self.base_url}/{code}"
+            response = requests.get(url)
+            return pd.DataFrame(response.json().get("data"))
+        else:
+            pd.DataFrame()
