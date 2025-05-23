@@ -1,8 +1,9 @@
+# cash files
 __pycache__/
 *.py[cod]
 *$py.class
-
-# Environment variables
-.env
-
+.DS_Store
 .ipynb_checkpoints/
+
+# environment variables
+.env
