@@ -10,11 +10,25 @@ from ..core.security.registry import security_registry
 if TYPE_CHECKING:
     from ..core import Security
     from ..core.mapping import BaseMappingEntity
+    from ..core.security.registry import CurrencyCross, Equity, ETF, Fund
 
 class LocalDataSource(BaseDataSource):
     name: str = "local"
 
-    def _get_ts_from_remote(self, security: "Security") -> pd.DataFrame:
+    def _get_currency_cross_ts_from_remote(self, security: 'CurrencyCross', intraday: bool) -> pd.DataFrame:
+        raise NotImplementedError(f"No remote source for {self.name} datasource.")
+
+    def _get_equity_ts_from_remote(self, security: 'Equity', intraday: bool) -> pd.DataFrame:
+        raise NotImplementedError(f"No remote source for {self.name} datasource.")
+
+    def _get_etf_ts_from_remote(self, security: 'ETF', intraday: bool) -> pd.DataFrame:
+        raise NotImplementedError(f"No remote source for {self.name} datasource.")
+
+    def _get_fund_ts_from_remote(self, security: 'Fund', intraday: bool) -> pd.DataFrame:
+        raise NotImplementedError(f"No remote source for {self.name} datasource.")
+    
+    @staticmethod
+    def _format_ts_from_remote(df: pd.DataFrame) -> pd.DataFrame:
         raise NotImplementedError(f"No remote source for {self.name} datasource.")
 
     def load_portfolio(self, portfolio: "Portfolio") -> Dict[str, Any]:
@@ -31,10 +45,18 @@ class LocalDataSource(BaseDataSource):
         Load a security from the csv file.
         """
         df = self._security_mapping()
+        df_reporting_ccy = self._reporting_currency()
+
+        # set multiplier
+        df = df.merge(df_reporting_ccy, how="left", on=["reporting_currency", "currency"])
+        mask = (df["reporting_currency"] == df["currency"]) & (df["multiplier"].isna())
+        df.loc[mask, "multiplier"] = 1.0
+
         row = df.loc[df.code == security.code]
 
         return self._load(df=row, entity=security)
-        
+    
+    @staticmethod
     def _load(df: pd.DataFrame, entity: "BaseMappingEntity") -> Dict[str, Any]:
         if len(df) > 1:
             raise ValueError(f"Duplicate {entity.entity_type} for code '{entity.code}'.")
@@ -67,8 +89,12 @@ class LocalDataSource(BaseDataSource):
     @staticmethod
     def _portfolio_mapping() -> pd.DataFrame:
         return pd.read_csv(f"{BASE_PATH}/portfolio_mapping.csv")
+
+    @staticmethod
+    def _reporting_currency() -> pd.DataFrame:
+        return pd.read_csv(f"{BASE_PATH}/reporting_currency.csv")
         
-    def get_all_available_securities(self, as_instance: bool = False) -> List[Union[str, Security]]:
+    def get_all_available_securities(self, as_instance: bool = False) -> List[Union[str, "Security"]]:
         """
         List all available securities.
         """
