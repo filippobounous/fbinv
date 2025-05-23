@@ -5,7 +5,7 @@ class BaseMappingEntity(BaseModel):
     entity_type: str
     code: str
     
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         from ..datasource.local import LocalDataSource
 
         super().__init__(**kwargs)
