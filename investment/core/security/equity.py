@@ -1,6 +1,6 @@
 from typing import ClassVar
 
-from .base import Security
+from .isin import ISINSecurity
 
-class Equity(Security):
+class Equity(ISINSecurity):
     entity_type: ClassVar[str] = "equity"
