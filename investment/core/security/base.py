@@ -1,7 +1,7 @@
 from typing import Optional
 
 from ..mapping import BaseMappingEntity
-from private.consts.file_paths import HISTORICAL_DATA_PATH
+from ..config import HISTORICAL_DATA_PATH
 
 class Security(BaseMappingEntity):
     entity_type: str = "security"

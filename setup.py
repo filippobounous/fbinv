@@ -11,6 +11,7 @@ setup(
         "twelvedata",
         "requests",
         "openpyxl",
+        "python-dotenv",
     ],
     python_requires=">=3.9",
 )

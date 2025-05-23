@@ -4,4 +4,7 @@ __pycache__/
 
 private/*
 
+# Environment variables
+.env
+
 .ipynb_checkpoints/

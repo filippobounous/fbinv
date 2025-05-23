@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from typing import Dict, Optional
 
 from ..core import Security
-from private.consts.file_paths import HISTORICAL_DATA_PATH
+from ..config import HISTORICAL_DATA_PATH
 
 class BaseDataSource(BaseModel):
     name: str = "base"

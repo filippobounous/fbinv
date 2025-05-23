@@ -5,7 +5,7 @@ from typing import Any, Dict, Union, List, TYPE_CHECKING
 from .base import BaseDataSource
 from ..core import Portfolio
 from ..core.security.registry import security_registry
-from private.consts.file_paths import PORTFOLIO_PATH, BASE_PATH
+from ..config import PORTFOLIO_PATH, BASE_PATH
 
 if TYPE_CHECKING:
     from ..core import Security
