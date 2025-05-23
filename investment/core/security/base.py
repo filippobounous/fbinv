@@ -13,6 +13,8 @@ class Security(BaseMappingEntity):
     financial_times_security_type: Optional[str] = None
     bloomberg_code: Optional[str] = None
     yahoo_finance_code: Optional[str] = None
+    twelve_data_code: Optional[str] = None
+    alpha_vantage_code: Optional[str] = None
     multiplier: Optional[float] = None
 
     def get_file_path(self, datasource_name: str) -> str:
