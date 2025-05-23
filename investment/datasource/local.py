@@ -79,7 +79,8 @@ class LocalDataSource(BaseDataSource):
         elif len(df) == 0:
             raise ValueError(f"No {entity.entity_type} for code '{entity.code}'.")
         else:
-            return df.iloc[0].to_dict()
+            di = df.iloc[0].to_dict()
+            return {k: v for k, v in di.items() if not pd.isna(v)}
 
     def get_all_available_portfolios(self, as_instance: bool = False) -> Union[Dict[str, datetime.datetime], List[Portfolio]]:
         """
