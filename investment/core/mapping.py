@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Dict, Any
 
 class BaseMappingEntity(BaseModel):
     entity_type: str
@@ -22,7 +23,7 @@ class BaseMappingEntity(BaseModel):
         if init_method is None:
             raise KeyError(f"Entity type '{self.entity_type}' has not been configured.")
 
-        di = init_method(self)
+        di: Dict[str, Any] = init_method(self)
         for key, el in di.items():
             if hasattr(self, key):
                 setattr(self, key, el)
