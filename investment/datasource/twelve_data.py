@@ -5,7 +5,7 @@ from twelvedata import TDClient
 
 from .base import BaseDataSource
 from ..core.security.currency_cross import CurrencyCross
-from private.consts.api_key import TWELVE_DATA_API_KEY
+from ..config import TWELVE_DATA_API_KEY
 
 if TYPE_CHECKING:
     from ..core import Security

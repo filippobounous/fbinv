@@ -4,7 +4,7 @@ from pydantic import ConfigDict, Field
 from typing import Optional
 
 from .mapping import BaseMappingEntity
-from private.consts.file_paths import PORTFOLIO_PATH, DEFAULT_NAME
+from ..config import PORTFOLIO_PATH, DEFAULT_NAME
 from ..utils.date_utils import today_midnight
 
 class Portfolio(BaseMappingEntity):

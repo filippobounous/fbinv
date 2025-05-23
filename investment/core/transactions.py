@@ -1,7 +1,12 @@
 import pandas as pd
 from pydantic import BaseModel
 
-from private.consts.file_paths import TRANSACTION_PATH, TRANSACTION_SHEET_NAME, PORTFOLIO_PATH, DEFAULT_NAME
+from ..config import (
+    TRANSACTION_PATH,
+    TRANSACTION_SHEET_NAME,
+    PORTFOLIO_PATH,
+    DEFAULT_NAME,
+)
 
 class Transactions(BaseModel):
     file_path: str = TRANSACTION_PATH

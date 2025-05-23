@@ -1,0 +1,12 @@
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+TRANSACTION_PATH = os.getenv("TRANSACTION_PATH")
+TRANSACTION_SHEET_NAME = os.getenv("TRANSACTION_SHEET_NAME")
+PORTFOLIO_PATH = os.getenv("PORTFOLIO_PATH")
+DEFAULT_NAME = os.getenv("DEFAULT_NAME")
+HISTORICAL_DATA_PATH = os.getenv("HISTORICAL_DATA_PATH")
+BASE_PATH = os.getenv("BASE_PATH")
+TWELVE_DATA_API_KEY = os.getenv("TWELVE_DATA_API_KEY")
