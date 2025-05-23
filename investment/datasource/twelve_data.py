@@ -20,7 +20,7 @@ class TwelveDataDataSource(BaseDataSource):
         '1week', '1month'
     ]
 
-    def _get_ts_from_remote(self, security: Security, interval: str = '1day') -> pd.DataFrame:
+    def _get_ts_from_remote(self, security: "Security", interval: str = '1day') -> pd.DataFrame:
         if isinstance(security, CurrencyCross):
             symbol = f"{security.currency_vs}/{security.currency}"
         else:
