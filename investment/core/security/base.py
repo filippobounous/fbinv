@@ -20,4 +20,4 @@ class Security(BaseMappingEntity):
     def get_file_path(self, datasource_name: str, intraday: bool) -> str:
         file_name = getattr(self, f"{datasource_name}_code", None)
         folder_name = "intraday" if intraday else "daily"
-        return f"{HISTORICAL_DATA_PATH}/{folder_name}/{datasource_name}/{file_name}"
+        return f"{HISTORICAL_DATA_PATH}/{folder_name}/{datasource_name}/{file_name}_{folder_name}"
