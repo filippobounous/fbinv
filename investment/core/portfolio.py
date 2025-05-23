@@ -58,9 +58,8 @@ class Portfolio(BaseMappingEntity):
             ['as_of_date', 'code', 'cum_quantity', 'avg_price', 'currency']
         ].copy()
         result = result.rename(columns={
-            'cum_quantity': 'quantity',
-            'currency_last': 'currency'
+            'cum_quantity': 'quantity'
         })
-        result["value"] = result["quantity"] * result["quantity"]
+        result["value"] = result["quantity"] * result["avg_price"]
 
         self.portfolio = result
