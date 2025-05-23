@@ -17,6 +17,7 @@ class Security(BaseMappingEntity):
     alpha_vantage_code: Optional[str] = None
     multiplier: Optional[float] = None
 
-    def get_file_path(self, datasource_name: str) -> str:
+    def get_file_path(self, datasource_name: str, intraday: bool) -> str:
         file_name = getattr(self, f"{datasource_name}_code", None)
-        return f"{HISTORICAL_DATA_PATH}/{datasource_name}/{file_name}"
+        folder_name = "intraday" if intraday else "daily"
+        return f"{HISTORICAL_DATA_PATH}/{folder_name}/{datasource_name}/{file_name}"
