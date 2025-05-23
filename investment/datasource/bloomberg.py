@@ -1,5 +1,5 @@
 import pandas as pd
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 from .base import BaseDataSource
 
@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from ..core.security.registry import CurrencyCross, Equity, ETF, Fund
 
 class BloombergDataSource(BaseDataSource):
-    name: str = "bloomberg"
+    name: ClassVar[str] = "bloomberg"
 
     def _get_currency_cross_ts_from_remote(self, security: 'CurrencyCross', intraday: bool) -> pd.DataFrame:
         raise NotImplementedError(f"No remote source for {self.name} datasource.")

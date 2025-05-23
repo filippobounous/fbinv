@@ -1,6 +1,6 @@
 import pandas as pd
 import requests
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 from .base import BaseDataSource
 from ..config import ALPHA_VANTAGE_API_KEY
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 # https://pypi.org/project/alpha-vantage/
 
 class AlphaVantageDataSource(BaseDataSource):
-    name: str = "alpha_vantage"
+    name: ClassVar[str] = "alpha_vantage"
     base_url: str = "https://www.alphavantage.co/query"
 
     def _get_currency_cross_ts_from_remote(self, security: 'CurrencyCross', intraday: bool) -> pd.DataFrame:
