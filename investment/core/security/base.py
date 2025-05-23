@@ -17,6 +17,8 @@ class Security(BaseMappingEntity):
     multiplier: Optional[float] = None
 
     def __init__(self, code: Optional[str] = None, **kwargs):
+        from ...datasource.registry import data_source_codes
+        
         if code is not None:
             kwargs["code"] = code
 
@@ -24,12 +26,11 @@ class Security(BaseMappingEntity):
 
         missing = [
             k
-            for k, v
-            in self.__dict__.items()
-            if v is None and k != "entity_type"
+            for k, v in self.__dict__.items()
+            if v is None and k not in ["entity_type"] + data_source_codes
         ]
         if missing:
-            raise ValueError(f"Missing required values for: {missing}.")
+            raise ValueError(f"{self.code} is missing required values for: {missing}.")
 
     def get_file_path(self, datasource_name: str, intraday: bool) -> str:
         file_name = getattr(self, f"{datasource_name}_code", None)
