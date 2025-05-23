@@ -12,7 +12,6 @@ setup(
         "requests",
         "openpyxl",
         "python-dotenv",
-        "alpha_vantage",
     ],
     python_requires=">=3.9",
 )
