@@ -1,10 +1,10 @@
-from typing import Optional
+from typing import Optional, ClassVar
 
 from ...config import HISTORICAL_DATA_PATH
 from ..mapping import BaseMappingEntity
 
 class Security(BaseMappingEntity):
-    entity_type: str = "security"
+    entity_type: ClassVar[str] = "security"
     name: Optional[str] = None
     isin_code: Optional[str] = None
     reporting_currency: Optional[str] = None

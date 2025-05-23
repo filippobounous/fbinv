@@ -1,5 +1,7 @@
+from typing import ClassVar
+
 from .base import Security
 
 class CurrencyCross(Security):
-    entity_type: str = "currency_cross"
+    entity_type: ClassVar[str] = "currency_cross"
     currency_vs: str
