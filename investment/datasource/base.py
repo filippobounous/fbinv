@@ -55,7 +55,7 @@ class BaseDataSource(BaseModel):
             path (str): path_name
 
         Returns:
-            Dict[str, datetime.datetime]: Dictionary of file names and last modifided date.
+            Dict[str, datetime.datetime]: Dictionary of file names and last modified date.
         """
         
         folder = Path(path)
