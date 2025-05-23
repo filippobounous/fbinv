@@ -28,7 +28,7 @@ class LocalDataSource(BaseDataSource):
         raise NotImplementedError(f"No remote source for {self.name} datasource.")
     
     @staticmethod
-    def _format_ts_from_remote(self, df: pd.DataFrame) -> pd.DataFrame:
+    def _format_ts_from_remote(df: pd.DataFrame) -> pd.DataFrame:
         raise NotImplementedError(f"Not implemented.")
 
     def load_portfolio(self, portfolio: "Portfolio") -> Dict[str, Any]:
