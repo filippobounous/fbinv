@@ -60,7 +60,11 @@ class BaseDataSource(BaseModel):
         
         if df_to_concat:
             df_to_concat.append(df)
-            df = pd.concat(df_to_concat).reset_index(drop=True).set_index("as_of_date").sort_index().drop_duplicates()
+            df = pd.concat(df_to_concat)
+            if df.empty:
+                return df
+            
+            df = df.reset_index(drop=True).set_index("as_of_date").sort_index().drop_duplicates()
             self._write_ts_to_local(security=security, df=df, intraday=intraday)
             
         return df
