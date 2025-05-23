@@ -35,15 +35,18 @@ class Portfolio(BaseMappingEntity):
     
     def _get_cash(self) -> None:
         df = pd.read_csv(f"{PORTFOLIO_PATH}/{self.code}_cash.csv")
-        
+
         if self.account:
-            df = df.loc[df.currency == self.account]
+            df = df.loc[df.account == self.account]
+
+        if self.currency:
+            df = df.loc[df.currency == self.currency]
 
         self.cash = df
 
     def _get_portfolio(self) -> None:
         df = pd.read_csv(f"{PORTFOLIO_PATH}/{self.code}_transactions.csv")
-        
+
         if self.account:
             df = df.loc[df.account == self.account]
 
@@ -53,14 +56,13 @@ class Portfolio(BaseMappingEntity):
         df['cum_quantity'] = df.groupby('code')['quantity'].cumsum()
         df['cum_value'] = df.groupby('code')['value'].cumsum()
         df['avg_price'] = df['cum_value'] / df['cum_quantity']
-        
+
         result = df[
             ['as_of_date', 'code', 'cum_quantity', 'avg_price', 'currency']
         ].copy()
         result = result.rename(columns={
-            'cum_quantity': 'quantity',
-            'currency_last': 'currency'
+            'cum_quantity': 'quantity'
         })
-        result["value"] = result["quantity"] * result["quantity"]
+        result["value"] = result["quantity"] * result["avg_price"]
 
         self.portfolio = result
