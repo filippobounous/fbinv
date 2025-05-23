@@ -51,22 +51,22 @@ class BaseDataSource(BaseModel):
     
     @abstractmethod
     @staticmethod
-    def _get_currency_cross_ts_from_remote(security: CurrencyCross, intraday: bool) -> pd.DataFrame:
+    def _get_currency_cross_ts_from_remote(self, security: CurrencyCross, intraday: bool) -> pd.DataFrame:
         pass
 
     @abstractmethod
     @staticmethod
-    def _get_equity_ts_from_remote(security: Equity, intraday: bool) -> pd.DataFrame:
+    def _get_equity_ts_from_remote(self, security: Equity, intraday: bool) -> pd.DataFrame:
         pass
 
     @abstractmethod
     @staticmethod
-    def _get_etf_ts_from_remote(security: ETF, intraday: bool) -> pd.DataFrame:
+    def _get_etf_ts_from_remote(self, security: ETF, intraday: bool) -> pd.DataFrame:
         pass
 
     @abstractmethod
     @staticmethod
-    def _get_fund_ts_from_remote(security: Fund, intraday: bool) -> pd.DataFrame:
+    def _get_fund_ts_from_remote(self, security: Fund, intraday: bool) -> pd.DataFrame:
         pass
 
     def get_all_available_data_files(self) -> Dict[str, datetime.datetime]:
