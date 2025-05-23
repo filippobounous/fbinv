@@ -7,6 +7,8 @@ from ..core import Security
 from ..core.security.currency_cross import CurrencyCross
 
 # https://alpha-vantage.readthedocs.io/en/latest/
+# https://www.alphavantage.co/documentation/
+# https://pypi.org/project/alpha-vantage/
 
 class AlphaVantageDataSource(BaseDataSource):
     name: str = "alpha_vantage"
