@@ -21,7 +21,7 @@ class Transactions(BaseModel):
 
         pattern = (
             r'^\s*'              # optional leading whitespace
-            r'(?P<isin_code>\S+)\s+'  # ISIN (non-whitespace)
+            r'(?P<code>\S+)\s+'     # security code (non-whitespace)
             r'(?P<direction>\S)\s+'      # direction (single character, e.g. 'B')
             r'(?P<quantity>[\d\.]+)\s+'  # quantity (digits and decimals)
             r'(?P<price>[\d\.]+)\s+'     # price (digits and decimals)
@@ -37,7 +37,7 @@ class Transactions(BaseModel):
         df["as_of_date"] = pd.to_datetime(transactions["Date"])
         
         df = df.drop(columns=["direction"])
-        df = df.sort_values(['isin_code', 'as_of_date']).reset_index(drop=True)
+        df = df.sort_values(['code', 'as_of_date']).reset_index(drop=True)
         
         df.to_csv(f"{self.portfolio_path}/{self.name}_transactions.csv", index=False)
 
