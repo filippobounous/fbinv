@@ -169,9 +169,13 @@ class BaseDataSource(BaseModel):
         from .local import LocalDataSource
         li = LocalDataSource().get_all_available_securities(as_instance=True)
 
+        di = {}
         for security in tqdm(li, desc=f"Updating securities for {self.name}"):
             try:
-                self.get_timeseries(security=security, intraday=intraday, **kwargs)
+                df = self.get_timeseries(security=security, intraday=intraday, **kwargs)
+                value = False if df.empty else True
             except TwelveDataError as e:
                 print(f'TwelveDataError for {security.code} as "{e}"')
-                break
+                value = False
+            
+            di["security"] = value
