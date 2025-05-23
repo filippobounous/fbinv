@@ -3,28 +3,66 @@ import datetime
 import pandas as pd
 from pathlib import Path
 from pydantic import BaseModel
-from typing import Dict, Optional
+from tqdm import tqdm
+from twelvedata.exceptions import TwelveDataError
+from typing import Dict, Optional, ClassVar
 
 from ..config import HISTORICAL_DATA_PATH
 from ..core import Security
 from ..core.security.registry import CurrencyCross, Equity, ETF, Fund
+from ..utils.consts import DATA_START_DATE
+from ..utils.date_utils import today_midnight
 
 class BaseDataSource(BaseModel):
-    name: str = "base"
+    name: ClassVar[str] = "base"
+    data_start_date: datetime.datetime = DATA_START_DATE
 
-    def get_timeseries(self, security: Security, intraday: bool = False) -> pd.DataFrame:
+    def get_timeseries(self, security: Security, intraday: bool = False, **kwargs) -> pd.DataFrame:
+        if intraday:
+            raise NotImplementedError(f"Intraday not currently supported. Should not be used.")
+        
         df = self._read_ts_from_local(security=security, intraday=intraday)
-        
-        if df.empty or (min(df.as_of_date) < datetime.date.today() - datetime.timedelta(days=1)):
-            try:
-                df_new = self._get_ts_from_remote(security=security, intraday=intraday)
+
+        start_date = kwargs.get("start_date", self.data_start_date)
+        end_date = kwargs.get("end_date", today_midnight() + datetime.timedelta(days=-1))
+
+        empty = df.empty
+        lower_bound_missing = None if empty else (min(df["as_of_date"]) > start_date)
+        upper_bound_missing = None if empty else (max(df["as_of_date"]) < end_date)
+
+        try:
+            df_to_concat = []
+            if empty:
+                df_to_concat.append(self._get_ts_from_remote(
+                    security=security, intraday=intraday,
+                    start_date=start_date, end_date=end_date
+                ))
+            
+            elif lower_bound_missing or upper_bound_missing:
+                df_to_concat = []
                 
-                df = pd.concat([df, df_new]).reset_index(drop=True).set_index("as_of_date").drop_duplicates()
+                if lower_bound_missing:
+                    df_to_concat.append(self._get_ts_from_remote(
+                        security=security, intraday=intraday,
+                        start_date=start_date,
+                        end_date=min(df["as_of_date"]),
+                    ))
                 
-                self._write_ts_to_local(security=security, df=df, intraday=intraday)
-            except NotImplementedError:
-                pass
+                if upper_bound_missing:
+                    df_to_concat.append(self._get_ts_from_remote(
+                        security=security, intraday=intraday,
+                        start_date=max(df["as_of_date"]),
+                        end_date=end_date,
+                    ))
+
+        except NotImplementedError:
+            pass
         
+        if df_to_concat:
+            df_to_concat.append(df)
+            df = pd.concat(df_to_concat).reset_index(drop=True).set_index("as_of_date").sort_index().drop_duplicates()
+            self._write_ts_to_local(security=security, df=df, intraday=intraday)
+            
         return df
     
     def _write_ts_to_local(self, security: Security, df: pd.DataFrame, intraday: bool) -> None:
@@ -34,14 +72,19 @@ class BaseDataSource(BaseModel):
         file_path = Path(security.get_file_path(datasource_name=self.name, intraday=intraday))
         if not file_path.exists():
             return pd.DataFrame() # or return None if preferred
-        df = pd.read_csv(file_path)
-        return df.set_index("as_of_date")
+        df = pd.read_csv(file_path, parse_dates=["as_of_date"])
+        return df
 
     @property
     def historical_data_path(self) -> str:
         return f"{HISTORICAL_DATA_PATH}/{self.name}"
 
-    def _get_ts_from_remote(self, security: Security, intraday: bool = False) -> pd.DataFrame:
+    def _get_ts_from_remote(
+        self,
+        security: Security, intraday: bool = False,
+        start_date: Optional[datetime.datetime] = None,
+        end_date: Optional[datetime.datetime] = None,
+    ) -> pd.DataFrame:
         ts_method_dict = {
             "currency_cross": self._get_currency_cross_ts_from_remote,
             "equity": self._get_equity_ts_from_remote,
@@ -54,7 +97,10 @@ class BaseDataSource(BaseModel):
         if ts_method is None:
             raise KeyError(f"Entity type '{security.entity_type}' has not been configured.")
         else:
-            df = ts_method(security=security, intraday=intraday)
+            df = ts_method(
+                security=security, intraday=intraday,
+                start_date=start_date, end_date=end_date,
+            )
             return self._format_ts_from_remote(df)
     
     @abstractmethod
@@ -115,12 +161,13 @@ class BaseDataSource(BaseModel):
 
         return di
     
-    def update_all_securities(self, intraday: bool = False) -> Dict[str, bool]:
+    def update_all_securities(self, intraday: bool = False, **kwargs) -> Dict[str, bool]:
         from .local import LocalDataSource
         li = LocalDataSource().get_all_available_securities(as_instance=True)
 
-        for security in li:
+        for security in tqdm(li, desc=f"Updating securities for {self.name}"):
             try:
-                self.get_timeseries(security=security, intraday=intraday)
-            except Exception as e:
-                print(f"Failure for {security.code} by {e}")
+                self.get_timeseries(security=security, intraday=intraday, **kwargs)
+            except TwelveDataError as e:
+                print(f'TwelveDataError for {security.code} as "{e}"')
+                break
