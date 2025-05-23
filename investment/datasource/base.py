@@ -7,6 +7,7 @@ from typing import Dict
 
 from ..config import HISTORICAL_DATA_PATH
 from ..core import Security
+from ..core.security.registry import CurrencyCross, Equity, ETF, Fund
 
 class BaseDataSource(BaseModel):
     name: str = "base"
@@ -33,8 +34,39 @@ class BaseDataSource(BaseModel):
     def historical_data_path(self) -> str:
         return f"{HISTORICAL_DATA_PATH}/{self.name}"
 
+    def _get_ts_from_remote(self, security: Security, intraday: bool = False) -> pd.DataFrame:
+        ts_method_dict = {
+            "currency_cross": self._get_currency_cross_ts_from_remote,
+            "equity": self._get_equity_ts_from_remote,
+            "etf": self._get_etf_ts_from_remote,
+            "fund": self._get_fund_ts_from_remote,
+        }
+
+        ts_method = ts_method_dict.get(security.entity_type)
+
+        if ts_method is None:
+            raise KeyError(f"Entity type '{security.entity_type}' has not been configured.")
+        else:
+            return ts_method(security=security, intraday=intraday)
+    
     @abstractmethod
-    def _get_ts_from_remote(self, security: Security) -> pd.DataFrame:
+    @staticmethod
+    def _get_currency_cross_ts_from_remote(security: CurrencyCross, intraday: bool) -> pd.DataFrame:
+        pass
+
+    @abstractmethod
+    @staticmethod
+    def _get_equity_ts_from_remote(security: Equity, intraday: bool) -> pd.DataFrame:
+        pass
+
+    @abstractmethod
+    @staticmethod
+    def _get_etf_ts_from_remote(security: ETF, intraday: bool) -> pd.DataFrame:
+        pass
+
+    @abstractmethod
+    @staticmethod
+    def _get_fund_ts_from_remote(security: Fund, intraday: bool) -> pd.DataFrame:
         pass
 
     def get_all_available_data_files(self) -> Dict[str, datetime.datetime]:
@@ -74,6 +106,5 @@ class BaseDataSource(BaseModel):
 
         return di
     
-    @abstractmethod
     def update_all_securities(self) -> Dict[str, bool]:
-        pass
+        pass # TODO
