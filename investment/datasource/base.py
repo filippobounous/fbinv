@@ -16,11 +16,15 @@ class BaseDataSource(BaseModel):
         df = self._read_ts_from_local(security=security, intraday=intraday)
         
         if df.empty or (min(df.as_of_date) < datetime.date.today() - datetime.timedelta(days=1)):
-            df_new = self._get_ts_from_remote(security=security, intraday=intraday)
-            
-            df = pd.concat([df, df_new]).reset_index(drop=True).set_index("as_of_date").drop_duplicates()
-            
-            self._write_ts_to_local(security=security, df=df, intraday=intraday)
+            try:
+                df_new = self._get_ts_from_remote(security=security, intraday=intraday)
+                
+                df = pd.concat([df, df_new]).reset_index(drop=True).set_index("as_of_date").drop_duplicates()
+                
+                self._write_ts_to_local(security=security, df=df, intraday=intraday)
+            except NotImplementedError:
+                pass
+        
         return df
     
     def _write_ts_to_local(self, security: Security, df: pd.DataFrame, intraday: bool) -> None:
