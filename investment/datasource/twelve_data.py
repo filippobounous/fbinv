@@ -65,7 +65,7 @@ class TwelveDataDataSource(BaseDataSource):
     
     @staticmethod
     def _format_ts_from_remote(df: pd.DataFrame) -> pd.DataFrame:
-        return df.reset_index().rename(columns={"datetime":"as_of_date"})
+        return df.reset_index().rename(columns={"datetime": "as_of_date"})
     
     def _get_dates(
         self,
