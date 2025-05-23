@@ -1,4 +1,3 @@
-from ..datasource.base import update_all_securities
 from ..datasource.registry import all_data_source
 
 def update_all_datasource() -> None:
