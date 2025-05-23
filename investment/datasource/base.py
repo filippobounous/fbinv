@@ -3,7 +3,7 @@ import datetime
 import pandas as pd
 from pathlib import Path
 from pydantic import BaseModel
-from typing import Dict
+from typing import Dict, Optional
 
 from ..config import HISTORICAL_DATA_PATH
 from ..core import Security
@@ -15,7 +15,7 @@ class BaseDataSource(BaseModel):
     def get_timeseries(self, security: Security, intraday: bool = False) -> pd.DataFrame:
         df = self._read_ts_from_local(security=security, intraday=intraday)
         
-        if min(df.as_of_date) < datetime.date.today() - datetime.timedelta(days=1):
+        if df.empty or (min(df.as_of_date) < datetime.date.today() - datetime.timedelta(days=1)):
             df_new = self._get_ts_from_remote(security=security, intraday=intraday)
             
             df = pd.concat([df, df_new]).reset_index(drop=True).set_index("as_of_date").drop_duplicates()
@@ -27,7 +27,10 @@ class BaseDataSource(BaseModel):
         df.to_csv(security.get_file_path(datasource_name=self.name, intraday=intraday), index=True)
 
     def _read_ts_from_local(self, security: Security, intraday: bool) -> pd.DataFrame:
-        df = pd.read_csv(security.get_file_path(datasource_name=self.name, intraday=intraday))
+        file_path = Path(security.get_file_path(datasource_name=self.name, intraday=intraday))
+        if not file_path.exists():
+            return pd.DataFrame() # or return None if preferred
+        df = pd.read_csv(file_path)
         return df.set_index("as_of_date")
 
     @property
@@ -47,7 +50,8 @@ class BaseDataSource(BaseModel):
         if ts_method is None:
             raise KeyError(f"Entity type '{security.entity_type}' has not been configured.")
         else:
-            return ts_method(security=security, intraday=intraday)
+            df = ts_method(security=security, intraday=intraday)
+            return self._format_ts_from_remote(df)
     
     @abstractmethod
     def _get_currency_cross_ts_from_remote(self, security: CurrencyCross, intraday: bool) -> pd.DataFrame:
@@ -63,6 +67,11 @@ class BaseDataSource(BaseModel):
 
     @abstractmethod
     def _get_fund_ts_from_remote(self, security: Fund, intraday: bool) -> pd.DataFrame:
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def _format_ts_from_remote(df: pd.DataFrame) -> pd.DataFrame:
         pass
 
     def get_all_available_data_files(self) -> Dict[str, datetime.datetime]:
