@@ -1,24 +1,17 @@
 from pydantic import BaseModel
-from typing import Dict, Any, TYPE_CHECKING
+from typing import Dict, Any, TYPE_CHECKING, Optional
 
-if TYPE_CHECKING:
-    from ..datasource.local import LocalDataSource
+from ..datasource.local import LocalDataSource
 
 class BaseMappingEntity(BaseModel):
     entity_type: str
     code: str
-
-    @classmethod
-    def _get_local_datasource(cls) -> "LocalDataSource":
-        if cls._local_datasource is None:
-            from ..datasource.local import LocalDataSource
-            cls._local_datasource = LocalDataSource()
-        return cls._local_datasource
+    local_datasource: LocalDataSource = LocalDataSource
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        lds = self._get_local_datasource()
+        lds: LocalDataSource = self.local_datasource()
 
         load_methods = {
             "security": lds.load_security,

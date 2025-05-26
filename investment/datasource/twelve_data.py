@@ -111,7 +111,7 @@ class TwelveDataDataSource(BaseDataSource):
     def available_data(self, entity_type: str) -> pd.DataFrame:
         available_entities = {
             "currency_cross": "forex_pairs",
-            "equtiy": "stocks",
+            "equity": "stocks",
             "crypto": "cryptocurrencies",
             "fund": "funds",
             "bond": "bonds",
@@ -125,4 +125,4 @@ class TwelveDataDataSource(BaseDataSource):
             response = requests.get(url)
             return pd.DataFrame(response.json().get("data"))
         else:
-            pd.DataFrame()
+            return pd.DataFrame()

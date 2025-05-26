@@ -5,19 +5,21 @@ from pathlib import Path
 from pydantic import BaseModel
 from tqdm import tqdm
 from twelvedata.exceptions import TwelveDataError
-from typing import Dict, Optional, ClassVar
+from typing import Dict, Optional, ClassVar, TYPE_CHECKING
 
 from ..config import HISTORICAL_DATA_PATH
-from ..core import Security
-from ..core.security.registry import CurrencyCross, Equity, ETF, Fund
 from ..utils.consts import DATA_START_DATE
 from ..utils.date_utils import today_midnight
+
+if TYPE_CHECKING:
+    from ..core import Security
+    from ..core.security.registry import CurrencyCross, Equity, ETF, Fund
 
 class BaseDataSource(BaseModel):
     name: ClassVar[str] = "base"
     data_start_date: datetime.datetime = DATA_START_DATE
 
-    def get_timeseries(self, security: Security, intraday: bool = False, **kwargs) -> pd.DataFrame:
+    def get_timeseries(self, security: "Security", intraday: bool = False, **kwargs) -> pd.DataFrame:
         if intraday:
             raise NotImplementedError(f"Intraday not currently supported. Should not be used.")
         
@@ -69,10 +71,10 @@ class BaseDataSource(BaseModel):
             
         return df
     
-    def _write_ts_to_local(self, security: Security, df: pd.DataFrame, intraday: bool) -> None:
+    def _write_ts_to_local(self, security: "Security", df: pd.DataFrame, intraday: bool) -> None:
         df.to_csv(security.get_file_path(datasource_name=self.name, intraday=intraday), index=True)
 
-    def _read_ts_from_local(self, security: Security, intraday: bool) -> pd.DataFrame:
+    def _read_ts_from_local(self, security: "Security", intraday: bool) -> pd.DataFrame:
         file_path = Path(security.get_file_path(datasource_name=self.name, intraday=intraday))
         if not file_path.exists():
             return pd.DataFrame() # or return None if preferred
@@ -85,7 +87,7 @@ class BaseDataSource(BaseModel):
 
     def _get_ts_from_remote(
         self,
-        security: Security, intraday: bool = False,
+        security: "Security", intraday: bool = False,
         start_date: Optional[datetime.datetime] = None,
         end_date: Optional[datetime.datetime] = None,
     ) -> pd.DataFrame:
@@ -108,19 +110,19 @@ class BaseDataSource(BaseModel):
             return self._format_ts_from_remote(df)
     
     @abstractmethod
-    def _get_currency_cross_ts_from_remote(self, security: CurrencyCross, intraday: bool) -> pd.DataFrame:
+    def _get_currency_cross_ts_from_remote(self, security: "CurrencyCross", intraday: bool) -> pd.DataFrame:
         pass
 
     @abstractmethod
-    def _get_equity_ts_from_remote(self, security: Equity, intraday: bool) -> pd.DataFrame:
+    def _get_equity_ts_from_remote(self, security: "Equity", intraday: bool) -> pd.DataFrame:
         pass
 
     @abstractmethod
-    def _get_etf_ts_from_remote(self, security: ETF, intraday: bool) -> pd.DataFrame:
+    def _get_etf_ts_from_remote(self, security: "ETF", intraday: bool) -> pd.DataFrame:
         pass
 
     @abstractmethod
-    def _get_fund_ts_from_remote(self, security: Fund, intraday: bool) -> pd.DataFrame:
+    def _get_fund_ts_from_remote(self, security: "Fund", intraday: bool) -> pd.DataFrame:
         pass
 
     @staticmethod
@@ -177,5 +179,10 @@ class BaseDataSource(BaseModel):
             except TwelveDataError as e:
                 print(f'TwelveDataError for {security.code} as "{e}"')
                 value = False
+            except Exception as e:
+                print(e)
+                value = False
             
-            di["security"] = value
+            di[security.code] = value
+
+        return di

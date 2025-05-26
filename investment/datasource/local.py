@@ -4,13 +4,12 @@ from typing import Any, Dict, Union, List, TYPE_CHECKING, ClassVar
 
 from .base import BaseDataSource
 from ..config import PORTFOLIO_PATH, BASE_PATH
-from ..core import Portfolio
-from ..core.security.registry import security_registry
 
 if TYPE_CHECKING:
     from ..core import Security
     from ..core.mapping import BaseMappingEntity
     from ..core.security.registry import CurrencyCross, Equity, ETF, Fund
+    from ..core import Portfolio
 
 class LocalDataSource(BaseDataSource):
     name: ClassVar[str] = "local"
@@ -82,7 +81,7 @@ class LocalDataSource(BaseDataSource):
             di = df.iloc[0].to_dict()
             return {k: v for k, v in di.items() if not pd.isna(v)}
 
-    def get_all_available_portfolios(self, as_instance: bool = False) -> Union[Dict[str, datetime.datetime], List[Portfolio]]:
+    def get_all_available_portfolios(self, as_instance: bool = False) -> Union[Dict[str, datetime.datetime], List["Portfolio"]]:
         """
         Get all available portfolios with last modified date.
         
@@ -93,6 +92,8 @@ class LocalDataSource(BaseDataSource):
             Union[Dict[str, datetime.datetime], List[Portfolio]]: Dictionary of file names and last modified date
             or List of Portfolios
         """
+        from ..core import Portfolio
+
         di = self._get_file_names_in_path(path=PORTFOLIO_PATH)
         if as_instance:
             return [Portfolio(name) for name, _ in di.items()]
@@ -115,6 +116,8 @@ class LocalDataSource(BaseDataSource):
         """
         List all available securities.
         """
+        from ..core.security.registry import security_registry
+
         li = []
 
         df = self._security_mapping()
