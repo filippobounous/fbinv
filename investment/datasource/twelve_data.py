@@ -131,6 +131,7 @@ class TwelveDataDataSource(BaseDataSource):
         cls.request_counter += 1
     
     def usage(self) -> Dict[str, Any]:
+        self._respect_rate_limit()
         return self.td.api_usage().as_json()
 
     def available_data(self, entity_type: str) -> pd.DataFrame:
@@ -146,6 +147,7 @@ class TwelveDataDataSource(BaseDataSource):
         }
         code = available_entities.get(entity_type)
         if code:
+            self._respect_rate_limit()
             url = f"{self.base_url}/{code}"
             response = requests.get(url)
             return pd.DataFrame(response.json().get("data"))
