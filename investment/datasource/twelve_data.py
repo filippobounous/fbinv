@@ -21,7 +21,7 @@ class TwelveDataDataSource(BaseDataSource):
     td: TDClient = TDClient(apikey=TWELVE_DATA_API_KEY)
     output_size: int = 5000
     request_counter: ClassVar[int] = 0
-    window_start: ClassVar[datetime] = datetime.utcnow() # free version limitation
+    window_start: ClassVar[datetime.datetime] = datetime.datetime.utcnow() # free version limitation
     max_requests_per_minute: ClassVar[int] = 8 # free version limitation
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -113,22 +113,22 @@ class TwelveDataDataSource(BaseDataSource):
         return pd.concat(dfs)
 
     def _respect_rate_limit(self):
-        now = datetime.utcnow()
-        if now - self.window_start >= datetime.timedelta(minutes=1):
-            # Reset the counter and window
-            self.window_start = now
-            self.request_counter = 0
+        cls = self.__class__  # For cleaner access to class variables
 
-        if self.request_counter >= self.max_requests_per_minute:
-            time_to_wait = 60 - (now - self.window_start).total_seconds()
+        now = datetime.datetime.utcnow()
+        if now - cls.window_start >= datetime.timedelta(minutes=1):
+            cls.window_start = now
+            cls.request_counter = 0
+
+        if cls.request_counter >= cls.max_requests_per_minute:
+            time_to_wait = 60 - (now - cls.window_start).total_seconds()
             if time_to_wait > 0:
                 sleep(time_to_wait)
 
-            # Start new window after sleeping
-            self.window_start = datetime.utcnow()
-            self.request_counter = 0
+            cls.window_start = datetime.datetime.utcnow()
+            cls.request_counter = 0
 
-        self.request_counter += 1
+        cls.request_counter += 1
     
     def usage(self) -> Dict[str, Any]:
         return self.td.api_usage().as_json()
