@@ -2,6 +2,7 @@ import datetime
 import pandas as pd
 from pydantic import ConfigDict
 import requests
+from time import sleep
 from twelvedata import TDClient
 from typing import TYPE_CHECKING, List, Dict, Union, ClassVar, Tuple, Any
 
@@ -15,10 +16,13 @@ if TYPE_CHECKING:
 
 class TwelveDataDataSource(BaseDataSource):
     name: ClassVar[str] = "twelve_data"
+    data_start_date: datetime.datetime = datetime.datetime(2003,12,1)
     base_url: str = "https://api.twelvedata.com"
     td: TDClient = TDClient(apikey=TWELVE_DATA_API_KEY)
     output_size: int = 5000
-    data_start_date: datetime.datetime = datetime.datetime(2003,12,1)
+    request_counter: ClassVar[int] = 0
+    window_start: ClassVar[datetime] = datetime.utcnow()
+    max_requests_per_minute: ClassVar[int] = 8
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
@@ -89,21 +93,42 @@ class TwelveDataDataSource(BaseDataSource):
         symbol: str, intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
-        interval =  "1min" if intraday else "1day"
-        
+        interval = "1min" if intraday else "1day"
         dfs = []
         dates = self._get_dates(start_date=start_date, end_date=end_date, intraday=intraday)
 
         for _start_date, _end_date in dates:
-            dfs.append(self.td.time_series(
+            self._respect_rate_limit()
+
+            df = self.td.time_series(
                 symbol=symbol,
                 interval=interval,
                 outputsize=self.output_size,
                 start_date=_start_date.strftime("%Y-%m-%d"),
                 end_date=_end_date.strftime("%Y-%m-%d"),
-            ).as_pandas())
+            ).as_pandas()
+
+            dfs.append(df)
 
         return pd.concat(dfs)
+
+    def _respect_rate_limit(self):
+        now = datetime.utcnow()
+        if now - self.window_start >= datetime.timedelta(minutes=1):
+            # Reset the counter and window
+            self.window_start = now
+            self.request_counter = 0
+
+        if self.request_counter >= self.max_requests_per_minute:
+            time_to_wait = 60 - (now - self.window_start).total_seconds()
+            if time_to_wait > 0:
+                sleep(time_to_wait)
+
+            # Start new window after sleeping
+            self.window_start = datetime.utcnow()
+            self.request_counter = 0
+
+        self.request_counter += 1
     
     def usage(self) -> Dict[str, Any]:
         return self.td.api_usage().as_json()
