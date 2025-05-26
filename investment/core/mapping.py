@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Dict, Any, ClassVar, Optional, TYPE_CHECKING
+from typing import Dict, Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..datasource.local import LocalDataSource
