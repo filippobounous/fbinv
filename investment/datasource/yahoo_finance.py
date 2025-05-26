@@ -9,7 +9,7 @@ from ..utils.consts import DATA_START_DATE
 from ..utils.date_utils import today_midnight
 
 if TYPE_CHECKING:
-    from ..core.security.registry import CurrencyCross, Equity, ETF, Fund
+    from ..core.security.registry import CurrencyCross, Equity, ETF, Fund, Security
 
 # https://ranaroussi.github.io/yfinance/
 
@@ -21,9 +21,8 @@ class YahooFinanceDataSource(BaseDataSource):
         security: 'CurrencyCross', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
-        symbol = security.yahoo_finance_code
-        return self._time_series(
-            symbol=symbol, intraday=intraday,
+        return self._get_security_ts_from_remote(
+            security=security, intraday=intraday,
             start_date=start_date, end_date=end_date,
         )
 
@@ -32,21 +31,41 @@ class YahooFinanceDataSource(BaseDataSource):
         security: 'Equity', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
-        raise NotImplementedError("Method not implemented.")
+        return self._get_security_ts_from_remote(
+            security=security, intraday=intraday,
+            start_date=start_date, end_date=end_date,
+        )
 
     def _get_etf_ts_from_remote(
         self,
         security: 'ETF', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
-        raise NotImplementedError("Method not implemented.")
+        return self._get_security_ts_from_remote(
+            security=security, intraday=intraday,
+            start_date=start_date, end_date=end_date,
+        )
 
     def _get_fund_ts_from_remote(
         self,
         security: 'Fund', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
-        raise NotImplementedError("Method not implemented.")
+        return self._get_security_ts_from_remote(
+            security=security, intraday=intraday,
+            start_date=start_date, end_date=end_date,
+        )
+    
+    def _get_security_ts_from_remote(
+        self,
+        security: "Security", intraday: bool,
+        start_date: datetime.datetime, end_date: datetime.datetime,
+    ) -> pd.DataFrame:
+        symbol = security.yahoo_finance_code
+        return self._time_series(
+            symbol=symbol, intraday=intraday,
+            start_date=start_date, end_date=end_date,
+        )
     
     @staticmethod
     def _format_ts_from_remote(df: pd.DataFrame) -> pd.DataFrame:
