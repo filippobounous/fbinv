@@ -4,6 +4,7 @@ from .alpha_vantage import AlphaVantageDataSource
 from .bloomberg import BloombergDataSource
 from .financial_times import FinancialTimesDataSource
 from .local import LocalDataSource
+from .open_figi import OpenFigiDataSource
 from .twelve_data import TwelveDataDataSource
 from .yahoo_finance import YahooFinanceDataSource
 
@@ -15,6 +16,7 @@ all_data_source: List["BaseDataSource"] = [
     BloombergDataSource,
     FinancialTimesDataSource,
     LocalDataSource,
+    OpenFigiDataSource,
     TwelveDataDataSource,
     YahooFinanceDataSource,
 ]
