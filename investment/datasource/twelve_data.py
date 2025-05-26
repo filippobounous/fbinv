@@ -21,8 +21,8 @@ class TwelveDataDataSource(BaseDataSource):
     td: TDClient = TDClient(apikey=TWELVE_DATA_API_KEY)
     output_size: int = 5000
     request_counter: ClassVar[int] = 0
-    window_start: ClassVar[datetime] = datetime.utcnow()
-    max_requests_per_minute: ClassVar[int] = 8
+    window_start: ClassVar[datetime] = datetime.utcnow() # free version limitation
+    max_requests_per_minute: ClassVar[int] = 8 # free version limitation
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
