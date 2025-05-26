@@ -6,6 +6,7 @@ from ..mapping import BaseMappingEntity
 class Security(BaseMappingEntity):
     entity_type: ClassVar[str] = "security"
     name: Optional[str] = None
+    figi_code: Optional[str] = None
     reporting_currency: Optional[str] = None
     currency: Optional[str] = None
     financial_times_code: Optional[str] = None
