@@ -111,7 +111,7 @@ class LocalDataSource(BaseDataSource):
     def _reporting_currency() -> pd.DataFrame:
         return pd.read_csv(f"{BASE_PATH}/reporting_currency.csv")
         
-    def get_all_available_securities(self, as_instance: bool = False) -> List[Union[str, "Security"]]:
+    def get_all_available_securities(self, column: str = "code", as_instance: bool = False) -> List[Union[str, "Security"]]:
         """
         List all available securities.
         """
@@ -121,7 +121,7 @@ class LocalDataSource(BaseDataSource):
         
         if as_instance:
             for _, row in df.iterrows():
-                code = row.get("code")
+                code = row.get(column)
                 entity_type = row.get("type")
 
                 obj  = security_registry.get(entity_type)
@@ -129,6 +129,21 @@ class LocalDataSource(BaseDataSource):
                 if obj:
                     li.append(obj(code))
         else:
-            li = df["code"].to_list()
+            li = df[column].to_list()
         
         return li
+
+    def update_security_mappings(self) -> None:
+        from .open_figi import OpenFigiDataSource
+
+        figis = self.get_all_available_securities(
+            column="figi_code",
+            as_instance=False,
+        )
+        
+        df = OpenFigiDataSource().update_security_mapping(
+            figis=figis,
+        )
+        
+        output_path = f"{BASE_PATH}/figi_security_mapping.csv"
+        df.to_csv(output_path, index=False)
