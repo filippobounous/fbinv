@@ -147,7 +147,6 @@ class TwelveDataDataSource(BaseDataSource):
         }
         code = available_entities.get(entity_type)
         if code:
-            self._respect_rate_limit()
             url = f"{self.base_url}/{code}"
             response = requests.get(url)
             return pd.DataFrame(response.json().get("data"))
