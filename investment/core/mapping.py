@@ -6,12 +6,12 @@ from ..datasource.local import LocalDataSource
 class BaseMappingEntity(BaseModel):
     entity_type: str
     code: str
-    local_datasource: LocalDataSource = LocalDataSource
+    _local_datasource: LocalDataSource = LocalDataSource
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        lds: LocalDataSource = self.local_datasource()
+        lds: LocalDataSource = self._local_datasource()
 
         load_methods = {
             "security": lds.load_security,
