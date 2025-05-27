@@ -34,9 +34,12 @@ class Security(BaseMappingEntity):
             raise ValueError(f"{self.code} is missing required values for: {missing}.")
 
     def get_file_path(self, datasource_name: str, intraday: bool) -> str:
-        from ...datasource.local import LocalDataSource
+        from ...datasource.registry import LocalDataSource, OpenFigiDataSource
+
         if datasource_name == LocalDataSource.name:
             _file_name = "code"
+        elif datasource_name == OpenFigiDataSource.name:
+            _file_name = "figi_code"
         else:
             _file_name = getattr(self, f"{datasource_name}_code", None)
 

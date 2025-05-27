@@ -20,28 +20,28 @@ class LocalDataSource(BaseDataSource):
         security: 'CurrencyCross', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
-        raise DataSourceMethodException(f"No remote source for {self.name} datasource.")
+        raise DataSourceMethodException(f"No remote series for {self.name} datasource for {security.code}.")
 
     def _get_equity_ts_from_remote(
         self,
         security: 'Equity', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
-        raise DataSourceMethodException(f"No remote source for {self.name} datasource.")
+        raise DataSourceMethodException(f"No remote series for {self.name} datasource for {security.code}.")
 
     def _get_etf_ts_from_remote(
         self,
         security: 'ETF', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
-        raise DataSourceMethodException(f"No remote source for {self.name} datasource.")
+        raise DataSourceMethodException(f"No remote series for {self.name} datasource for {security.code}.")
 
     def _get_fund_ts_from_remote(
         self,
         security: 'Fund', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
-        raise DataSourceMethodException(f"No remote source for {self.name} datasource.")
+        raise DataSourceMethodException(f"No remote series for {self.name} datasource for {security.code}.")
     
     @staticmethod
     def _format_ts_from_remote(df: pd.DataFrame) -> pd.DataFrame:
@@ -134,4 +134,4 @@ class LocalDataSource(BaseDataSource):
         return li
 
     def _update_security_mapping(self, df: pd.DataFrame) -> pd.DataFrame:
-        raise DataSourceMethodException(f"No remote source for {self.name} datasource.")
+        raise DataSourceMethodException(f"No remote series for {self.name} datasource for {security.code}.")
