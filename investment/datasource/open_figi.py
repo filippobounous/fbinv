@@ -33,7 +33,7 @@ class OpenFigiDataSource(BaseDataSource):
     def _format_ts_from_remote(df: pd.DataFrame) -> pd.DataFrame:
         raise NotImplementedError(f"Not implemented.")
 
-    def update_security_mapping(
+    def _update_security_mapping(
         self,
         figis: List[str],
         batch_size: int = 100,
