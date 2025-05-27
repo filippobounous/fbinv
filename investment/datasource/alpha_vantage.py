@@ -1,3 +1,4 @@
+import datetime
 import pandas as pd
 import requests
 from typing import TYPE_CHECKING, ClassVar
@@ -17,7 +18,11 @@ class AlphaVantageDataSource(BaseDataSource):
     name: ClassVar[str] = "alpha_vantage"
     base_url: str = "https://www.alphavantage.co/query"
 
-    def _get_currency_cross_ts_from_remote(self, security: 'CurrencyCross', intraday: bool) -> pd.DataFrame:
+    def _get_currency_cross_ts_from_remote(
+        self,
+        security: 'CurrencyCross', intraday: bool,
+        start_date: datetime.datetime, end_date: datetime.datetime,
+    ) -> pd.DataFrame:
         params = {}
         if intraday:
             function_param = "FX_INTRADAY"
@@ -38,7 +43,11 @@ class AlphaVantageDataSource(BaseDataSource):
 
         return pd.DataFrame(data)
 
-    def _get_equity_ts_from_remote(self, security: 'Equity', intraday: bool) -> pd.DataFrame:
+    def _get_equity_ts_from_remote(
+        self,
+        security: 'Equity', intraday: bool,
+        start_date: datetime.datetime, end_date: datetime.datetime,
+    ) -> pd.DataFrame:
         params = {}
         if intraday:
             function_param = "TIME_SERIES_INTRADAY"
@@ -63,12 +72,23 @@ class AlphaVantageDataSource(BaseDataSource):
 
         return pd.DataFrame(data)
 
-    def _get_etf_ts_from_remote(self, security: 'ETF', intraday: bool) -> pd.DataFrame:
+    def _get_etf_ts_from_remote(
+        self,
+        security: 'ETF', intraday: bool,
+        start_date: datetime.datetime, end_date: datetime.datetime,
+    ) -> pd.DataFrame:
         raise DataSourceMethodException("Method not implemented.")
 
-    def _get_fund_ts_from_remote(self, security: 'Fund', intraday: bool) -> pd.DataFrame:
+    def _get_fund_ts_from_remote(
+        self,
+        security: 'Fund', intraday: bool,
+        start_date: datetime.datetime, end_date: datetime.datetime,
+    ) -> pd.DataFrame:
         raise DataSourceMethodException("Method not implemented.")
     
     @staticmethod
     def _format_ts_from_remote(df: pd.DataFrame) -> pd.DataFrame:
-        pass # TODO
+        return df
+
+    def _update_security_mapping(self, df: pd.DataFrame) -> pd.DataFrame:
+        raise DataSourceMethodException(f"No remote security mapping for {self.name} datasource.")
