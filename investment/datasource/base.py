@@ -216,8 +216,8 @@ class BaseDataSource(BaseModel):
     def full_update(self, intraday: bool = False) -> Dict[str, bool]:
         from .local import LocalDataSource
 
-        di = self.update_all_securities(intraday=intraday)
         df_mapping = self.update_security_mappings()
+        di = self.update_all_securities(intraday=intraday)
         
         li = LocalDataSource().get_all_available_securities(as_instance=True)
 
