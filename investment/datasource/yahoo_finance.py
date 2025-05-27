@@ -1,6 +1,7 @@
 import datetime
 import pandas as pd
 import re
+from tqdm import tqdm
 from typing import TYPE_CHECKING, ClassVar
 import yfinance as yf
 
@@ -94,3 +95,7 @@ class YahooFinanceDataSource(BaseDataSource):
             end=end_date.strftime("%Y-%m-%d"),
             auto_adjust=True,
         )
+
+    def _update_security_mapping(self, df: pd.DataFrame) -> pd.DataFrame:
+        dict_list = [yf.Ticker(sec).info for sec in df[self.internal_mapping_code].to_list()]
+        return pd.DataFrame(dict_list)
