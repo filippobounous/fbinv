@@ -99,10 +99,6 @@ class LocalDataSource(BaseDataSource):
             return [Portfolio(name) for name, _ in di.items()]
         else:
             return di
-    
-    @staticmethod
-    def _security_mapping() -> pd.DataFrame:
-        return pd.read_csv(f"{BASE_PATH}/security_mapping.csv")
 
     @staticmethod
     def _portfolio_mapping() -> pd.DataFrame:
@@ -136,17 +132,5 @@ class LocalDataSource(BaseDataSource):
         
         return li
 
-    def update_security_mappings(self) -> None:
-        from .open_figi import OpenFigiDataSource
-
-        figis = self.get_all_available_securities(
-            column="figi_code",
-            as_instance=False,
-        )
-        
-        df = OpenFigiDataSource().update_security_mapping(
-            figis=figis,
-        )
-        
-        output_path = f"{BASE_PATH}/figi_security_mapping.csv"
-        df.to_csv(output_path, index=False)
+    def _update_security_mapping(self, df: pd.DataFrame) -> pd.DataFrame:
+        raise NotImplementedError(f"No remote source for {self.name} datasource.")
