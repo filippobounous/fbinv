@@ -1,7 +1,6 @@
 import datetime
 import pandas as pd
 import re
-from tqdm import tqdm
 from typing import TYPE_CHECKING, ClassVar
 import yfinance as yf
 
