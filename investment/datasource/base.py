@@ -5,12 +5,12 @@ from pathlib import Path
 from pydantic import BaseModel
 from tqdm import tqdm
 from typing import Dict, Optional, ClassVar, TYPE_CHECKING
-from warnings import warn
 
 from ..config import HISTORICAL_DATA_PATH, BASE_PATH
 from ..utils.consts import DATA_START_DATE
 from ..utils.date_utils import today_midnight
 from ..utils.exceptions import DataSourceMethodException
+from ..utils.warnings import warnings
 
 if TYPE_CHECKING:
     from ..core import Security
@@ -70,10 +70,10 @@ class BaseDataSource(BaseModel):
                     ))
 
         except DataSourceMethodException:
-            warn(f"No remote series for {self.name} datasource for {security.code}.")
+            warnings.warn(f"No remote series for {self.name} datasource for {security.code}.")
         
         except Exception as e:
-            warn(f"""
+            warnings.warn(f"""
             Exception for {self.name} datasource for {security.code} as "{e}" for params:
             start_date({start_date}), end_date({end_date}), intraday({intraday}),
             empty({empty}), lower_bound_missing({lower_bound_missing}), upper_bound_missing({upper_bound_missing}),
@@ -211,10 +211,10 @@ class BaseDataSource(BaseModel):
 
         except DataSourceMethodException:
             df = pd.DataFrame()
-            warn(f"No remote security mapping for {self.name} datasource.")
+            warnings.warn(f"No remote security mapping for {self.name} datasource.")
 
         except Exception as e:
-            warn(f"""
+            warnings.warn(f"""
             Exception for {self.name} datasource as "{e}" while updating security mappings
             """)
 
