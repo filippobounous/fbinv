@@ -190,7 +190,6 @@ class BaseDataSource(BaseModel):
         di = {}
         for security in tqdm(li, desc=f"Updating securities for {self.name}"):
             df = self.get_timeseries(security=security, intraday=intraday, **kwargs)
-            value = False if df.empty else True
             
             di[security.code] = not df.empty
 
@@ -202,13 +201,13 @@ class BaseDataSource(BaseModel):
     
     def update_security_mappings(self) -> pd.DataFrame:
         from .registry import LocalDataSource
-
-        df = LocalDataSource()._security_mapping()
-
-        df = self._update_security_mapping(df=df)
-        
-        df.to_csv(self._security_mapping_path, index=False)
-
+        try:
+            df = LocalDataSource()._security_mapping()
+            df = self._update_security_mapping(df=df)
+            df.to_csv(self._security_mapping_path, index=False)
+        except:
+            df = pd.DataFrame()
+            print(f"No remote security mapping for {self.name}")
         return df
 
     def full_update(self, intraday: bool = False) -> Dict[str, bool]:
