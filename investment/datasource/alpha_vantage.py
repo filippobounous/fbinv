@@ -1,11 +1,11 @@
 import datetime
 import pandas as pd
 import requests
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING, ClassVar, Dict, Any
 
 from .base import BaseDataSource
 from ..config import ALPHA_VANTAGE_API_KEY
-from ..utils.exceptions import DataSourceMethodException
+from ..utils.exceptions import DataSourceMethodException, AlphaVantageException
 
 if TYPE_CHECKING:
     from ..core.security.registry import CurrencyCross, Equity, ETF, Fund
@@ -39,9 +39,10 @@ class AlphaVantageDataSource(BaseDataSource):
             "apikey": ALPHA_VANTAGE_API_KEY,
         })
         
-        data = requests.get(self.base_url, params=params).json()
+        response = self._get_response(self.base_url, params=params)
+        data = None if intraday else response.get('Time Series FX (Daily)')
 
-        return pd.DataFrame(data)
+        return pd.DataFrame(data).T
 
     def _get_equity_ts_from_remote(
         self,
@@ -67,10 +68,11 @@ class AlphaVantageDataSource(BaseDataSource):
             "datatype": "json",
             "apikey": ALPHA_VANTAGE_API_KEY,
         })
-        
-        data = requests.get(self.base_url, params=params).json()
 
-        return pd.DataFrame(data)
+        response = self._get_response(self.base_url, params=params)
+        data = None
+
+        return pd.DataFrame(data).T
 
     def _get_etf_ts_from_remote(
         self,
@@ -88,7 +90,26 @@ class AlphaVantageDataSource(BaseDataSource):
     
     @staticmethod
     def _format_ts_from_remote(df: pd.DataFrame) -> pd.DataFrame:
+        df = df.reset_index().rename(columns={
+            "index": "as_of_date",
+            "1. open": "open",
+            "2. high": "high",
+            "3. low": "low",
+            "4. close": "close",
+        })
+        df['as_of_date'] = pd.to_datetime(df['as_of_date'])
         return df
+    
+    @staticmethod
+    def _check_response(data: Dict[str, Any]) -> None:
+        info = data.get("Information")
+        if info and "standard API rate limit" in info:
+            raise AlphaVantageException(f"AlphaVantageException, rate limit exceeded: '{info}'")
+        
+    def _get_response(self, url: str, params: Dict[str, Any]) -> Dict[str, Any]:
+        data = requests.get(url=url, params=params).json()
+        self._check_response(data=data)
+        return data
 
     def _update_security_mapping(self, df: pd.DataFrame) -> pd.DataFrame:
         raise DataSourceMethodException(f"No remote security mapping for {self.name} datasource.")
