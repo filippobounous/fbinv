@@ -4,6 +4,7 @@ from typing import Any, Dict, Union, List, TYPE_CHECKING, ClassVar
 
 from .base import BaseDataSource
 from ..config import PORTFOLIO_PATH, BASE_PATH
+from ..utils.exceptions import DataSourceMethodException
 
 if TYPE_CHECKING:
     from ..core import Security
@@ -19,32 +20,32 @@ class LocalDataSource(BaseDataSource):
         security: 'CurrencyCross', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
-        raise NotImplementedError(f"No remote source for {self.name} datasource.")
+        raise DataSourceMethodException(f"No remote source for {self.name} datasource.")
 
     def _get_equity_ts_from_remote(
         self,
         security: 'Equity', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
-        raise NotImplementedError(f"No remote source for {self.name} datasource.")
+        raise DataSourceMethodException(f"No remote source for {self.name} datasource.")
 
     def _get_etf_ts_from_remote(
         self,
         security: 'ETF', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
-        raise NotImplementedError(f"No remote source for {self.name} datasource.")
+        raise DataSourceMethodException(f"No remote source for {self.name} datasource.")
 
     def _get_fund_ts_from_remote(
         self,
         security: 'Fund', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
-        raise NotImplementedError(f"No remote source for {self.name} datasource.")
+        raise DataSourceMethodException(f"No remote source for {self.name} datasource.")
     
     @staticmethod
     def _format_ts_from_remote(df: pd.DataFrame) -> pd.DataFrame:
-        raise NotImplementedError(f"Not implemented.")
+        raise DataSourceMethodException(f"Not implemented.")
 
     def load_portfolio(self, portfolio: "Portfolio") -> Dict[str, Any]:
         """
@@ -133,4 +134,4 @@ class LocalDataSource(BaseDataSource):
         return li
 
     def _update_security_mapping(self, df: pd.DataFrame) -> pd.DataFrame:
-        raise NotImplementedError(f"No remote source for {self.name} datasource.")
+        raise DataSourceMethodException(f"No remote source for {self.name} datasource.")

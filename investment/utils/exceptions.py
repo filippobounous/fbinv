@@ -1,0 +1,2 @@
+class DataSourceMethodException(Exception):
+    pass

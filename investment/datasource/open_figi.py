@@ -4,8 +4,8 @@ from time import sleep
 from typing import TYPE_CHECKING, ClassVar, List
 
 from .base import BaseDataSource
-from ..config import OPEN_FIGI_API_KEY, BASE_PATH
-from .local import LocalDataSource
+from ..config import OPEN_FIGI_API_KEY
+from ..utils.exceptions import DataSourceMethodException
 
 if TYPE_CHECKING:
     from ..core.security.registry import CurrencyCross, Equity, ETF, Fund
@@ -18,20 +18,20 @@ class OpenFigiDataSource(BaseDataSource):
     base_url: str = "https://api.openfigi.com/v3/mapping"
 
     def _get_currency_cross_ts_from_remote(self, security: 'CurrencyCross', intraday: bool) -> pd.DataFrame:
-        raise NotImplementedError(f"No remote source for {self.name} datasource.")
+        raise DataSourceMethodException(f"No remote source for {self.name} datasource.")
 
     def _get_equity_ts_from_remote(self, security: 'Equity', intraday: bool) -> pd.DataFrame:
-        raise NotImplementedError(f"No remote source for {self.name} datasource.")
+        raise DataSourceMethodException(f"No remote source for {self.name} datasource.")
 
     def _get_etf_ts_from_remote(self, security: 'ETF', intraday: bool) -> pd.DataFrame:
-        raise NotImplementedError(f"No remote source for {self.name} datasource.")
+        raise DataSourceMethodException(f"No remote source for {self.name} datasource.")
 
     def _get_fund_ts_from_remote(self, security: 'Fund', intraday: bool) -> pd.DataFrame:
-        raise NotImplementedError(f"No remote source for {self.name} datasource.")
+        raise DataSourceMethodException(f"No remote source for {self.name} datasource.")
     
     @staticmethod
     def _format_ts_from_remote(df: pd.DataFrame) -> pd.DataFrame:
-        raise NotImplementedError(f"Not implemented.")
+        raise DataSourceMethodException(f"Not implemented.")
 
     def _update_security_mapping(
         self,

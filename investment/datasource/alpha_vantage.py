@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, ClassVar
 
 from .base import BaseDataSource
 from ..config import ALPHA_VANTAGE_API_KEY
+from ..utils.exceptions import DataSourceMethodException
 
 if TYPE_CHECKING:
     from ..core.security.registry import CurrencyCross, Equity, ETF, Fund
@@ -63,10 +64,10 @@ class AlphaVantageDataSource(BaseDataSource):
         return pd.DataFrame(data)
 
     def _get_etf_ts_from_remote(self, security: 'ETF', intraday: bool) -> pd.DataFrame:
-        raise NotImplementedError("Method not implemented.")
+        raise DataSourceMethodException("Method not implemented.")
 
     def _get_fund_ts_from_remote(self, security: 'Fund', intraday: bool) -> pd.DataFrame:
-        raise NotImplementedError("Method not implemented.")
+        raise DataSourceMethodException("Method not implemented.")
     
     @staticmethod
     def _format_ts_from_remote(df: pd.DataFrame) -> pd.DataFrame:

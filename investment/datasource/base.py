@@ -9,6 +9,7 @@ from typing import Dict, Optional, ClassVar, TYPE_CHECKING
 from ..config import HISTORICAL_DATA_PATH, BASE_PATH
 from ..utils.consts import DATA_START_DATE
 from ..utils.date_utils import today_midnight
+from ..utils.exceptions import DataSourceMethodException
 
 if TYPE_CHECKING:
     from ..core import Security
@@ -31,7 +32,7 @@ class BaseDataSource(BaseModel):
 
     def get_timeseries(self, security: "Security", intraday: bool = False, **kwargs) -> pd.DataFrame:
         if intraday:
-            raise NotImplementedError(f"Intraday not currently supported. Should not be used.")
+            raise DataSourceMethodException(f"Intraday not currently supported. Should not be used.")
         
         df = self._read_ts_from_local(security=security, intraday=intraday)
 
@@ -67,8 +68,9 @@ class BaseDataSource(BaseModel):
                         end_date=end_date,
                     ))
 
-        except NotImplementedError:
+        except DataSourceMethodException:
             print(f"No remote series for {self.name}")
+        
         except Exception as e:
             print(f"""
             Exception for {security.code} as "{e}" for params:
@@ -205,9 +207,16 @@ class BaseDataSource(BaseModel):
             df = LocalDataSource()._security_mapping()
             df = self._update_security_mapping(df=df)
             df.to_csv(self._security_mapping_path, index=False)
-        except:
+
+        except DataSourceMethodException:
             df = pd.DataFrame()
             print(f"No remote security mapping for {self.name}")
+
+        except Exception as e:
+            print(f"""
+            Exception for {self.name} as "{e}" while updating security mappings
+            """)
+
         return df
 
     def full_update(self, intraday: bool = False) -> Dict[str, bool]:
