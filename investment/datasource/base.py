@@ -4,8 +4,7 @@ import pandas as pd
 from pathlib import Path
 from pydantic import BaseModel
 from tqdm import tqdm
-from twelvedata.exceptions import TwelveDataError
-from typing import Dict, Optional, ClassVar, TYPE_CHECKING, List
+from typing import Dict, Optional, ClassVar, TYPE_CHECKING
 
 from ..config import HISTORICAL_DATA_PATH, BASE_PATH
 from ..utils.consts import DATA_START_DATE
@@ -69,7 +68,13 @@ class BaseDataSource(BaseModel):
                     ))
 
         except NotImplementedError:
-            pass
+            print(f"No remote series for {self.name}")
+        except Exception as e:
+            print(f"""
+            Exception for {security.code} as "{e}" for params:
+            start_date({start_date}), end_date({end_date}), intraday({intraday}),
+            empty({empty}), lower_bound_missing({lower_bound_missing}), upper_bound_missing({upper_bound_missing}),
+            """)
         
         if df_to_concat:
             df_to_concat.append(df)
@@ -184,17 +189,10 @@ class BaseDataSource(BaseModel):
 
         di = {}
         for security in tqdm(li, desc=f"Updating securities for {self.name}"):
-            try:
-                df = self.get_timeseries(security=security, intraday=intraday, **kwargs)
-                value = False if df.empty else True
-            except TwelveDataError as e:
-                print(f'TwelveDataError for {security.code} as "{e}"')
-                value = False
-            except Exception as e:
-                print(f'Security error as "{e}"')
-                value = False
+            df = self.get_timeseries(security=security, intraday=intraday, **kwargs)
+            value = False if df.empty else True
             
-            di[security.code] = value
+            di[security.code] = not df.empty
 
         return di
     
