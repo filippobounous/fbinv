@@ -1,22 +1,24 @@
 import datetime
 import pandas as pd
 from pydantic import ConfigDict
+from itertools import product
 import requests
 from time import sleep
+from tqdm import tqdm
 from twelvedata import TDClient
-from typing import TYPE_CHECKING, List, Dict, Union, ClassVar, Tuple, Any
+from typing import TYPE_CHECKING, List, Dict, ClassVar, Tuple, Any, Optional
+import warnings
 
 from .base import BaseDataSource
 from ..config import TWELVE_DATA_API_KEY
 
 if TYPE_CHECKING:
-    from ..core.security.registry import CurrencyCross, Equity, ETF, Fund
+    from ..core.security.registry import CurrencyCross, Equity, ETF, Fund, Security
 
 # https://github.com/twelvedata/twelvedata-python
 
 class TwelveDataDataSource(BaseDataSource):
     name: ClassVar[str] = "twelve_data"
-    data_start_date: datetime.datetime = datetime.datetime(2003,12,1)
     base_url: str = "https://api.twelvedata.com"
     td: TDClient = TDClient(apikey=TWELVE_DATA_API_KEY)
     output_size: int = 5000
@@ -31,9 +33,8 @@ class TwelveDataDataSource(BaseDataSource):
         security: 'CurrencyCross', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
-        symbol = f"{security.currency_vs}/{security.currency}"
-        return self._time_series(
-            symbol=symbol, intraday=intraday,
+        return self._get_security_ts_from_remote(
+            security=security, intraday=intraday,
             start_date=start_date, end_date=end_date,
         )
 
@@ -42,25 +43,47 @@ class TwelveDataDataSource(BaseDataSource):
         security: 'Equity', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
-        raise NotImplementedError("Method not implemented.")
+        return self._get_security_ts_from_remote(
+            security=security, intraday=intraday,
+            start_date=start_date, end_date=end_date,
+        )
 
     def _get_etf_ts_from_remote(
         self,
         security: 'ETF', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
-        raise NotImplementedError("Method not implemented.")
+        return self._get_security_ts_from_remote(
+            security=security, intraday=intraday,
+            start_date=start_date, end_date=end_date,
+        )
 
     def _get_fund_ts_from_remote(
         self,
         security: 'Fund', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
-        raise NotImplementedError("Method not implemented.")
+        return self._get_security_ts_from_remote(
+            security=security, intraday=intraday,
+            start_date=start_date, end_date=end_date,
+        )
+
+    def _get_security_ts_from_remote(
+        self,
+        security: 'Security', intraday: bool,
+        start_date: datetime.datetime, end_date: datetime.datetime,
+    ) -> pd.DataFrame:
+        return self._time_series(
+            symbol=security.twelve_data_code, intraday=intraday,
+            start_date=start_date, end_date=end_date,
+        )
     
     @staticmethod
     def _format_ts_from_remote(df: pd.DataFrame) -> pd.DataFrame:
-        return df.reset_index().rename(columns={"datetime": "as_of_date"})
+        if df.empty:
+            return pd.DataFrame()
+        else:
+            return df.reset_index().rename(columns={"datetime": "as_of_date"})
     
     def _get_dates(
         self,
@@ -93,24 +116,53 @@ class TwelveDataDataSource(BaseDataSource):
         symbol: str, intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
-        interval = "1min" if intraday else "1day"
+        interval = self._interval_code(intraday=intraday)
         dfs = []
-        dates = self._get_dates(start_date=start_date, end_date=end_date, intraday=intraday)
 
-        for _start_date, _end_date in dates:
-            self._respect_rate_limit()
+        min_start_date = self._check_start_date_for_security(symbol=symbol, intraday=intraday)
 
-            df = self.td.time_series(
-                symbol=symbol,
-                interval=interval,
-                outputsize=self.output_size,
-                start_date=_start_date.strftime("%Y-%m-%d"),
-                end_date=_end_date.strftime("%Y-%m-%d"),
-            ).as_pandas()
+        if min_start_date:
+            start_date = max(start_date, min_start_date)
+            dates = self._get_dates(start_date=start_date, end_date=end_date, intraday=intraday)
 
-            dfs.append(df)
+            for _start_date, _end_date in dates:
+                self._respect_rate_limit()
 
-        return pd.concat(dfs)
+                df = self.td.time_series(
+                    symbol=symbol,
+                    interval=interval,
+                    outputsize=self.output_size,
+                    start_date=_start_date.strftime("%Y-%m-%d"),
+                    end_date=_end_date.strftime("%Y-%m-%d"),
+                ).as_pandas()
+
+                dfs.append(df)
+
+            return pd.concat(dfs)
+        else:
+            return pd.DataFrame()
+    
+    def _check_start_date_for_security(self, symbol: str, intraday: bool) -> Optional[datetime.datetime]:
+        df = self._security_mapping()
+
+        if symbol not in df["symbol"].to_list():
+            warnings.warn(f"Updating mapping for {symbol} in {self.name} datasource.")
+
+            df = self.update_security_mappings()
+
+            if symbol not in df["symbol"]:
+                warnings.warn(f"Missing mapping for {symbol} in {self.name} datasource.")
+        
+        row = df[df["symbol"] == symbol].iloc[0].to_dict()
+        value = row.get(self._earliest_date_column(intraday=intraday))
+
+        return pd.to_datetime(value) if (value and not pd.isna(value)) else None
+    
+    def _interval_code(self, intraday: bool) -> str:
+        return "1min" if intraday else "1day"
+    
+    def _earliest_date_column(self, intraday: bool) -> str:
+        return f"earliest_date_intraday_{intraday}"
 
     def _respect_rate_limit(self):
         cls = self.__class__  # For cleaner access to class variables
@@ -123,6 +175,7 @@ class TwelveDataDataSource(BaseDataSource):
         if cls.request_counter >= cls.max_requests_per_minute:
             time_to_wait = 60 - (now - cls.window_start).total_seconds()
             if time_to_wait > 0:
+                print(f"Pausing for {time_to_wait} seconds.")
                 sleep(time_to_wait)
 
             cls.window_start = datetime.datetime.utcnow()
@@ -149,6 +202,52 @@ class TwelveDataDataSource(BaseDataSource):
         if code:
             url = f"{self.base_url}/{code}"
             response = requests.get(url)
-            return pd.DataFrame(response.json().get("data"))
+            if entity_type in ["fund", "bond"]:
+                data = response.json().get('result').get('list')
+            else:
+                data = response.json().get("data")
+            return pd.DataFrame(data)
         else:
             return pd.DataFrame()
+        
+    def earliest_date(self, symbol: str, intraday: bool = False) -> Optional[datetime.datetime]:
+        self._respect_rate_limit()
+        params = {
+            "symbol": symbol,
+            "apikey": TWELVE_DATA_API_KEY,
+            "interval": self._interval_code(intraday=intraday),
+        }
+        url = f"{self.base_url}/earliest_timestamp"
+        response = requests.get(url, params=params)
+
+        data = response.json()
+        if data.get("status") == "error":
+            return None
+        else:
+            return datetime.datetime.utcfromtimestamp(data.get("unix_time"))
+        
+    def _update_security_mapping(self, df: pd.DataFrame) -> pd.DataFrame:
+        df_list = []
+        for entity_type, _df in tqdm(df.groupby("type"), desc=f"Updating security mapping for entities for {self.name}"):
+            mapping_df = self.available_data(entity_type=entity_type)
+
+            df_merged = mapping_df.merge(
+                _df[[self.internal_mapping_code]],
+                left_on="symbol", right_on=self.internal_mapping_code,
+                how="right",
+            ).drop(columns=self.internal_mapping_code)
+
+            df_list.append(df_merged)
+
+        df_mapping = pd.concat(df_list)
+
+        for symbol, intraday in product(df_mapping["symbol"].to_list(), [True, False]):
+            date = self.earliest_date(symbol=symbol, intraday=intraday)
+            
+            col_name = self._earliest_date_column(intraday=intraday)
+            if col_name not in df_mapping.columns:
+                df_mapping[col_name] = None
+            
+            df_mapping.loc[df_mapping["symbol"] == symbol, col_name] = date
+
+        return df_mapping
