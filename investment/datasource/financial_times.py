@@ -25,3 +25,6 @@ class FinancialTimesDataSource(BaseDataSource):
     @staticmethod
     def _format_ts_from_remote(df: pd.DataFrame) -> pd.DataFrame:
         return df
+
+    def _update_security_mapping(self, df: pd.DataFrame) -> pd.DataFrame:
+        raise DataSourceMethodException(f"No remote security mapping for {self.name} datasource.")
