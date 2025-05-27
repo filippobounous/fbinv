@@ -228,7 +228,7 @@ class TwelveDataDataSource(BaseDataSource):
         
     def _update_security_mapping(self, df: pd.DataFrame) -> pd.DataFrame:
         df_list = []
-        for entity_type, _df in tqdm(df.groupby("type"), desc=f"Updating security mapping for entities for {self.name}"):
+        for entity_type, _df in tqdm(df.groupby("type"), desc=f"Updating security mapping for {self.name}"):
             mapping_df = self.available_data(entity_type=entity_type)
 
             df_merged = mapping_df.merge(
