@@ -50,7 +50,7 @@ class OpenFigiDataSource(BaseDataSource):
     
     @staticmethod
     def _format_ts_from_remote(df: pd.DataFrame) -> pd.DataFrame:
-        raise DataSourceMethodException(f"Not implemented.")
+        return df
 
     def _update_security_mapping(self, df: pd.DataFrame) -> pd.DataFrame:
         figis = df["figi_code"].to_list()

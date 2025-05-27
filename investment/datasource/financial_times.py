@@ -24,4 +24,4 @@ class FinancialTimesDataSource(BaseDataSource):
     
     @staticmethod
     def _format_ts_from_remote(df: pd.DataFrame) -> pd.DataFrame:
-        raise DataSourceMethodException(f"Not implemented.")
+        return df

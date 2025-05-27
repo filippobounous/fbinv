@@ -45,7 +45,7 @@ class LocalDataSource(BaseDataSource):
     
     @staticmethod
     def _format_ts_from_remote(df: pd.DataFrame) -> pd.DataFrame:
-        raise DataSourceMethodException(f"Not implemented.")
+        return df
 
     def load_portfolio(self, portfolio: "Portfolio") -> Dict[str, Any]:
         """
@@ -134,4 +134,4 @@ class LocalDataSource(BaseDataSource):
         return li
 
     def _update_security_mapping(self, df: pd.DataFrame) -> pd.DataFrame:
-        raise DataSourceMethodException(f"No remote series for {self.name} datasource for {security.code}.")
+        raise DataSourceMethodException(f"No remote security mapping for {self.name} datasource.")
