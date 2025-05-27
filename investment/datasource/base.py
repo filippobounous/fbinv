@@ -5,9 +5,9 @@ from pathlib import Path
 from pydantic import BaseModel
 from tqdm import tqdm
 from twelvedata.exceptions import TwelveDataError
-from typing import Dict, Optional, ClassVar, TYPE_CHECKING
+from typing import Dict, Optional, ClassVar, TYPE_CHECKING, List
 
-from ..config import HISTORICAL_DATA_PATH
+from ..config import HISTORICAL_DATA_PATH, BASE_PATH
 from ..utils.consts import DATA_START_DATE
 from ..utils.date_utils import today_midnight
 
@@ -18,6 +18,17 @@ if TYPE_CHECKING:
 class BaseDataSource(BaseModel):
     name: ClassVar[str] = "base"
     data_start_date: datetime.datetime = DATA_START_DATE
+
+    @property
+    def internal_mapping_code(self) -> str:
+        return f"{self.name}_code"
+    
+    @property
+    def _security_mapping_path(self) -> str:
+        return f"{BASE_PATH}/security_mapping_{self.name}.csv"
+
+    def _security_mapping(self) -> pd.DataFrame:
+        return pd.read_csv(self._security_mapping_path)
 
     def get_timeseries(self, security: "Security", intraday: bool = False, **kwargs) -> pd.DataFrame:
         if intraday:
@@ -180,9 +191,39 @@ class BaseDataSource(BaseModel):
                 print(f'TwelveDataError for {security.code} as "{e}"')
                 value = False
             except Exception as e:
-                print(e)
+                print(f'Security error as "{e}"')
                 value = False
             
             di[security.code] = value
+
+        return di
+    
+    @abstractmethod
+    def _update_security_mapping(self, df: pd.DataFrame) -> pd.DataFrame:
+        pass
+    
+    def update_security_mappings(self) -> pd.DataFrame:
+        from .registry import LocalDataSource
+
+        df = LocalDataSource()._security_mapping()
+
+        df = self._update_security_mapping(df=df)
+        
+        df.to_csv(self._security_mapping_path, index=False)
+
+        return df
+
+    def full_update(self, intraday: bool = False) -> Dict[str, bool]:
+        from .local import LocalDataSource
+
+        di = self.update_all_securities(intraday=intraday)
+        df_mapping = self.update_security_mappings()
+        
+        li = LocalDataSource().get_all_available_securities(as_instance=True)
+
+        if len(df_mapping) == len(li):
+            di["security_mapping"] = True
+        else:
+            di["security_mapping"] = False
 
         return di
