@@ -3,3 +3,6 @@ class DataSourceMethodException(Exception):
 
 class AlphaVantageException(Exception):
     pass
+
+class TwelveDataException(Exception):
+    pass
