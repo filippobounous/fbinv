@@ -30,10 +30,10 @@ class ReturnsCalculator:
                 rets = df['close'].pct_change(n)
             
             temp_df = pd.DataFrame({
-                'value': rets,
-                'is_ln_ret': self.use_ln_ret,
                 'as_of_date': df.index,
-                'ret_win_size': n
+                'is_ln_ret': self.use_ln_ret,
+                'ret_win_size': n,
+                'value': rets,
             })
             df_list.append(temp_df)
 
