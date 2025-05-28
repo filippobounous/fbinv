@@ -1,8 +1,11 @@
 import pandas as pd
-from typing import Optional, ClassVar, TYPE_CHECKING
+from typing import Optional, ClassVar, TYPE_CHECKING, Union, List
 
+from ...analytics.returns import ReturnsCalculator
 from ...config import HISTORICAL_DATA_PATH
+from ...datasource.utils import get_datasource
 from ..mapping import BaseMappingEntity
+from ...utils.consts import DEFAULT_RET_WIN_SIZE
 
 if TYPE_CHECKING:
     from ...datasource.base import BaseDataSource
@@ -52,10 +55,19 @@ class Security(BaseMappingEntity):
         folder_name = "intraday" if intraday else "daily"
         return f"{HISTORICAL_DATA_PATH}/{folder_name}/{datasource_name}/{self.entity_type}/{file_name}_{folder_name}.csv"
 
-    def get_timeseries(self, datasource: Optional["BaseDataSource"] = None, local_only: bool = False, intraday: bool = False) -> pd.DataFrame:
-        from ...datasource.registry import default_timeseries_datasource
-
-        if datasource is None:
-            datasource = default_timeseries_datasource
-        
+    def get_timeseries(self, datasource: Optional["BaseDataSource"] = None, local_only: bool = True, intraday: bool = False) -> pd.DataFrame:
+        datasource = get_datasource(datasource=datasource)
         return datasource.get_timeseries(security=self, intraday=intraday, local_only=local_only)
+
+    def get_returns(
+            self,
+            datasource: Optional["BaseDataSource"] = None,
+            local_only: bool = True,
+            intraday: bool = False,
+            ln_ret: bool = True,
+            ret: bool = False,
+            ret_win_size: Union[int, List[int]] = DEFAULT_RET_WIN_SIZE
+        ) -> pd.DataFrame:
+        df = self.get_timeseries(datasource=datasource, local_only=local_only, intraday=intraday)
+
+        return ReturnsCalculator(ret_win_size=ret_win_size, ln_ret=ln_ret, ret=ret).calculate_returns(df=df)

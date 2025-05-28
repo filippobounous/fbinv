@@ -170,7 +170,7 @@ class BaseDataSource(BaseModel):
         pass
 
     def _format_df_with_analysis(self, df: pd.DataFrame) -> pd.DataFrame:
-        from ..analysis.returns import ReturnsCalculator
+        from ..analytics.returns import ReturnsCalculator
 
         df = ReturnsCalculator().calculate_returns(df=df)
 
