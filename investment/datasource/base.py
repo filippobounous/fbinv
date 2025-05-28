@@ -41,9 +41,14 @@ class BaseDataSource(BaseModel):
         
         df = self._read_ts_from_local(security=security, intraday=intraday)
 
+        symbol = getattr(security, self.internal_mapping_code, None)
+        if symbol is None:
+            warnings.warn(f"Mising internal code for {self.name} datasource for {security.code}")
+            return df
+
         start_date, end_date = self._default_start_and_end_date(
             df=df,
-            symbol=self.internal_mapping_code,
+            symbol=symbol,
             intraday=intraday,
             **kwargs,
         )
