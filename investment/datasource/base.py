@@ -9,7 +9,7 @@ from typing import Dict, Optional, ClassVar, TYPE_CHECKING, Tuple
 from ..config import HISTORICAL_DATA_PATH, BASE_PATH
 from ..utils.consts import DATA_START_DATE
 from ..utils.date_utils import today_midnight
-from ..utils.exceptions import DataSourceMethodException
+from ..utils.exceptions import DataSourceMethodException, AlphaVantageException
 from ..utils.warnings import warnings
 
 if TYPE_CHECKING:
@@ -84,13 +84,16 @@ class BaseDataSource(BaseModel):
 
         except DataSourceMethodException:
             warnings.warn(f"No remote series for {self.name} datasource for {security.code}.")
+
+        except AlphaVantageException:
+            warnings.warn(f"Unable to get remote series for {self.name} datasource for {security.code}.")
         
-        except Exception as e:
-            warnings.warn(f"""
-            Exception for {self.name} datasource for {security.code} as "{e}" for params:
-            start_date({start_date}), end_date({end_date}), intraday({intraday}),
-            empty({empty}), lower_bound_missing({lower_bound_missing}), upper_bound_missing({upper_bound_missing}),
-            """)
+        # except Exception as e:
+        #     warnings.warn(f"""
+        #     Exception for {self.name} datasource for {security.code} as "{e}" for params:
+        #     start_date({start_date}), end_date({end_date}), intraday({intraday}),
+        #     empty({empty}), lower_bound_missing({lower_bound_missing}), upper_bound_missing({upper_bound_missing}),
+        #     """)
         
         if df_to_concat:
             df_to_concat.append(df)
@@ -233,10 +236,10 @@ class BaseDataSource(BaseModel):
             df = pd.DataFrame()
             warnings.warn(f"No remote security mapping for {self.name} datasource.")
 
-        except Exception as e:
-            warnings.warn(f"""
-            Exception for {self.name} datasource as "{e}" while updating security mappings
-            """)
+        # except Exception as e:
+        #     warnings.warn(f"""
+        #     Exception for {self.name} datasource as "{e}" while updating security mappings
+        #     """)
 
         return df
 
