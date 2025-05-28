@@ -6,3 +6,4 @@ OHLC = ["open", "high", "low", "close"]
 DEFAULT_RET_WIN_SIZE = 1
 DEFAULT_RV_WIN_SIZE = 20
 DEFAULT_RV_MODEL = "close_to_close"
+TRADING_DAYS = 252
