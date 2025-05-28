@@ -1,11 +1,12 @@
 import pandas as pd
 from typing import Optional, ClassVar, TYPE_CHECKING, Union, List
 
+from ...analytics.realised_volatility import RealisedVolatilityCalculator
 from ...analytics.returns import ReturnsCalculator
 from ...config import HISTORICAL_DATA_PATH
 from ...datasource.utils import get_datasource
 from ..mapping import BaseMappingEntity
-from ...utils.consts import DEFAULT_RET_WIN_SIZE
+from ...utils.consts import DEFAULT_RET_WIN_SIZE, DEFAULT_RV_WIN_SIZE, DEFAULT_RV_MODEL
 
 if TYPE_CHECKING:
     from ...datasource.base import BaseDataSource
@@ -40,7 +41,7 @@ class Security(BaseMappingEntity):
         if missing:
             raise ValueError(f"{self.code} is missing required values for: {missing}.")
 
-    def get_file_path(self, datasource_name: str, intraday: bool) -> str:
+    def get_file_path(self, datasource_name: str, intraday: bool, data_type: str) -> str:
         from ...datasource.registry import LocalDataSource, OpenFigiDataSource
 
         if datasource_name == LocalDataSource.name:
@@ -53,21 +54,34 @@ class Security(BaseMappingEntity):
         file_name = _file_name.replace("/", "") if _file_name else _file_name
 
         folder_name = "intraday" if intraday else "daily"
-        return f"{HISTORICAL_DATA_PATH}/{folder_name}/{datasource_name}/{self.entity_type}/{file_name}_{folder_name}.csv"
+        return f"{HISTORICAL_DATA_PATH}/{datasource_name}/{self.entity_type}/{file_name}_{folder_name}_{data_type}.csv"
 
-    def get_timeseries(self, datasource: Optional["BaseDataSource"] = None, local_only: bool = True, intraday: bool = False) -> pd.DataFrame:
+    def get_price_history(self, datasource: Optional["BaseDataSource"] = None, local_only: bool = True, intraday: bool = False) -> pd.DataFrame:
         datasource = get_datasource(datasource=datasource)
-        return datasource.get_timeseries(security=self, intraday=intraday, local_only=local_only)
+        return datasource.get_price_history(security=self, intraday=intraday, local_only=local_only)
 
     def get_returns(
-            self,
-            datasource: Optional["BaseDataSource"] = None,
-            local_only: bool = True,
-            intraday: bool = False,
-            ln_ret: bool = True,
-            ret: bool = False,
-            ret_win_size: Union[int, List[int]] = DEFAULT_RET_WIN_SIZE
-        ) -> pd.DataFrame:
-        df = self.get_timeseries(datasource=datasource, local_only=local_only, intraday=intraday)
+        self,
+        use_ln_ret: bool = True,
+        ret_win_size: Union[int, List[int]] = DEFAULT_RET_WIN_SIZE,
+        datasource: Optional["BaseDataSource"] = None,
+        local_only: bool = True,
+    ) -> pd.DataFrame:
+        df = self.get_price_history(datasource=datasource, local_only=local_only, intraday=False)
 
-        return ReturnsCalculator(ret_win_size=ret_win_size, ln_ret=ln_ret, ret=ret).calculate_returns(df=df)
+        return ReturnsCalculator().calculate_returns(
+            df=df, ret_win_size=ret_win_size, ln_ret=use_ln_ret,
+        )
+
+    def get_realised_volatility(
+        self,
+        rv_model: Union[str, List[str]] = DEFAULT_RV_MODEL,
+        rv_win_size: Union[int, List[int]] = DEFAULT_RV_WIN_SIZE,
+        datasource: Optional["BaseDataSource"] = None,
+        local_only: bool = True,
+    ) -> pd.DataFrame:
+        df = self.get_price_history(datasource=datasource, local_only=local_only, intraday=False)
+
+        return RealisedVolatilityCalculator().calculate_volatility(
+            df=df, rv_win_size=rv_win_size, rv_model=rv_model,
+        )
