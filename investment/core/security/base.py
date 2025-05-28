@@ -69,9 +69,7 @@ class Security(BaseMappingEntity):
     ) -> pd.DataFrame:
         df = self.get_price_history(datasource=datasource, local_only=local_only, intraday=False)
 
-        return ReturnsCalculator().calculate_returns(
-            df=df, ret_win_size=ret_win_size, ln_ret=use_ln_ret,
-        )
+        return ReturnsCalculator(ret_win_size=ret_win_size, ln_ret=use_ln_ret).calculate(df=df)
 
     def get_realised_volatility(
         self,
@@ -82,6 +80,4 @@ class Security(BaseMappingEntity):
     ) -> pd.DataFrame:
         df = self.get_price_history(datasource=datasource, local_only=local_only, intraday=False)
 
-        return RealisedVolatilityCalculator().calculate_volatility(
-            df=df, rv_win_size=rv_win_size, rv_model=rv_model,
-        )
+        return RealisedVolatilityCalculator(rv_win_size=rv_win_size, rv_model=rv_model).calculate(df=df)
