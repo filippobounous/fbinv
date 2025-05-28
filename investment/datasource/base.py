@@ -243,11 +243,11 @@ class BaseDataSource(BaseModel):
 
         return df
 
-    def full_update(self, intraday: bool = False) -> Dict[str, bool]:
+    def full_update(self, start_date: datetime.datetime, intraday: bool = False) -> Dict[str, bool]:
         from .local import LocalDataSource
 
         df_mapping = self.update_security_mappings()
-        di = self.update_all_timeseries(intraday=intraday)
+        di = self.update_all_timeseries(start_date=start_date, intraday=intraday)
         
         li = LocalDataSource().get_all_available_securities(as_instance=True)
 
