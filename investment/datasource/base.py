@@ -23,6 +23,10 @@ class BaseDataSource(BaseModel):
     @property
     def internal_mapping_code(self) -> str:
         return f"{self.name}_code"
+
+    @property
+    def historical_data_path(self) -> str:
+        return f"{HISTORICAL_DATA_PATH}/{self.name}"
     
     @property
     def _security_mapping_path(self) -> str:
@@ -88,9 +92,6 @@ class BaseDataSource(BaseModel):
             self._write_ts_to_local(security=security, df=df, intraday=intraday)
             
         return df
-    
-    def _write_ts_to_local(self, security: "Security", df: pd.DataFrame, intraday: bool) -> None:
-        df.to_csv(security.get_file_path(datasource_name=self.name, intraday=intraday), index=True)
 
     def _read_ts_from_local(self, security: "Security", intraday: bool) -> pd.DataFrame:
         file_path = Path(security.get_file_path(datasource_name=self.name, intraday=intraday))
@@ -100,10 +101,6 @@ class BaseDataSource(BaseModel):
 
         import pdb; pdb.set_trace()
         return df
-
-    @property
-    def historical_data_path(self) -> str:
-        return f"{HISTORICAL_DATA_PATH}/{self.name}"
 
     def _get_ts_from_remote(
         self,
@@ -154,6 +151,9 @@ class BaseDataSource(BaseModel):
         start_date = kwargs.get("start_date", self.data_start_date)
         end_date = kwargs.get("end_date", today_midnight() + datetime.timedelta(days=-1))
         return start_date, end_date
+    
+    def _write_ts_to_local(self, security: "Security", df: pd.DataFrame, intraday: bool) -> None:
+        df.to_csv(security.get_file_path(datasource_name=self.name, intraday=intraday), index=True)
 
     def get_all_available_data_files(self) -> Dict[str, datetime.datetime]:
         """

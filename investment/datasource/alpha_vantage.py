@@ -100,17 +100,17 @@ class AlphaVantageDataSource(BaseDataSource):
         })
         df['as_of_date'] = pd.to_datetime(df['as_of_date'])
         return df
+        
+    def _get_response(self, url: str, params: Dict[str, Any]) -> Dict[str, Any]:
+        data = requests.get(url=url, params=params).json()
+        self._check_response(data=data)
+        return data
     
     @staticmethod
     def _check_response(data: Dict[str, Any]) -> None:
         info = data.get("Information")
         if info and "standard API rate limit" in info:
             raise AlphaVantageException(f"AlphaVantageException, rate limit exceeded: '{info}'")
-        
-    def _get_response(self, url: str, params: Dict[str, Any]) -> Dict[str, Any]:
-        data = requests.get(url=url, params=params).json()
-        self._check_response(data=data)
-        return data
 
     def _default_start_and_end_date(self, df: pd.DataFrame, **kwargs) -> Tuple[datetime.datetime, datetime.datetime]:
         if df.empty:
