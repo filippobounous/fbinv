@@ -1,21 +1,26 @@
 from tqdm import tqdm
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, Tuple
 
 from ..datasource.registry import all_data_source
 
 if TYPE_CHECKING:
     from ..datasource.base import BaseDataSource
 
-def update_all_securities() -> None:
+def update_all_timeseries() -> Dict[str, Dict[str, bool]]:
+    di = {}
     for ds in tqdm(all_data_source, desc="Updating all data sources"):
         ds_instance: "BaseDataSource" = ds()
-        ds_instance.update_all_securities(intraday=False)
+        di[ds_instance.name] = ds_instance.update_all_timeseries(intraday=False)
+    return di
 
-def update_security_mapping() -> None:
+def update_security_mapping() -> Dict[str, bool]:
+    di = {}
     for ds in tqdm(all_data_source, desc="Updating all security mappings"):
         ds_instance: "BaseDataSource" = ds()
-        ds_instance.update_security_mappings()
+        di[ds_instance.name] = False if ds_instance.update_security_mappings().empty else True
+    return di
 
-def update_all() -> None:
-    update_security_mapping()
-    update_all_securities()
+def update_all() -> Tuple[Dict[str, bool], Dict[str, Dict[str, bool]]]:
+    di_mapping = update_security_mapping()
+    di_timeseries = update_all_timeseries()
+    return di_mapping, di_timeseries
