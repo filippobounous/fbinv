@@ -117,9 +117,9 @@ class AlphaVantageDataSource(BaseDataSource):
         info = data.get("Information")
         if info:
             if "standard API rate limit" in info:
-                raise AlphaVantageException(f"AlphaVantageException, rate limit exceeded: '{info}'")
+                raise AlphaVantageException(f"Rate limit exceeded: '{info}'")
             elif "This is a premium endpoint." in info:
-                raise AlphaVantageException(f"AlphaVantageException, security not included in plan: '{info}'")
+                raise AlphaVantageException(f"Security not included in plan: '{info}'")
 
     def _default_start_and_end_date(
         self,
