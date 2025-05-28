@@ -59,7 +59,7 @@ class BaseDataSource(BaseModel):
             df = df.reset_index(drop=True).set_index("as_of_date").sort_index().drop_duplicates()
             df = self._format_df_with_analysis(df=df)
         
-        self._write_ts_to_local(security=security, df=df, intraday=intraday)
+            self._write_ts_to_local(security=security, df=df, intraday=intraday)
             
         return df
     
