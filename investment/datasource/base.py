@@ -206,7 +206,7 @@ class BaseDataSource(BaseModel):
 
         return di
     
-    def update_all_securities(self, intraday: bool = False, **kwargs) -> Dict[str, bool]:
+    def update_all_timeseries(self, intraday: bool = False, **kwargs) -> Dict[str, bool]:
         from .local import LocalDataSource
         li = LocalDataSource().get_all_available_securities(as_instance=True)
 
@@ -244,7 +244,7 @@ class BaseDataSource(BaseModel):
         from .local import LocalDataSource
 
         df_mapping = self.update_security_mappings()
-        di = self.update_all_securities(intraday=intraday)
+        di = self.update_all_timeseries(intraday=intraday)
         
         li = LocalDataSource().get_all_available_securities(as_instance=True)
 
