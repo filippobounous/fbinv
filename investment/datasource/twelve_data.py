@@ -11,6 +11,7 @@ import warnings
 
 from .base import BaseDataSource
 from ..config import TWELVE_DATA_API_KEY
+from ..utils.date_utils import today_midnight
 
 if TYPE_CHECKING:
     from ..core.security.registry import CurrencyCross, Equity, ETF, Fund, Security
@@ -119,29 +120,23 @@ class TwelveDataDataSource(BaseDataSource):
         interval = self._interval_code(intraday=intraday)
         dfs = []
 
-        min_start_date = self._check_start_date_for_security(symbol=symbol, intraday=intraday)
+        dates = self._get_dates(start_date=start_date, end_date=end_date, intraday=intraday)
 
-        if min_start_date:
-            start_date = max(start_date, min_start_date)
-            dates = self._get_dates(start_date=start_date, end_date=end_date, intraday=intraday)
+        for _start_date, _end_date in dates:
+            self._respect_rate_limit()
 
-            for _start_date, _end_date in dates:
-                self._respect_rate_limit()
+            df = self.td.time_series(
+                symbol=symbol,
+                interval=interval,
+                outputsize=self.output_size,
+                start_date=_start_date.strftime("%Y-%m-%d"),
+                end_date=_end_date.strftime("%Y-%m-%d"),
+            ).as_pandas()
 
-                df = self.td.time_series(
-                    symbol=symbol,
-                    interval=interval,
-                    outputsize=self.output_size,
-                    start_date=_start_date.strftime("%Y-%m-%d"),
-                    end_date=_end_date.strftime("%Y-%m-%d"),
-                ).as_pandas()
+            dfs.append(df)
 
-                dfs.append(df)
+        return pd.concat(dfs)
 
-            return pd.concat(dfs)
-        else:
-            return pd.DataFrame()
-    
     def _check_start_date_for_security(self, symbol: str, intraday: bool) -> Optional[datetime.datetime]:
         df = self._security_mapping()
 
@@ -251,3 +246,15 @@ class TwelveDataDataSource(BaseDataSource):
             df_mapping.loc[df_mapping["symbol"] == symbol, col_name] = date
 
         return df_mapping
+
+    def _default_start_and_end_date(
+        self,
+        df: pd.DataFrame,
+        symbol: str,
+        intraday: bool,
+        **kwargs,
+    ) -> Tuple[datetime.datetime, datetime.datetime]:
+        start_date = kwargs.get("start_date", self._check_start_date_for_security(symbol=symbol, intraday=intraday))
+        end_date = kwargs.get("end_date", today_midnight())
+
+        return start_date, end_date

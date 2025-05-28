@@ -41,7 +41,12 @@ class BaseDataSource(BaseModel):
         
         df = self._read_ts_from_local(security=security, intraday=intraday)
 
-        start_date, end_date = self._default_start_and_end_date(df=df, **kwargs)
+        start_date, end_date = self._default_start_and_end_date(
+            df=df,
+            symbol=self.internal_mapping_code,
+            intraday=intraday,
+            **kwargs,
+        )
 
         empty = df.empty
         lower_bound_missing = None if empty else (min(df["as_of_date"]) > start_date)
@@ -147,7 +152,13 @@ class BaseDataSource(BaseModel):
     def _format_ts_from_remote(df: pd.DataFrame) -> pd.DataFrame:
         pass
 
-    def _default_start_and_end_date(self, df: pd.DataFrame, **kwargs) -> Tuple[datetime.datetime, datetime.datetime]:
+    def _default_start_and_end_date(
+        self,
+        df: pd.DataFrame,
+        symbol: str,
+        intraday: bool,
+        **kwargs,
+    ) -> Tuple[datetime.datetime, datetime.datetime]:
         start_date = kwargs.get("start_date", self.data_start_date)
         end_date = kwargs.get("end_date", today_midnight() + datetime.timedelta(days=-1))
         return start_date, end_date

@@ -96,9 +96,15 @@ class YahooFinanceDataSource(BaseDataSource):
             auto_adjust=True,
         )
 
-    def _default_start_and_end_date(self, df: pd.DataFrame, **kwargs) -> Tuple[datetime.datetime, datetime.datetime]:
+    def _default_start_and_end_date(
+        self,
+        df: pd.DataFrame,
+        symbol: str,
+        intraday: bool,
+        **kwargs,
+    ) -> Tuple[datetime.datetime, datetime.datetime]:
         if df.empty:
-            return super()._default_start_and_end_date(df=df, **kwargs)
+            return super()._default_start_and_end_date(df=df, symbol=symbol, intraday=intraday, **kwargs)
         start_date = df["as_of_date"].min()
         end_date = today_midnight()
         return start_date, end_date
