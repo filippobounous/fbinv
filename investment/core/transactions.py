@@ -64,7 +64,7 @@ class Transactions(BaseModel):
         df["change"] = df.groupby("currency")["value"].diff().fillna(df["value"])
         df["change"] = df["change"].round(2)
 
-        df.to_csv(f"{self.portfolio_path}/{self.name}_cash.csv", index=False)
+        df.to_csv(f"{self.portfolio_path}/{self.name}-cash.csv", index=False)
 
     def _load_transactions(self) -> pd.DataFrame:
         return pd.read_excel(self.file_path, sheet_name=self.sheet_name)

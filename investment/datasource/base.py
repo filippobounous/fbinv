@@ -31,7 +31,7 @@ class BaseDataSource(BaseModel):
     
     @property
     def security_mapping_path(self) -> str:
-        return f"{BASE_PATH}/security_mapping_{self.name}.csv"
+        return f"{BASE_PATH}/security_mapping-{self.name}.csv"
 
     def get_security_mapping(self) -> pd.DataFrame:
         return pd.read_csv(self.security_mapping_path)

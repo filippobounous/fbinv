@@ -54,7 +54,7 @@ class Security(BaseMappingEntity):
         file_name = _file_name.replace("/", "") if _file_name else _file_name
 
         data_frequency = "intraday" if intraday else "daily"
-        return f"{TIMESERIES_DATA_PATH}/{series_type}/{datasource_name}/{self.entity_type}/{file_name}_{data_frequency}_{series_type}.csv"
+        return f"{TIMESERIES_DATA_PATH}/{series_type}/{datasource_name}/{self.entity_type}/{file_name}-{data_frequency}-{series_type}.csv"
 
     def get_price_history(self, datasource: Optional["BaseDataSource"] = None, local_only: bool = True, intraday: bool = False) -> pd.DataFrame:
         datasource = get_datasource(datasource=datasource)

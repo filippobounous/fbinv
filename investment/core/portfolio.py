@@ -32,7 +32,7 @@ class Portfolio(BaseMappingEntity):
             self._get_cash()
     
     def _get_cash(self) -> None:
-        df = pd.read_csv(f"{PORTFOLIO_PATH}/{self.code}_cash.csv")
+        df = pd.read_csv(f"{PORTFOLIO_PATH}/{self.code}-cash.csv")
 
         if self.account:
             df = df.loc[df.account == self.account]
@@ -43,7 +43,7 @@ class Portfolio(BaseMappingEntity):
         self.cash = df
 
     def _get_portfolio(self) -> None:
-        df = pd.read_csv(f"{PORTFOLIO_PATH}/{self.code}_transactions.csv")
+        df = pd.read_csv(f"{PORTFOLIO_PATH}/{self.code}-transactions.csv")
 
         if self.account:
             df = df.loc[df.account == self.account]
