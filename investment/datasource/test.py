@@ -10,18 +10,18 @@ if TYPE_CHECKING:
 class TestDataSource(BaseDataSource):
     name: ClassVar[str] = "test"
 
-    def _get_currency_cross_ts_from_remote(self, security: 'CurrencyCross', intraday: bool) -> pd.DataFrame:
+    def _get_currency_cross_price_history_from_remote(self, security: 'CurrencyCross', intraday: bool) -> pd.DataFrame:
         raise DataSourceMethodException(f"No remote series for {self.name} datasource for {security.code}.")
 
-    def _get_equity_ts_from_remote(self, security: 'Equity', intraday: bool) -> pd.DataFrame:
+    def _get_equity_price_history_from_remote(self, security: 'Equity', intraday: bool) -> pd.DataFrame:
         raise DataSourceMethodException(f"No remote series for {self.name} datasource for {security.code}.")
 
-    def _get_etf_ts_from_remote(self, security: 'ETF', intraday: bool) -> pd.DataFrame:
+    def _get_etf_price_history_from_remote(self, security: 'ETF', intraday: bool) -> pd.DataFrame:
         raise DataSourceMethodException(f"No remote series for {self.name} datasource for {security.code}.")
 
-    def _get_fund_ts_from_remote(self, security: 'Fund', intraday: bool) -> pd.DataFrame:
+    def _get_fund_price_history_from_remote(self, security: 'Fund', intraday: bool) -> pd.DataFrame:
         raise DataSourceMethodException(f"No remote series for {self.name} datasource for {security.code}.")
     
     @staticmethod
-    def _format_ts_from_remote(df: pd.DataFrame) -> pd.DataFrame:
+    def _format_price_history_from_remote(df: pd.DataFrame) -> pd.DataFrame:
         return df

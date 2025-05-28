@@ -3,7 +3,7 @@ from typing import Optional, ClassVar, TYPE_CHECKING, Union, List
 
 from ...analytics.realised_volatility import RealisedVolatilityCalculator
 from ...analytics.returns import ReturnsCalculator
-from ...config import HISTORICAL_DATA_PATH
+from ...config import TIMESERIES_DATA_PATH
 from ...datasource.utils import get_datasource
 from ..mapping import BaseMappingEntity
 from ...utils.consts import DEFAULT_RET_WIN_SIZE, DEFAULT_RV_WIN_SIZE, DEFAULT_RV_MODEL
@@ -54,7 +54,7 @@ class Security(BaseMappingEntity):
         file_name = _file_name.replace("/", "") if _file_name else _file_name
 
         folder_name = "intraday" if intraday else "daily"
-        return f"{HISTORICAL_DATA_PATH}/{datasource_name}/{self.entity_type}/{file_name}_{folder_name}_{data_type}.csv"
+        return f"{TIMESERIES_DATA_PATH}/{datasource_name}/{self.entity_type}/{file_name}_{folder_name}_{data_type}.csv"
 
     def get_price_history(self, datasource: Optional["BaseDataSource"] = None, local_only: bool = True, intraday: bool = False) -> pd.DataFrame:
         datasource = get_datasource(datasource=datasource)

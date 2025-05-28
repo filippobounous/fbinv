@@ -31,7 +31,7 @@ class TwelveDataDataSource(BaseDataSource):
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    def _get_currency_cross_ts_from_remote(
+    def _get_currency_cross_price_history_from_remote(
         self,
         security: 'CurrencyCross', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
@@ -41,7 +41,7 @@ class TwelveDataDataSource(BaseDataSource):
             start_date=start_date, end_date=end_date,
         )
 
-    def _get_equity_ts_from_remote(
+    def _get_equity_price_history_from_remote(
         self,
         security: 'Equity', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
@@ -51,7 +51,7 @@ class TwelveDataDataSource(BaseDataSource):
             start_date=start_date, end_date=end_date,
         )
 
-    def _get_etf_ts_from_remote(
+    def _get_etf_price_history_from_remote(
         self,
         security: 'ETF', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
@@ -61,7 +61,7 @@ class TwelveDataDataSource(BaseDataSource):
             start_date=start_date, end_date=end_date,
         )
 
-    def _get_fund_ts_from_remote(
+    def _get_fund_price_history_from_remote(
         self,
         security: 'Fund', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
@@ -82,7 +82,7 @@ class TwelveDataDataSource(BaseDataSource):
         )
     
     @staticmethod
-    def _format_ts_from_remote(df: pd.DataFrame) -> pd.DataFrame:
+    def _format_price_history_from_remote(df: pd.DataFrame) -> pd.DataFrame:
         if df.empty:
             return pd.DataFrame()
         else:
@@ -147,7 +147,7 @@ class TwelveDataDataSource(BaseDataSource):
         return pd.concat(dfs)
 
     def _check_start_date_for_security(self, symbol: str, intraday: bool) -> Optional[datetime.datetime]:
-        df = self.security_mapping()
+        df = self.get_security_mapping()
 
         # this actually does not get triggered as there is an earlier exception raised
         if symbol not in df["symbol"].to_list():

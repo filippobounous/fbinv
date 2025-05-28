@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 class YahooFinanceDataSource(BaseDataSource):
     name: ClassVar[str] = "yahoo_finance"
 
-    def _get_currency_cross_ts_from_remote(
+    def _get_currency_cross_price_history_from_remote(
         self,
         security: 'CurrencyCross', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
@@ -25,7 +25,7 @@ class YahooFinanceDataSource(BaseDataSource):
             start_date=start_date, end_date=end_date,
         )
 
-    def _get_equity_ts_from_remote(
+    def _get_equity_price_history_from_remote(
         self,
         security: 'Equity', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
@@ -35,7 +35,7 @@ class YahooFinanceDataSource(BaseDataSource):
             start_date=start_date, end_date=end_date,
         )
 
-    def _get_etf_ts_from_remote(
+    def _get_etf_price_history_from_remote(
         self,
         security: 'ETF', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
@@ -45,7 +45,7 @@ class YahooFinanceDataSource(BaseDataSource):
             start_date=start_date, end_date=end_date,
         )
 
-    def _get_fund_ts_from_remote(
+    def _get_fund_price_history_from_remote(
         self,
         security: 'Fund', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
@@ -67,7 +67,7 @@ class YahooFinanceDataSource(BaseDataSource):
         )
     
     @staticmethod
-    def _format_ts_from_remote(df: pd.DataFrame) -> pd.DataFrame:
+    def _format_price_history_from_remote(df: pd.DataFrame) -> pd.DataFrame:
         df_simple = df.copy().reset_index()
         df_simple.columns = [
             re.sub(r"\s+", "_", col.lower())

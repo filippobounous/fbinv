@@ -1,12 +1,13 @@
 from abc import abstractmethod
 import datetime
+import os
 import pandas as pd
 from pathlib import Path
 from pydantic import BaseModel
 from tqdm import tqdm
 from typing import Dict, Optional, ClassVar, TYPE_CHECKING, Tuple
 
-from ..config import HISTORICAL_DATA_PATH, BASE_PATH
+from ..config import TIMESERIES_DATA_PATH, BASE_PATH
 from ..utils.consts import DATA_START_DATE
 from ..utils.date_utils import today_midnight
 from ..utils.exceptions import DataSourceMethodException, AlphaVantageException, TwelveDataException
@@ -25,24 +26,24 @@ class BaseDataSource(BaseModel):
         return f"{self.name}_code"
 
     @property
-    def historical_data_path(self) -> str:
-        return f"{HISTORICAL_DATA_PATH}/{self.name}"
+    def timeseries_data_path(self) -> str:
+        return f"{TIMESERIES_DATA_PATH}/{self.name}"
     
     @property
-    def _security_mapping_path(self) -> str:
+    def security_mapping_path(self) -> str:
         return f"{BASE_PATH}/security_mapping_{self.name}.csv"
 
-    def security_mapping(self) -> pd.DataFrame:
-        return pd.read_csv(self._security_mapping_path)
+    def get_security_mapping(self) -> pd.DataFrame:
+        return pd.read_csv(self.security_mapping_path)
 
-    def get_timeseries(self, security: "Security", intraday: bool = False, local_only: bool = False, **kwargs) -> pd.DataFrame:
+    def get_price_history(self, security: "Security", intraday: bool = False, local_only: bool = False, **kwargs) -> pd.DataFrame:
         if intraday:
             raise DataSourceMethodException(f"Intraday not currently supported. Should not be used.")
         
-        df_local = self._read_ts_from_local(security=security, intraday=intraday)
+        df_local = self._read_timeseries_from_local(security=security, intraday=intraday, series_type="price_history")
         
         if not local_only:
-            df_remote = self._load_ts_from_remote(security=security, intraday=intraday, df=df_local, **kwargs)
+            df_remote = self._load_price_history_from_remote(security=security, intraday=intraday, df=df_local, **kwargs)
         else:
             df_remote = pd.DataFrame()
         
@@ -57,23 +58,24 @@ class BaseDataSource(BaseModel):
         
         if not df.empty:
             df = df.reset_index(drop=True).set_index("as_of_date").sort_index().drop_duplicates()
-            df = self._format_df_with_analysis(df=df)
         
-            self._write_ts_to_local(security=security, df=df, intraday=intraday)
+            self._write_timeseries_to_local(security=security, df=df, intraday=intraday, series_type="price_history")
             
         return df
     
-    def _write_ts_to_local(self, security: "Security", df: pd.DataFrame, intraday: bool) -> None:
-        df.to_csv(security.get_file_path(datasource_name=self.name, intraday=intraday), index=True)
+    def _write_timeseries_to_local(self, security: "Security", df: pd.DataFrame, intraday: bool, series_type: str) -> None:
+        file_path = security.get_file_path(datasource_name=self.name, intraday=intraday, series_type=series_type)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        df.to_csv(file_path, index=True)
 
-    def _read_ts_from_local(self, security: "Security", intraday: bool) -> pd.DataFrame:
+    def _read_timeseries_from_local(self, security: "Security", intraday: bool) -> pd.DataFrame:
         file_path = Path(security.get_file_path(datasource_name=self.name, intraday=intraday))
         if not file_path.exists():
             return pd.DataFrame() # or return None if preferred
         df = pd.read_csv(file_path, parse_dates=["as_of_date"])
         return df
     
-    def _load_ts_from_remote(self, security: "Security", intraday: bool, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
+    def _load_price_history_from_remote(self, security: "Security", intraday: bool, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
         df_to_concat = []
 
         symbol = getattr(security, self.internal_mapping_code, None)
@@ -94,7 +96,7 @@ class BaseDataSource(BaseModel):
             upper_bound_missing = None if empty else (max(df["as_of_date"]) < end_date)
 
             if empty:
-                df_to_concat.append(self._get_ts_from_remote(
+                df_to_concat.append(self._get_price_history_from_remote(
                     security=security, intraday=intraday,
                     start_date=start_date, end_date=end_date
                 ))
@@ -103,14 +105,14 @@ class BaseDataSource(BaseModel):
                 df_to_concat = []
                 
                 if lower_bound_missing:
-                    df_to_concat.append(self._get_ts_from_remote(
+                    df_to_concat.append(self._get_price_history_from_remote(
                         security=security, intraday=intraday,
                         start_date=start_date,
                         end_date=min(df["as_of_date"]),
                     ))
                 
                 if upper_bound_missing:
-                    df_to_concat.append(self._get_ts_from_remote(
+                    df_to_concat.append(self._get_price_history_from_remote(
                         security=security, intraday=intraday,
                         start_date=max(df["as_of_date"]),
                         end_date=end_date,
@@ -124,17 +126,17 @@ class BaseDataSource(BaseModel):
 
         return pd.concat(df_to_concat) if df_to_concat else pd.DataFrame()
 
-    def _get_ts_from_remote(
+    def _get_price_history_from_remote(
         self,
         security: "Security", intraday: bool = False,
         start_date: Optional[datetime.datetime] = None,
         end_date: Optional[datetime.datetime] = None,
     ) -> pd.DataFrame:
         ts_method_dict = {
-            "currency_cross": self._get_currency_cross_ts_from_remote,
-            "equity": self._get_equity_ts_from_remote,
-            "etf": self._get_etf_ts_from_remote,
-            "fund": self._get_fund_ts_from_remote,
+            "currency_cross": self._get_currency_cross_price_history_from_remote,
+            "equity": self._get_equity_price_history_from_remote,
+            "etf": self._get_etf_price_history_from_remote,
+            "fund": self._get_fund_price_history_from_remote,
         }
 
         ts_method = ts_method_dict.get(security.entity_type)
@@ -146,35 +148,28 @@ class BaseDataSource(BaseModel):
                 security=security, intraday=intraday,
                 start_date=start_date, end_date=end_date,
             )
-            return self._format_ts_from_remote(df)
+            return self._format_price_history_from_remote(df)
     
     @abstractmethod
-    def _get_currency_cross_ts_from_remote(self, security: "CurrencyCross", intraday: bool) -> pd.DataFrame:
+    def _get_currency_cross_price_history_from_remote(self, security: "CurrencyCross", intraday: bool) -> pd.DataFrame:
         pass
 
     @abstractmethod
-    def _get_equity_ts_from_remote(self, security: "Equity", intraday: bool) -> pd.DataFrame:
+    def _get_equity_price_history_from_remote(self, security: "Equity", intraday: bool) -> pd.DataFrame:
         pass
 
     @abstractmethod
-    def _get_etf_ts_from_remote(self, security: "ETF", intraday: bool) -> pd.DataFrame:
+    def _get_etf_price_history_from_remote(self, security: "ETF", intraday: bool) -> pd.DataFrame:
         pass
 
     @abstractmethod
-    def _get_fund_ts_from_remote(self, security: "Fund", intraday: bool) -> pd.DataFrame:
+    def _get_fund_price_history_from_remote(self, security: "Fund", intraday: bool) -> pd.DataFrame:
         pass
 
     @staticmethod
     @abstractmethod
-    def _format_ts_from_remote(df: pd.DataFrame) -> pd.DataFrame:
+    def _format_price_history_from_remote(df: pd.DataFrame) -> pd.DataFrame:
         pass
-
-    def _format_df_with_analysis(self, df: pd.DataFrame) -> pd.DataFrame:
-        from ..analytics.returns import ReturnsCalculator
-
-        df = ReturnsCalculator().calculate_returns(df=df)
-
-        return df
 
     def _default_start_and_end_date(
         self,
@@ -186,15 +181,6 @@ class BaseDataSource(BaseModel):
         start_date = kwargs.get("start_date", self.data_start_date)
         end_date = kwargs.get("end_date", today_midnight() + datetime.timedelta(days=-1))
         return start_date, end_date
-
-    def get_all_available_data_files(self) -> Dict[str, datetime.datetime]:
-        """
-        Get file names from path with last modified dates for historical data.
-
-        Returns:
-            Dict[str, datetime.datetime]: Dictionary of file names and last modified date.
-        """
-        return self._get_file_names_in_path(path=self.historical_data_path)
     
     @staticmethod
     def _get_file_names_in_path(path: str) -> Dict[str, datetime.datetime]:
@@ -224,13 +210,13 @@ class BaseDataSource(BaseModel):
 
         return di
     
-    def update_all_timeseries(self, intraday: bool = False, **kwargs) -> Dict[str, bool]:
+    def update_all_price_histories(self, intraday: bool = False, **kwargs) -> Dict[str, bool]:
         from .local import LocalDataSource
         li = LocalDataSource().get_all_available_securities(as_instance=True)
 
         di = {}
         for security in tqdm(li, desc=f"Updating securities for {self.name}"):
-            df = self.get_timeseries(security=security, intraday=intraday, **kwargs)
+            df = self.get_price_history(security=security, intraday=intraday, **kwargs)
             
             di[security.code] = not df.empty
 
@@ -243,9 +229,9 @@ class BaseDataSource(BaseModel):
     def update_security_mapping(self) -> pd.DataFrame:
         from .registry import LocalDataSource
         try:
-            df = LocalDataSource().security_mapping()
+            df = LocalDataSource().get_security_mapping()
             df = self._update_security_mapping(df=df)
-            df.to_csv(self._security_mapping_path, index=False)
+            df.to_csv(self.security_mapping_path, index=False)
 
         except DataSourceMethodException:
             df = pd.DataFrame()
@@ -257,7 +243,7 @@ class BaseDataSource(BaseModel):
         from .local import LocalDataSource
 
         df_mapping = self.update_security_mapping()
-        di = self.update_all_timeseries(start_date=start_date, intraday=intraday)
+        di = self.update_all_price_histories(start_date=start_date, intraday=intraday)
         
         li = LocalDataSource().get_all_available_securities(as_instance=True)
 

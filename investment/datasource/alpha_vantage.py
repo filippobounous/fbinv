@@ -19,7 +19,7 @@ class AlphaVantageDataSource(BaseDataSource):
     name: ClassVar[str] = "alpha_vantage"
     base_url: str = "https://www.alphavantage.co/query"
 
-    def _get_currency_cross_ts_from_remote(
+    def _get_currency_cross_price_history_from_remote(
         self,
         security: 'CurrencyCross', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
@@ -45,7 +45,7 @@ class AlphaVantageDataSource(BaseDataSource):
 
         return pd.DataFrame(data).T
 
-    def _get_equity_ts_from_remote(
+    def _get_equity_price_history_from_remote(
         self,
         security: 'Equity', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
@@ -75,28 +75,28 @@ class AlphaVantageDataSource(BaseDataSource):
 
         return pd.DataFrame(data).T
 
-    def _get_etf_ts_from_remote(
+    def _get_etf_price_history_from_remote(
         self,
         security: 'ETF', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
-        return self._get_equity_ts_from_remote(
+        return self._get_equity_price_history_from_remote(
             security=security, intraday=intraday,
             start_date=start_date, end_date=end_date,
         )
 
-    def _get_fund_ts_from_remote(
+    def _get_fund_price_history_from_remote(
         self,
         security: 'Fund', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
-        return self._get_equity_ts_from_remote(
+        return self._get_equity_price_history_from_remote(
             security=security, intraday=intraday,
             start_date=start_date, end_date=end_date,
         )
     
     @staticmethod
-    def _format_ts_from_remote(df: pd.DataFrame) -> pd.DataFrame:
+    def _format_price_history_from_remote(df: pd.DataFrame) -> pd.DataFrame:
         df = df.reset_index().rename(columns={
             "index": "as_of_date",
             "1. open": "open",

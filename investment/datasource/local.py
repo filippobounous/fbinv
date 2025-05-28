@@ -15,28 +15,28 @@ if TYPE_CHECKING:
 class LocalDataSource(BaseDataSource):
     name: ClassVar[str] = "local"
 
-    def _get_currency_cross_ts_from_remote(
+    def _get_currency_cross_price_history_from_remote(
         self,
         security: 'CurrencyCross', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
         raise DataSourceMethodException(f"No remote series for {self.name} datasource for {security.code}.")
 
-    def _get_equity_ts_from_remote(
+    def _get_equity_price_history_from_remote(
         self,
         security: 'Equity', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
         raise DataSourceMethodException(f"No remote series for {self.name} datasource for {security.code}.")
 
-    def _get_etf_ts_from_remote(
+    def _get_etf_price_history_from_remote(
         self,
         security: 'ETF', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
         raise DataSourceMethodException(f"No remote series for {self.name} datasource for {security.code}.")
 
-    def _get_fund_ts_from_remote(
+    def _get_fund_price_history_from_remote(
         self,
         security: 'Fund', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
@@ -44,7 +44,7 @@ class LocalDataSource(BaseDataSource):
         raise DataSourceMethodException(f"No remote series for {self.name} datasource for {security.code}.")
     
     @staticmethod
-    def _format_ts_from_remote(df: pd.DataFrame) -> pd.DataFrame:
+    def _format_price_history_from_remote(df: pd.DataFrame) -> pd.DataFrame:
         return df
 
     def load_portfolio(self, portfolio: "Portfolio") -> Dict[str, Any]:
@@ -60,7 +60,7 @@ class LocalDataSource(BaseDataSource):
         """
         Load a security from the csv file.
         """
-        df = self.security_mapping()
+        df = self.get_security_mapping()
         df_reporting_ccy = self._reporting_currency()
 
         # set multiplier
@@ -117,7 +117,7 @@ class LocalDataSource(BaseDataSource):
 
         li = []
 
-        df = self.security_mapping()
+        df = self.get_security_mapping()
         
         if as_instance:
             for _, row in df.iterrows():
