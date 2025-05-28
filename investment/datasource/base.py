@@ -68,8 +68,8 @@ class BaseDataSource(BaseModel):
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
         df.to_csv(file_path, index=True)
 
-    def _read_timeseries_from_local(self, security: "Security", intraday: bool) -> pd.DataFrame:
-        file_path = Path(security.get_file_path(datasource_name=self.name, intraday=intraday))
+    def _read_timeseries_from_local(self, security: "Security", intraday: bool, series_type: str) -> pd.DataFrame:
+        file_path = Path(security.get_file_path(datasource_name=self.name, intraday=intraday, series_type=series_type))
         if not file_path.exists():
             return pd.DataFrame() # or return None if preferred
         df = pd.read_csv(file_path, parse_dates=["as_of_date"])
