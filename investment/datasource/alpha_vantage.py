@@ -60,7 +60,7 @@ class AlphaVantageDataSource(BaseDataSource):
                 "extended_hours": True,
             })
         else:
-            function_param = "TIME_SERIES_DAILY_ADJUSTED"
+            function_param = "TIME_SERIES_DAILY" # "TIME_SERIES_DAILY_ADJUSTED"
         
         params.update({
             "function": function_param,
@@ -80,14 +80,20 @@ class AlphaVantageDataSource(BaseDataSource):
         security: 'ETF', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
-        raise DataSourceMethodException("Method not implemented.")
+        return self._get_equity_ts_from_remote(
+            security=security, intraday=intraday,
+            start_date=start_date, end_date=end_date,
+        )
 
     def _get_fund_ts_from_remote(
         self,
         security: 'Fund', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
-        raise DataSourceMethodException("Method not implemented.")
+        return self._get_equity_ts_from_remote(
+            security=security, intraday=intraday,
+            start_date=start_date, end_date=end_date,
+        )
     
     @staticmethod
     def _format_ts_from_remote(df: pd.DataFrame) -> pd.DataFrame:
@@ -109,8 +115,11 @@ class AlphaVantageDataSource(BaseDataSource):
     @staticmethod
     def _check_response(data: Dict[str, Any]) -> None:
         info = data.get("Information")
-        if info and "standard API rate limit" in info:
-            raise AlphaVantageException(f"AlphaVantageException, rate limit exceeded: '{info}'")
+        if info:
+            if "standard API rate limit" in info:
+                raise AlphaVantageException(f"AlphaVantageException, rate limit exceeded: '{info}'")
+            elif "This is a premium endpoint." in info:
+                raise AlphaVantageException(f"AlphaVantageException, security not included in plan: '{info}'")
 
     def _default_start_and_end_date(
         self,
