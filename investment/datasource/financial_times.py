@@ -1,3 +1,4 @@
+import datetime
 import pandas as pd
 from typing import TYPE_CHECKING, ClassVar
 
@@ -10,16 +11,32 @@ if TYPE_CHECKING:
 class FinancialTimesDataSource(BaseDataSource):
     name: ClassVar[str] = "financial_times"
 
-    def _get_currency_cross_ts_from_remote(self, security: 'CurrencyCross', intraday: bool) -> pd.DataFrame:
+    def _get_currency_cross_ts_from_remote(
+        self,
+        security: 'CurrencyCross', intraday: bool,
+        start_date: datetime.datetime, end_date: datetime.datetime,
+    ) -> pd.DataFrame:
         raise DataSourceMethodException(f"No remote series for {self.name} datasource for {security.code}.")
 
-    def _get_equity_ts_from_remote(self, security: 'Equity', intraday: bool) -> pd.DataFrame:
+    def _get_equity_ts_from_remote(
+        self,
+        security: 'Equity', intraday: bool,
+        start_date: datetime.datetime, end_date: datetime.datetime,
+    ) -> pd.DataFrame:
         raise DataSourceMethodException(f"No remote series for {self.name} datasource for {security.code}.")
 
-    def _get_etf_ts_from_remote(self, security: 'ETF', intraday: bool) -> pd.DataFrame:
+    def _get_etf_ts_from_remote(
+        self,
+        security: 'ETF', intraday: bool,
+        start_date: datetime.datetime, end_date: datetime.datetime,
+    ) -> pd.DataFrame:
         raise DataSourceMethodException(f"No remote series for {self.name} datasource for {security.code}.")
 
-    def _get_fund_ts_from_remote(self, security: 'Fund', intraday: bool) -> pd.DataFrame:
+    def _get_fund_ts_from_remote(
+        self,
+        security: 'Fund', intraday: bool,
+        start_date: datetime.datetime, end_date: datetime.datetime,
+    ) -> pd.DataFrame:
         raise DataSourceMethodException(f"No remote series for {self.name} datasource for {security.code}.")
     
     @staticmethod
