@@ -210,9 +210,9 @@ class BaseDataSource(BaseModel):
 
         return di
     
-    def update_all_price_histories(self, intraday: bool = False, **kwargs) -> Dict[str, bool]:
+    def update_price_histories(self, intraday: bool = False, **kwargs) -> Dict[str, bool]:
         from .local import LocalDataSource
-        li = LocalDataSource().get_all_available_securities(as_instance=True)
+        li = LocalDataSource().get_all_securities(as_instance=True)
 
         di = {}
         for security in tqdm(li, desc=f"Updating securities for {self.name}"):
@@ -243,9 +243,9 @@ class BaseDataSource(BaseModel):
         from .local import LocalDataSource
 
         df_mapping = self.update_security_mapping()
-        di = self.update_all_price_histories(start_date=start_date, intraday=intraday)
+        di = self.update_price_histories(start_date=start_date, intraday=intraday)
         
-        li = LocalDataSource().get_all_available_securities(as_instance=True)
+        li = LocalDataSource().get_all_securities(as_instance=True)
 
         if len(df_mapping) == len(li):
             di["security_mapping"] = True

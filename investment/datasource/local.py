@@ -15,6 +15,14 @@ if TYPE_CHECKING:
 class LocalDataSource(BaseDataSource):
     name: ClassVar[str] = "local"
 
+    @property
+    def portfolio_mapping(self) -> pd.DataFrame:
+        return pd.read_csv(f"{BASE_PATH}/portfolio_mapping.csv")
+
+    @property
+    def reporting_currency(self) -> pd.DataFrame:
+        return pd.read_csv(f"{BASE_PATH}/reporting_currency.csv")
+
     def _get_currency_cross_price_history_from_remote(
         self,
         security: 'CurrencyCross', intraday: bool,
@@ -51,7 +59,7 @@ class LocalDataSource(BaseDataSource):
         """
         Load a portfolio from the csv file.
         """
-        df = self._portfolio_mapping()
+        df = self.portfolio_mapping
         row = df.loc[df.code == portfolio.code]
 
         return self._load(df=row, entity=portfolio)
@@ -61,7 +69,7 @@ class LocalDataSource(BaseDataSource):
         Load a security from the csv file.
         """
         df = self.get_security_mapping()
-        df_reporting_ccy = self._reporting_currency()
+        df_reporting_ccy = self.reporting_currency
 
         # set multiplier
         df = df.merge(df_reporting_ccy, how="left", on=["reporting_currency", "currency"])
@@ -82,7 +90,7 @@ class LocalDataSource(BaseDataSource):
             di = df.iloc[0].to_dict()
             return {k: v for k, v in di.items() if not pd.isna(v)}
 
-    def get_all_available_portfolios(self, as_instance: bool = False) -> Union[Dict[str, datetime.datetime], List["Portfolio"]]:
+    def get_all_portfolios(self, as_instance: bool = False) -> Union[Dict[str, datetime.datetime], List["Portfolio"]]:
         """
         Get all available portfolios with last modified date.
         
@@ -100,16 +108,8 @@ class LocalDataSource(BaseDataSource):
             return [Portfolio(name) for name, _ in di.items()]
         else:
             return di
-
-    @staticmethod
-    def _portfolio_mapping() -> pd.DataFrame:
-        return pd.read_csv(f"{BASE_PATH}/portfolio_mapping.csv")
-
-    @staticmethod
-    def _reporting_currency() -> pd.DataFrame:
-        return pd.read_csv(f"{BASE_PATH}/reporting_currency.csv")
         
-    def get_all_available_securities(self, column: str = "code", as_instance: bool = False) -> List[Union[str, "Security"]]:
+    def get_all_securities(self, column: str = "code", as_instance: bool = False) -> List[Union[str, "Security"]]:
         """
         List all available securities.
         """
