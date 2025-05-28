@@ -9,7 +9,7 @@ from typing import Dict, Optional, ClassVar, TYPE_CHECKING, Tuple
 from ..config import HISTORICAL_DATA_PATH, BASE_PATH
 from ..utils.consts import DATA_START_DATE
 from ..utils.date_utils import today_midnight
-from ..utils.exceptions import DataSourceMethodException, AlphaVantageException
+from ..utils.exceptions import DataSourceMethodException, AlphaVantageException, TwelveDataException
 from ..utils.warnings import warnings
 
 if TYPE_CHECKING:
@@ -40,25 +40,25 @@ class BaseDataSource(BaseModel):
             raise DataSourceMethodException(f"Intraday not currently supported. Should not be used.")
         
         df = self._read_ts_from_local(security=security, intraday=intraday)
+        df_to_concat = []
 
         symbol = getattr(security, self.internal_mapping_code, None)
         if symbol is None:
             warnings.warn(f"Mising internal code for {self.name} datasource for {security.code}")
             return df
-
-        start_date, end_date = self._default_start_and_end_date(
-            df=df,
-            symbol=symbol,
-            intraday=intraday,
-            **kwargs,
-        )
-
-        empty = df.empty
-        lower_bound_missing = None if empty else (min(df["as_of_date"]) > start_date)
-        upper_bound_missing = None if empty else (max(df["as_of_date"]) < end_date)
-
+        
         try:
-            df_to_concat = []
+            start_date, end_date = self._default_start_and_end_date(
+                df=df,
+                symbol=symbol,
+                intraday=intraday,
+                **kwargs,
+            )
+
+            empty = df.empty
+            lower_bound_missing = None if empty else (min(df["as_of_date"]) > start_date)
+            upper_bound_missing = None if empty else (max(df["as_of_date"]) < end_date)
+
             if empty:
                 df_to_concat.append(self._get_ts_from_remote(
                     security=security, intraday=intraday,
@@ -85,8 +85,8 @@ class BaseDataSource(BaseModel):
         except DataSourceMethodException:
             warnings.warn(f"No remote series for {self.name} datasource for {security.code}.")
 
-        except AlphaVantageException:
-            warnings.warn(f"Unable to get remote series for {self.name} datasource for {security.code}.")
+        except (AlphaVantageException, TwelveDataException) as e:
+            warnings.warn(f"Unable to retrieve remote series for {self.name} datasource for {security.code}: {e}")
         
         # except Exception as e:
         #     warnings.warn(f"""
