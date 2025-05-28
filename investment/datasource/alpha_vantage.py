@@ -135,4 +135,4 @@ class AlphaVantageDataSource(BaseDataSource):
         return start_date, end_date
 
     def _update_security_mapping(self, df: pd.DataFrame) -> pd.DataFrame:
-        raise DataSourceMethodException(f"No remote security mapping for {self.name} datasource.")
+        raise NotImplementedError

@@ -91,13 +91,6 @@ class BaseDataSource(BaseModel):
         except (AlphaVantageException, TwelveDataException) as e:
             warnings.warn(f"Unable to retrieve remote series for {self.name} datasource for {security.code}: {e}")
         
-        # except Exception as e:
-        #     warnings.warn(f"""
-        #     Exception for {self.name} datasource for {security.code} as "{e}" for params:
-        #     start_date({start_date}), end_date({end_date}), intraday({intraday}),
-        #     empty({empty}), lower_bound_missing({lower_bound_missing}), upper_bound_missing({upper_bound_missing}),
-        #     """)
-        
         if df_to_concat:
             df_to_concat.append(df)
             df = pd.concat(df_to_concat)
@@ -238,11 +231,6 @@ class BaseDataSource(BaseModel):
         except DataSourceMethodException:
             df = pd.DataFrame()
             warnings.warn(f"No remote security mapping for {self.name} datasource.")
-
-        # except Exception as e:
-        #     warnings.warn(f"""
-        #     Exception for {self.name} datasource as "{e}" while updating security mappings
-        #     """)
 
         return df
 
