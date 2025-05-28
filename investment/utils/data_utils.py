@@ -17,7 +17,7 @@ def update_security_mapping() -> Dict[str, bool]:
     di = {}
     for ds in tqdm(all_datasource, desc="Updating all security mappings"):
         ds_instance: "BaseDataSource" = ds()
-        di[ds_instance.name] = False if ds_instance.update_security_mappings().empty else True
+        di[ds_instance.name] = False if ds_instance.update_security_mapping().empty else True
     return di
 
 def update_all() -> Tuple[Dict[str, bool], Dict[str, Dict[str, bool]]]:

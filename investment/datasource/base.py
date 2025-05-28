@@ -32,17 +32,46 @@ class BaseDataSource(BaseModel):
     def _security_mapping_path(self) -> str:
         return f"{BASE_PATH}/security_mapping_{self.name}.csv"
 
-    def _security_mapping(self) -> pd.DataFrame:
+    def security_mapping(self) -> pd.DataFrame:
         return pd.read_csv(self._security_mapping_path)
 
     def get_timeseries(self, security: "Security", intraday: bool = False, local_only: bool = False, **kwargs) -> pd.DataFrame:
         if intraday:
             raise DataSourceMethodException(f"Intraday not currently supported. Should not be used.")
         
-        df = self._read_ts_from_local(security=security, intraday=intraday)
-        if local_only:
-            return df
+        df_local = self._read_ts_from_local(security=security, intraday=intraday)
         
+        if not local_only:
+            df_remote = self._load_ts_from_remote(security=security, intraday=intraday, df=df_local, **kwargs)
+        
+        if not df_remote.empty:
+            df = pd.concat([df_remote, df_local])
+            if df.empty:
+                return df
+            
+            df = df
+        else:
+            df = df_local
+        
+        if not df.empty:
+            df = df.reset_index(drop=True).set_index("as_of_date").sort_index().drop_duplicates()
+            df = self._format_df_with_analysis(df=df)
+        
+        self._write_ts_to_local(security=security, df=df, intraday=intraday)
+            
+        return df
+    
+    def _write_ts_to_local(self, security: "Security", df: pd.DataFrame, intraday: bool) -> None:
+        df.to_csv(security.get_file_path(datasource_name=self.name, intraday=intraday), index=True)
+
+    def _read_ts_from_local(self, security: "Security", intraday: bool) -> pd.DataFrame:
+        file_path = Path(security.get_file_path(datasource_name=self.name, intraday=intraday))
+        if not file_path.exists():
+            return pd.DataFrame() # or return None if preferred
+        df = pd.read_csv(file_path, parse_dates=["as_of_date"])
+        return df
+    
+    def _load_ts_from_remote(self, security: "Security", intraday: bool, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
         df_to_concat = []
 
         symbol = getattr(security, self.internal_mapping_code, None)
@@ -90,24 +119,8 @@ class BaseDataSource(BaseModel):
 
         except (AlphaVantageException, TwelveDataException) as e:
             warnings.warn(f"Unable to retrieve remote series for {self.name} datasource for {security.code}: {e}")
-        
-        if df_to_concat:
-            df_to_concat.append(df)
-            df = pd.concat(df_to_concat)
-            if df.empty:
-                return df
-            
-            df = df.reset_index(drop=True).set_index("as_of_date").sort_index().drop_duplicates()
-            self._write_ts_to_local(security=security, df=df, intraday=intraday)
-            
-        return df
 
-    def _read_ts_from_local(self, security: "Security", intraday: bool) -> pd.DataFrame:
-        file_path = Path(security.get_file_path(datasource_name=self.name, intraday=intraday))
-        if not file_path.exists():
-            return pd.DataFrame() # or return None if preferred
-        df = pd.read_csv(file_path, parse_dates=["as_of_date"])
-        return df
+        return pd.concat(df_to_concat) if df_to_concat else pd.DataFrame()
 
     def _get_ts_from_remote(
         self,
@@ -154,6 +167,13 @@ class BaseDataSource(BaseModel):
     def _format_ts_from_remote(df: pd.DataFrame) -> pd.DataFrame:
         pass
 
+    def _format_df_with_analysis(self, df: pd.DataFrame) -> pd.DataFrame:
+        from ..analysis.returns import ReturnsCalculator
+
+        df = ReturnsCalculator().calculate_returns(df=df)
+
+        return df
+
     def _default_start_and_end_date(
         self,
         df: pd.DataFrame,
@@ -164,9 +184,6 @@ class BaseDataSource(BaseModel):
         start_date = kwargs.get("start_date", self.data_start_date)
         end_date = kwargs.get("end_date", today_midnight() + datetime.timedelta(days=-1))
         return start_date, end_date
-    
-    def _write_ts_to_local(self, security: "Security", df: pd.DataFrame, intraday: bool) -> None:
-        df.to_csv(security.get_file_path(datasource_name=self.name, intraday=intraday), index=True)
 
     def get_all_available_data_files(self) -> Dict[str, datetime.datetime]:
         """
@@ -221,10 +238,10 @@ class BaseDataSource(BaseModel):
     def _update_security_mapping(self, df: pd.DataFrame) -> pd.DataFrame:
         pass
     
-    def update_security_mappings(self) -> pd.DataFrame:
+    def update_security_mapping(self) -> pd.DataFrame:
         from .registry import LocalDataSource
         try:
-            df = LocalDataSource()._security_mapping()
+            df = LocalDataSource().security_mapping()
             df = self._update_security_mapping(df=df)
             df.to_csv(self._security_mapping_path, index=False)
 
@@ -237,7 +254,7 @@ class BaseDataSource(BaseModel):
     def full_update(self, start_date: Optional[datetime.datetime] = None, intraday: bool = False) -> Dict[str, bool]:
         from .local import LocalDataSource
 
-        df_mapping = self.update_security_mappings()
+        df_mapping = self.update_security_mapping()
         di = self.update_all_timeseries(start_date=start_date, intraday=intraday)
         
         li = LocalDataSource().get_all_available_securities(as_instance=True)

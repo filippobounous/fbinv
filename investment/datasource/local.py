@@ -60,7 +60,7 @@ class LocalDataSource(BaseDataSource):
         """
         Load a security from the csv file.
         """
-        df = self._security_mapping()
+        df = self.security_mapping()
         df_reporting_ccy = self._reporting_currency()
 
         # set multiplier
@@ -117,7 +117,7 @@ class LocalDataSource(BaseDataSource):
 
         li = []
 
-        df = self._security_mapping()
+        df = self.security_mapping()
         
         if as_instance:
             for _, row in df.iterrows():

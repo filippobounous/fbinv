@@ -147,13 +147,13 @@ class TwelveDataDataSource(BaseDataSource):
         return pd.concat(dfs)
 
     def _check_start_date_for_security(self, symbol: str, intraday: bool) -> Optional[datetime.datetime]:
-        df = self._security_mapping()
+        df = self.security_mapping()
 
         # this actually does not get triggered as there is an earlier exception raised
         if symbol not in df["symbol"].to_list():
             warnings.warn(f"Updating mapping for {symbol} in {self.name} datasource.")
 
-            df = self.update_security_mappings()
+            df = self.update_security_mapping()
 
             if symbol not in df["symbol"]:
                 warnings.warn(f"Missing mapping for {symbol} in {self.name} datasource.")
