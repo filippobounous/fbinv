@@ -43,6 +43,8 @@ class BaseDataSource(BaseModel):
         
         if not local_only:
             df_remote = self._load_ts_from_remote(security=security, intraday=intraday, df=df_local, **kwargs)
+        else:
+            df_remote = pd.DataFrame()
         
         if not df_remote.empty:
             df = pd.concat([df_remote, df_local])
