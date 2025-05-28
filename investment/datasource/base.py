@@ -103,8 +103,6 @@ class BaseDataSource(BaseModel):
         if not file_path.exists():
             return pd.DataFrame() # or return None if preferred
         df = pd.read_csv(file_path, parse_dates=["as_of_date"])
-
-        import pdb; pdb.set_trace()
         return df
 
     def _get_ts_from_remote(
