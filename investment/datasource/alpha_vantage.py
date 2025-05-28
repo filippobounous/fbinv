@@ -1,10 +1,11 @@
 import datetime
 import pandas as pd
 import requests
-from typing import TYPE_CHECKING, ClassVar, Dict, Any
+from typing import TYPE_CHECKING, ClassVar, Dict, Any, Tuple
 
 from .base import BaseDataSource
 from ..config import ALPHA_VANTAGE_API_KEY
+from ..utils.date_utils import today_midnight
 from ..utils.exceptions import DataSourceMethodException, AlphaVantageException
 
 if TYPE_CHECKING:
@@ -110,6 +111,13 @@ class AlphaVantageDataSource(BaseDataSource):
         data = requests.get(url=url, params=params).json()
         self._check_response(data=data)
         return data
+
+    def _default_start_and_end_date(self, df: pd.DataFrame, **kwargs) -> Tuple[datetime.datetime, datetime.datetime]:
+        if df.empty:
+            return super()._default_start_and_end_date(df=df, **kwargs)
+        start_date = df["as_of_date"].min()
+        end_date = today_midnight()
+        return start_date, end_date
 
     def _update_security_mapping(self, df: pd.DataFrame) -> pd.DataFrame:
         raise DataSourceMethodException(f"No remote security mapping for {self.name} datasource.")

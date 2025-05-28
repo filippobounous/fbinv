@@ -4,7 +4,7 @@ import pandas as pd
 from pathlib import Path
 from pydantic import BaseModel
 from tqdm import tqdm
-from typing import Dict, Optional, ClassVar, TYPE_CHECKING
+from typing import Dict, Optional, ClassVar, TYPE_CHECKING, Tuple
 
 from ..config import HISTORICAL_DATA_PATH, BASE_PATH
 from ..utils.consts import DATA_START_DATE
@@ -37,8 +37,7 @@ class BaseDataSource(BaseModel):
         
         df = self._read_ts_from_local(security=security, intraday=intraday)
 
-        start_date = kwargs.get("start_date", self.data_start_date)
-        end_date = kwargs.get("end_date", today_midnight() + datetime.timedelta(days=-1))
+        start_date, end_date = self._default_start_and_end_date(df=df, **kwargs)
 
         empty = df.empty
         lower_bound_missing = None if empty else (min(df["as_of_date"]) > start_date)
@@ -98,6 +97,8 @@ class BaseDataSource(BaseModel):
         if not file_path.exists():
             return pd.DataFrame() # or return None if preferred
         df = pd.read_csv(file_path, parse_dates=["as_of_date"])
+
+        import pdb; pdb.set_trace()
         return df
 
     @property
@@ -148,6 +149,11 @@ class BaseDataSource(BaseModel):
     @abstractmethod
     def _format_ts_from_remote(df: pd.DataFrame) -> pd.DataFrame:
         pass
+
+    def _default_start_and_end_date(self, df: pd.DataFrame, **kwargs) -> Tuple[datetime.datetime, datetime.datetime]:
+        start_date = kwargs.get("start_date", self.data_start_date)
+        end_date = kwargs.get("end_date", today_midnight() + datetime.timedelta(days=-1))
+        return start_date, end_date
 
     def get_all_available_data_files(self) -> Dict[str, datetime.datetime]:
         """

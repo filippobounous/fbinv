@@ -1,10 +1,11 @@
 import datetime
 import pandas as pd
 import re
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING, ClassVar, Tuple
 import yfinance as yf
 
 from .base import BaseDataSource
+from ..utils.date_utils import today_midnight
 
 if TYPE_CHECKING:
     from ..core.security.registry import CurrencyCross, Equity, ETF, Fund, Security
@@ -94,6 +95,13 @@ class YahooFinanceDataSource(BaseDataSource):
             end=end_date.strftime("%Y-%m-%d"),
             auto_adjust=True,
         )
+
+    def _default_start_and_end_date(self, df: pd.DataFrame, **kwargs) -> Tuple[datetime.datetime, datetime.datetime]:
+        if df.empty:
+            return super()._default_start_and_end_date(df=df, **kwargs)
+        start_date = df["as_of_date"].min()
+        end_date = today_midnight()
+        return start_date, end_date
 
     def _update_security_mapping(self, df: pd.DataFrame) -> pd.DataFrame:
         dict_list = [yf.Ticker(sec).info for sec in df[self.internal_mapping_code].to_list()]
