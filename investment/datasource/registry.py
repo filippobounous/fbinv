@@ -11,7 +11,7 @@ from .yahoo_finance import YahooFinanceDataSource
 if TYPE_CHECKING:
     from .base import BaseDataSource
 
-all_data_source: List["BaseDataSource"] = [
+all_datasource: List["BaseDataSource"] = [
     AlphaVantageDataSource,
     BloombergDataSource,
     FinancialTimesDataSource,
@@ -21,12 +21,14 @@ all_data_source: List["BaseDataSource"] = [
     YahooFinanceDataSource,
 ]
 
-data_source_registry: Dict[str, "BaseDataSource"] = {
+datasource_registry: Dict[str, "BaseDataSource"] = {
     i.name: i
-    for i in all_data_source
+    for i in all_datasource
 }
 
-data_source_codes: List[str] = [
+datasource_codes: List[str] = [
     f"{i.name}_code"
-    for i in  all_data_source
+    for i in  all_datasource
 ] + [f"{FinancialTimesDataSource.name}_security_type"]
+
+default_timeseries_datasource = YahooFinanceDataSource()

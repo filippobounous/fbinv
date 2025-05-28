@@ -1,7 +1,11 @@
-from typing import Optional, ClassVar
+import pandas as pd
+from typing import Optional, ClassVar, TYPE_CHECKING
 
 from ...config import HISTORICAL_DATA_PATH
 from ..mapping import BaseMappingEntity
+
+if TYPE_CHECKING:
+    from ...datasource.base import BaseDataSource
 
 class Security(BaseMappingEntity):
     entity_type: ClassVar[str] = "security"
@@ -18,7 +22,7 @@ class Security(BaseMappingEntity):
     multiplier: Optional[float] = None
 
     def __init__(self, code: Optional[str] = None, **kwargs) -> None:
-        from ...datasource.registry import data_source_codes
+        from ...datasource.registry import datasource_codes
         
         if code is not None:
             kwargs["code"] = code
@@ -28,7 +32,7 @@ class Security(BaseMappingEntity):
         missing = [
             k
             for k, v in self.__dict__.items()
-            if v is None and k not in ["entity_type"] + data_source_codes
+            if v is None and k not in ["entity_type"] + datasource_codes
         ]
         if missing:
             raise ValueError(f"{self.code} is missing required values for: {missing}.")
@@ -47,3 +51,11 @@ class Security(BaseMappingEntity):
 
         folder_name = "intraday" if intraday else "daily"
         return f"{HISTORICAL_DATA_PATH}/{folder_name}/{datasource_name}/{self.entity_type}/{file_name}_{folder_name}.csv"
+
+    def get_timeseries(self, datasource: Optional["BaseDataSource"] = None, local_only: bool = False, intraday: bool = False) -> pd.DataFrame:
+        from ...datasource.registry import default_timeseries_datasource
+
+        if datasource is None:
+            datasource = default_timeseries_datasource
+        
+        return datasource.get_timeseries(security=self, intraday=intraday, local_only=local_only)

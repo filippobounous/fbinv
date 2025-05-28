@@ -35,11 +35,14 @@ class BaseDataSource(BaseModel):
     def _security_mapping(self) -> pd.DataFrame:
         return pd.read_csv(self._security_mapping_path)
 
-    def get_timeseries(self, security: "Security", intraday: bool = False, **kwargs) -> pd.DataFrame:
+    def get_timeseries(self, security: "Security", intraday: bool = False, local_only: bool = False, **kwargs) -> pd.DataFrame:
         if intraday:
             raise DataSourceMethodException(f"Intraday not currently supported. Should not be used.")
         
         df = self._read_ts_from_local(security=security, intraday=intraday)
+        if local_only:
+            return df
+        
         df_to_concat = []
 
         symbol = getattr(security, self.internal_mapping_code, None)
