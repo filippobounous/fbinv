@@ -6,12 +6,14 @@ import requests
 from time import sleep
 from tqdm import tqdm
 from twelvedata import TDClient
+from twelvedata.exceptions import TwelveDataError
 from typing import TYPE_CHECKING, List, Dict, ClassVar, Tuple, Any, Optional
 import warnings
 
 from .base import BaseDataSource
 from ..config import TWELVE_DATA_API_KEY
 from ..utils.date_utils import today_midnight
+from ..utils.exceptions import TwelveDataException
 
 if TYPE_CHECKING:
     from ..core.security.registry import CurrencyCross, Equity, ETF, Fund, Security
@@ -124,14 +126,21 @@ class TwelveDataDataSource(BaseDataSource):
 
         for _start_date, _end_date in dates:
             self._respect_rate_limit()
-
-            df = self.td.time_series(
-                symbol=symbol,
-                interval=interval,
-                outputsize=self.output_size,
-                start_date=_start_date.strftime("%Y-%m-%d"),
-                end_date=_end_date.strftime("%Y-%m-%d"),
-            ).as_pandas()
+            try:
+                df = self.td.time_series(
+                    symbol=symbol,
+                    interval=interval,
+                    outputsize=self.output_size,
+                    start_date=_start_date.strftime("%Y-%m-%d"),
+                    end_date=_end_date.strftime("%Y-%m-%d"),
+                ).as_pandas()
+            except TwelveDataError as e:
+                warnings.warn(f"""
+                    Missing data for parmas:
+                    symbol({symbol}), interval({interval}), outputsize({self.output_size}),
+                    start_date({_start_date.strftime("%Y-%m-%d")}), end_date({_end_date.strftime("%Y-%m-%d")})
+                """)
+                df = pd.DataFrame()
 
             dfs.append(df)
 
@@ -140,6 +149,7 @@ class TwelveDataDataSource(BaseDataSource):
     def _check_start_date_for_security(self, symbol: str, intraday: bool) -> Optional[datetime.datetime]:
         df = self._security_mapping()
 
+        # this actually does not get triggered as there is an earlier exception raised
         if symbol not in df["symbol"].to_list():
             warnings.warn(f"Updating mapping for {symbol} in {self.name} datasource.")
 
@@ -256,5 +266,8 @@ class TwelveDataDataSource(BaseDataSource):
     ) -> Tuple[datetime.datetime, datetime.datetime]:
         start_date = kwargs.get("start_date", self._check_start_date_for_security(symbol=symbol, intraday=intraday))
         end_date = kwargs.get("end_date", today_midnight())
+
+        if start_date is None:
+            raise TwelveDataException(f"Missing start_date mapping for {symbol}.")
 
         return start_date, end_date
