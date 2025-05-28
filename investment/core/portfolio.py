@@ -1,20 +1,17 @@
 import datetime
 import pandas as pd
 from pydantic import ConfigDict, Field
-from typing import Optional
+from typing import Optional, ClassVar
 
 from ..config import PORTFOLIO_PATH, DEFAULT_NAME
 from .mapping import BaseMappingEntity
-from ..utils.date_utils import today_midnight
 
 class Portfolio(BaseMappingEntity):
-    entity_type: str = "portfolio"
+    entity_type: ClassVar[str] = "portfolio"
     owner: Optional[str] = None
     has_cash: Optional[bool] = None
-    
     portfolio: Optional[pd.DataFrame] = Field(default = None, repr=False)
     cash: Optional[pd.DataFrame] = Field(default = None, repr=False)
-    
     account: Optional[str] = None
     currency: Optional[str] = None
     ignore_cash: Optional[bool] = False

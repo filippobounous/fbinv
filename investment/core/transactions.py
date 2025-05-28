@@ -4,10 +4,10 @@ from pydantic import BaseModel
 from ..config import TRANSACTION_PATH, TRANSACTION_SHEET_NAME, PORTFOLIO_PATH, DEFAULT_NAME
 
 class Transactions(BaseModel):
+    name: str = DEFAULT_NAME
     file_path: str = TRANSACTION_PATH
     sheet_name: str = TRANSACTION_SHEET_NAME
     portfolio_path: str = PORTFOLIO_PATH
-    name: str = DEFAULT_NAME
 
     def extract_and_save_investment_transactions(self) -> None:
         """
