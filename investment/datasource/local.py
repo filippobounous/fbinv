@@ -4,7 +4,7 @@ from typing import Any, Dict, Union, List, TYPE_CHECKING, ClassVar
 
 from .base import BaseDataSource
 from ..config import PORTFOLIO_PATH, BASE_PATH
-from ..utils.exceptions import DataSourceMethodException
+from ..utils.exceptions import DataSourceMethodException, SecurityMappingError
 
 if TYPE_CHECKING:
     from ..core import Security
@@ -83,9 +83,9 @@ class LocalDataSource(BaseDataSource):
     @staticmethod
     def _load(df: pd.DataFrame, entity: "BaseMappingEntity") -> Dict[str, Any]:
         if len(df) > 1:
-            raise ValueError(f"Duplicate {entity.entity_type} for code '{entity.code}'.")
+            raise SecurityMappingError(f"Duplicate {entity.entity_type} for code '{entity.code}'")
         elif len(df) == 0:
-            raise ValueError(f"No {entity.entity_type} for code '{entity.code}'.")
+            raise SecurityMappingError(f"No {entity.entity_type} for code '{entity.code}'")
         else:
             di = df.iloc[0].to_dict()
             return {k: v for k, v in di.items() if not pd.isna(v)}

@@ -1,5 +1,6 @@
+from typing import Dict, Any
+
 from pydantic import BaseModel
-from typing import Dict, Any, TYPE_CHECKING, Optional
 
 from ..datasource.local import LocalDataSource
 

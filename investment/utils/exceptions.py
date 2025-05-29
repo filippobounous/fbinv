@@ -6,3 +6,9 @@ class AlphaVantageException(Exception):
 
 class TwelveDataException(Exception):
     pass
+
+class TransactionsException(Exception):
+    pass
+
+class SecurityMappingError(Exception):
+    pass

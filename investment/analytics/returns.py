@@ -1,6 +1,9 @@
+"Module calculating returns"
+
+from typing import Union, List
+
 import pandas as pd
 import numpy as np
-from typing import Union, List
 
 from ..utils.consts import DEFAULT_RET_WIN_SIZE
 
@@ -23,7 +26,7 @@ class ReturnsCalculator:
         """
         if df.empty:
             raise ValueError("Input DataFrame is empty.")
-        
+
         df = df.sort_index()
 
         if 'close' not in df.columns:
@@ -37,7 +40,7 @@ class ReturnsCalculator:
                 rets = np.log(df['close'] / df['close'].shift(n))
             else:
                 rets = df['close'].pct_change(n)
-            
+
             temp_df = pd.DataFrame({
                 'as_of_date': df.index,
                 'is_ln_ret': self.use_ln_ret,

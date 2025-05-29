@@ -65,7 +65,12 @@ class RealisedVolatilityCalculator:
         rs: pd.Series = (1.0 / (4.0 * np.log(2))) * (np.log(df['high'] / df['low']) ** 2)
         return np.sqrt(rs.rolling(rv_win_size).mean()) * np.sqrt(self.dt)
 
-    def _garman_klass(self, df: pd.DataFrame, rv_win_size: int, _return_initial_term: bool = False) -> pd.Series:
+    def _garman_klass(
+        self,
+        df: pd.DataFrame,
+        rv_win_size: int,
+        _return_initial_term: bool = False,
+    ) -> pd.Series:
         term1 = 0.5 * (np.log(df['high'] / df['low']) ** 2)
         term2 = (2 * np.log(2) - 1) * (np.log(df['close'] / df['open']) ** 2)
         rs: pd.Series = term1 - term2
