@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING, List, Dict
 
+from .composite import Composite
 from .currency_cross import CurrencyCross
 from .equity import Equity
 from .etf import ETF
@@ -9,6 +10,7 @@ if TYPE_CHECKING:
     from .base import Security
 
 all_securities: List['Security']= [
+    Composite,
     CurrencyCross,
     Equity,
     ETF,

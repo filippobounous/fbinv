@@ -1,9 +1,6 @@
-"Module calculating returns"
-
-from typing import Union, List
-
 import pandas as pd
 import numpy as np
+from typing import Union, List
 
 from ..utils.consts import DEFAULT_RET_WIN_SIZE
 

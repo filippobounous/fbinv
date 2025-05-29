@@ -1,6 +1,7 @@
 import datetime
-import pandas as pd
 from typing import Any, Dict, Union, List, TYPE_CHECKING, ClassVar
+
+import pandas as pd
 
 from .base import BaseDataSource
 from ..config import PORTFOLIO_PATH, BASE_PATH
@@ -56,18 +57,14 @@ class LocalDataSource(BaseDataSource):
         return df
 
     def load_portfolio(self, portfolio: "Portfolio") -> Dict[str, Any]:
-        """
-        Load a portfolio from the csv file.
-        """
+        "Load a portfolio from the csv file."
         df = self.portfolio_mapping
         row = df.loc[df.code == portfolio.code]
 
         return self._load(df=row, entity=portfolio)
 
     def load_security(self, security: "Security") -> Dict[str, Any]:
-        """
-        Load a security from the csv file.
-        """
+        "Load a security from the csv file."
         df = self.get_security_mapping()
         df_reporting_ccy = self.reporting_currency
 
@@ -80,17 +77,22 @@ class LocalDataSource(BaseDataSource):
 
         return self._load(df=row, entity=security)
     
+    def load_composite(self, composite: "Composite") -> Dict[str, Any]:
+        pass
+
     @staticmethod
     def _load(df: pd.DataFrame, entity: "BaseMappingEntity") -> Dict[str, Any]:
         if len(df) > 1:
             raise SecurityMappingError(f"Duplicate {entity.entity_type} for code '{entity.code}'")
-        elif len(df) == 0:
+        if len(df) == 0:
             raise SecurityMappingError(f"No {entity.entity_type} for code '{entity.code}'")
-        else:
-            di = df.iloc[0].to_dict()
-            return {k: v for k, v in di.items() if not pd.isna(v)}
 
-    def get_all_portfolios(self, as_instance: bool = False) -> Union[Dict[str, datetime.datetime], List["Portfolio"]]:
+        di = df.iloc[0].to_dict()
+        return {k: v for k, v in di.items() if not pd.isna(v)}
+
+    def get_all_portfolios(
+        self, as_instance: bool = False
+    ) -> Union[Dict[str, datetime.datetime], List["Portfolio"]]:
         """
         Get all available portfolios with last modified date.
         
@@ -98,21 +100,18 @@ class LocalDataSource(BaseDataSource):
             as_instance (bool): If True then returns a list of Portfolio classes.
 
         Returns:
-            Union[Dict[str, datetime.datetime], List[Portfolio]]: Dictionary of file names and last modified date
-            or List of Portfolios
+            Union[Dict[str, datetime.datetime], List[Portfolio]]:Dictionary of file names
+            and last modified date or List of Portfolios
         """
         from ..core import Portfolio
 
         di = self._get_file_names_in_path(path=PORTFOLIO_PATH)
         if as_instance:
             return [Portfolio(name) for name, _ in di.items()]
-        else:
-            return di
-        
+        return di
+
     def get_all_securities(self, column: str = "code", as_instance: bool = False) -> List[Union[str, "Security"]]:
-        """
-        List all available securities.
-        """
+        "List all available securities."
         from ..core.security.registry import security_registry
 
         li = []

@@ -1,5 +1,6 @@
-import pandas as pd
 from typing import Optional, ClassVar, TYPE_CHECKING, Union, List
+
+import pandas as pd
 
 from ...analytics.realised_volatility import RealisedVolatilityCalculator
 from ...analytics.returns import ReturnsCalculator
@@ -9,6 +10,7 @@ from ..mapping import BaseMappingEntity
 from ...utils.consts import DEFAULT_RET_WIN_SIZE, DEFAULT_RV_WIN_SIZE, DEFAULT_RV_MODEL
 
 if TYPE_CHECKING:
+    from .composite import Composite
     from ...datasource.base import BaseDataSource
 
 class Security(BaseMappingEntity):
@@ -27,7 +29,7 @@ class Security(BaseMappingEntity):
 
     def __init__(self, code: Optional[str] = None, **kwargs) -> None:
         from ...datasource.registry import datasource_codes
-        
+
         if code is not None:
             kwargs["code"] = code
 
@@ -45,20 +47,30 @@ class Security(BaseMappingEntity):
         from ...datasource.registry import LocalDataSource, OpenFigiDataSource
 
         if datasource_name == LocalDataSource.name:
-            _file_name = "code"
+            _code = "code"
         elif datasource_name == OpenFigiDataSource.name:
-            _file_name = "figi_code"
+            _code = "figi_code"
         else:
-            _file_name = getattr(self, f"{datasource_name}_code", None)
-        
-        file_name = _file_name.replace("/", "") if _file_name else _file_name
+            _code = getattr(self, f"{datasource_name}_code", None)
+
+        code = _code.replace("/", "") if _code else _code
 
         data_frequency = "intraday" if intraday else "daily"
-        return f"{TIMESERIES_DATA_PATH}/{series_type}/{datasource_name}/{self.entity_type}/{file_name}-{data_frequency}-{series_type}.csv"
 
-    def get_price_history(self, datasource: Optional["BaseDataSource"] = None, local_only: bool = True, intraday: bool = False) -> pd.DataFrame:
-        datasource = get_datasource(datasource=datasource)
-        return datasource.get_price_history(security=self, intraday=intraday, local_only=local_only)
+        path_name = f"{TIMESERIES_DATA_PATH}/{series_type}/{datasource_name}/{self.entity_type}"
+        file_name = f"{code}-{data_frequency}-{series_type}.csv"
+        return f"{path_name}/{file_name}"
+
+    def get_price_history(
+        self,
+        datasource: Optional["BaseDataSource"] = None,
+        local_only: bool = True,
+        intraday: bool = False
+    ) -> pd.DataFrame:
+        _datasource = get_datasource(datasource=datasource)
+        return _datasource.get_price_history(
+            security=self, intraday=intraday, local_only=local_only
+        )
 
     def get_returns(
         self,
@@ -69,7 +81,9 @@ class Security(BaseMappingEntity):
     ) -> pd.DataFrame:
         df = self.get_price_history(datasource=datasource, local_only=local_only, intraday=False)
 
-        return ReturnsCalculator(ret_win_size=ret_win_size, ln_ret=use_ln_ret).calculate(df=df)
+        return ReturnsCalculator(
+            ret_win_size=ret_win_size, use_ln_ret=use_ln_ret
+        ).calculate(df=df)
 
     def get_realised_volatility(
         self,
@@ -80,4 +94,13 @@ class Security(BaseMappingEntity):
     ) -> pd.DataFrame:
         df = self.get_price_history(datasource=datasource, local_only=local_only, intraday=False)
 
-        return RealisedVolatilityCalculator(rv_win_size=rv_win_size, rv_model=rv_model).calculate(df=df)
+        return RealisedVolatilityCalculator(
+            rv_win_size=rv_win_size, rv_model=rv_model
+        ).calculate(df=df)
+
+    def convert_to_currency(self, currency: str) -> Union["Security", "Composite"]:
+        from .composite import Composite
+        if currency ==  self.currency:
+            return self
+        else:
+            return Composite(security=self, currency=currency)

@@ -1,13 +1,14 @@
+from pathlib import Path
+from typing import Dict, Optional, ClassVar, TYPE_CHECKING, Tuple
+
+from ..config import TIMESERIES_DATA_PATH, BASE_PATH
 from abc import abstractmethod
 import datetime
 import os
 import pandas as pd
-from pathlib import Path
 from pydantic import BaseModel
 from tqdm import tqdm
-from typing import Dict, Optional, ClassVar, TYPE_CHECKING, Tuple
 
-from ..config import TIMESERIES_DATA_PATH, BASE_PATH
 from ..utils.consts import DATA_START_DATE
 from ..utils.date_utils import today_midnight
 from ..utils.exceptions import DataSourceMethodException, AlphaVantageException, TwelveDataException
@@ -151,19 +152,35 @@ class BaseDataSource(BaseModel):
             return self._format_price_history_from_remote(df)
     
     @abstractmethod
-    def _get_currency_cross_price_history_from_remote(self, security: "CurrencyCross", intraday: bool) -> pd.DataFrame:
+    def _get_currency_cross_price_history_from_remote(
+        self,
+        security: "CurrencyCross", intraday: bool,
+        start_date: datetime.datetime, end_date: datetime.datetime,
+    ) -> pd.DataFrame:
         pass
 
     @abstractmethod
-    def _get_equity_price_history_from_remote(self, security: "Equity", intraday: bool) -> pd.DataFrame:
+    def _get_equity_price_history_from_remote(
+        self,
+        security: "Equity", intraday: bool,
+        start_date: datetime.datetime, end_date: datetime.datetime,
+    ) -> pd.DataFrame:
         pass
 
     @abstractmethod
-    def _get_etf_price_history_from_remote(self, security: "ETF", intraday: bool) -> pd.DataFrame:
+    def _get_etf_price_history_from_remote(
+        self,
+        security: "ETF", intraday: bool,
+        start_date: datetime.datetime, end_date: datetime.datetime,
+    ) -> pd.DataFrame:
         pass
 
     @abstractmethod
-    def _get_fund_price_history_from_remote(self, security: "Fund", intraday: bool) -> pd.DataFrame:
+    def _get_fund_price_history_from_remote(
+        self,
+        security: "Fund", intraday: bool,
+        start_date: datetime.datetime, end_date: datetime.datetime,
+    ) -> pd.DataFrame:
         pass
 
     @staticmethod

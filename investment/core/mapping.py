@@ -1,6 +1,5 @@
-from typing import Dict, Any
-
 from pydantic import BaseModel
+from typing import Dict, Any
 
 from ..datasource.local import LocalDataSource
 
@@ -20,6 +19,7 @@ class BaseMappingEntity(BaseModel):
             "etf": lds.load_security,
             "fund": lds.load_security,
             "portfolio": lds.load_portfolio,
+            "composite": lds.load_composite,
         }
 
         init_method = load_methods.get(self.entity_type)
