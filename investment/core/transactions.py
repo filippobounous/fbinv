@@ -1,9 +1,12 @@
+"""Logic for extracting and storing portfolio transactions."""
+
 import pandas as pd
 from pydantic import BaseModel
 
 from ..config import TRANSACTION_PATH, TRANSACTION_SHEET_NAME, PORTFOLIO_PATH, DEFAULT_NAME
 
 class Transactions(BaseModel):
+    """Utility class for working with transaction spreadsheets."""
     code: str = DEFAULT_NAME
     file_path: str = TRANSACTION_PATH
     sheet_name: str = TRANSACTION_SHEET_NAME
@@ -67,8 +70,12 @@ class Transactions(BaseModel):
         df.to_csv(f"{self.portfolio_path}/{self.code}-cash.csv", index=False)
 
     def _load_transactions(self) -> pd.DataFrame:
+        """Load the raw transaction data from disk."""
+
         return pd.read_excel(self.file_path, sheet_name=self.sheet_name)
     
     def update(self) -> None:
+        """Refresh both transaction and cash CSV files."""
+
         self.extract_and_save_investment_transactions()
         self.load_and_save_cash_positions()

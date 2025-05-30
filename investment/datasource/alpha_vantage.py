@@ -1,3 +1,5 @@
+"""Datasource implementation for the Alpha Vantage API."""
+
 import datetime
 import pandas as pd
 import requests
@@ -16,6 +18,7 @@ if TYPE_CHECKING:
 # https://pypi.org/project/alpha-vantage/
 
 class AlphaVantageDataSource(BaseDataSource):
+    """Retrieve market data from the Alpha Vantage service."""
     name: ClassVar[str] = "alpha_vantage"
     base_url: str = "https://www.alphavantage.co/query"
 
@@ -108,12 +111,16 @@ class AlphaVantageDataSource(BaseDataSource):
         return df
         
     def _get_response(self, url: str, params: Dict[str, Any]) -> Dict[str, Any]:
+        """Perform the HTTP request and return the parsed JSON."""
+
         data = requests.get(url=url, params=params).json()
         self._check_response(data=data)
         return data
     
     @staticmethod
     def _check_response(data: Dict[str, Any]) -> None:
+        """Validate the API response and raise for common errors."""
+
         info = data.get("Information")
         if info:
             if "standard API rate limit" in info:

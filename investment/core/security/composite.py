@@ -1,3 +1,5 @@
+"""Composite security built from another security and a currency cross."""
+
 from typing import Optional, TYPE_CHECKING, ClassVar
 
 import pandas as pd
@@ -10,7 +12,10 @@ from ...utils.consts import OC
 if TYPE_CHECKING:
     from ...datasource.base import BaseDataSource
 
+
 class Composite(Security):
+    """Security representing another security converted via a currency cross."""
+
     entity_type: ClassVar[str] = "composite"
     security: Security
     currency_cross: CurrencyCross
@@ -26,7 +31,7 @@ class Composite(Security):
         elif composite_currency:
             kwargs["currency_cross"] = get_currency_cross(
                 origin_currency=security.currency,
-                result_currency=composite_currency
+                result_currency=composite_currency,
             )
 
         kwargs["code"] = f"{security.code}_{kwargs.get('composite_currency')}"
@@ -39,6 +44,8 @@ class Composite(Security):
         local_only: bool = True,
         intraday: bool = False,
     ) -> pd.DataFrame:
+        """Return price history of the composite security."""
+
         kwargs = {
             "datasource": datasource,
             "local_only": local_only,
@@ -46,9 +53,9 @@ class Composite(Security):
         }
 
         ph_security = self.security.get_price_history(**kwargs)[OC]
-        ph_currency_cross = self.security.get_price_history(**kwargs)[OC]
+        ph_currency_cross = self.currency_cross.get_price_history(**kwargs)[OC]
 
-        ph_security.columns = [f"{i}_origin" for i in ph_security.columns]
-        ph_currency_cross.columns = [f"{i}_conversion" for i in ph_currency_cross.columns]
+        ph_security.columns = [f"{c}_origin" for c in ph_security.columns]
+        ph_currency_cross.columns = [f"{c}_conversion" for c in ph_currency_cross.columns]
 
-        import pdb; pdb.set_trace()
+        return pd.concat([ph_security, ph_currency_cross], axis=1)

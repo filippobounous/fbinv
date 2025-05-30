@@ -1,3 +1,5 @@
+"""Setup script for the investment package."""
+
 from setuptools import setup, find_packages
 
 setup(

@@ -1,14 +1,19 @@
+"""Base classes for mapping CSV data to domain models."""
+
 from pydantic import BaseModel
 from typing import Dict, Any
 
 from ..datasource.local import LocalDataSource
 
 class BaseMappingEntity(BaseModel):
+    """Base model used to load attributes from ``LocalDataSource``."""
     entity_type: str
     code: str
     _local_datasource: LocalDataSource = LocalDataSource
 
     def __init__(self, **kwargs):
+        """Populate model fields from the local datasource."""
+
         super().__init__(**kwargs)
 
         lds: LocalDataSource = self._local_datasource()

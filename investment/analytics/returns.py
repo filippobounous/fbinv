@@ -1,3 +1,5 @@
+"""Utilities for computing simple and logarithmic returns."""
+
 import pandas as pd
 import numpy as np
 from typing import Union, List
@@ -5,11 +7,19 @@ from typing import Union, List
 from ..utils.consts import DEFAULT_RET_WIN_SIZE
 
 class ReturnsCalculator:
+    """Calculate returns over different horizons."""
     def __init__(
             self,
             use_ln_ret: bool = True,
             ret_win_size: Union[int, List[int]] = DEFAULT_RET_WIN_SIZE
         ) -> None:
+        """Instantiate the calculator.
+
+        Args:
+            use_ln_ret: Use logarithmic returns if True.
+            ret_win_size: Window sizes to compute returns over.
+        """
+
         self.use_ln_ret = use_ln_ret
 
         if isinstance(ret_win_size, int):

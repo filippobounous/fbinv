@@ -1,3 +1,5 @@
+"""Registry of available security subclasses."""
+
 from typing import TYPE_CHECKING, List, Dict
 
 from .composite import Composite

@@ -1,3 +1,5 @@
+"""Placeholder datasource for the Financial Times API."""
+
 import datetime
 import pandas as pd
 from typing import TYPE_CHECKING, ClassVar
@@ -9,6 +11,7 @@ if TYPE_CHECKING:
     from ..core.security.registry import CurrencyCross, Equity, ETF, Fund
 
 class FinancialTimesDataSource(BaseDataSource):
+    """Datasource skeleton for Financial Times integration."""
     name: ClassVar[str] = "financial_times"
 
     def _get_currency_cross_price_history_from_remote(

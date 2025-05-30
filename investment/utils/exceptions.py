@@ -1,14 +1,20 @@
+"""Custom exception types for the investment package."""
+
 class DataSourceMethodException(Exception):
-    pass
+    """Raised when a datasource method is used incorrectly."""
+
 
 class AlphaVantageException(Exception):
-    pass
+    """Errors returned from the Alpha Vantage API."""
+
 
 class TwelveDataException(Exception):
-    pass
+    """Errors returned from the TwelveData API."""
+
 
 class TransactionsException(Exception):
-    pass
+    """Raised when there is an issue processing transactions."""
+
 
 class SecurityMappingError(Exception):
-    pass
+    """Raised when there is a problem with the security mapping."""

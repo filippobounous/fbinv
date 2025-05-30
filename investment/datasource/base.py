@@ -1,3 +1,5 @@
+"""Abstract base class for all datasource implementations."""
+
 from pathlib import Path
 from typing import Dict, Optional, ClassVar, TYPE_CHECKING, Tuple
 
@@ -19,25 +21,37 @@ if TYPE_CHECKING:
     from ..core.security.registry import CurrencyCross, Equity, ETF, Fund
 
 class BaseDataSource(BaseModel):
+    """Base class defining the datasource interface."""
+
     name: ClassVar[str] = "base"
     data_start_date: datetime.datetime = DATA_START_DATE
 
     @property
     def internal_mapping_code(self) -> str:
+        """Column name in mapping files for this datasource."""
+
         return f"{self.name}_code"
 
     @property
     def timeseries_data_path(self) -> str:
+        """Directory for storing timeseries data for this datasource."""
+
         return f"{TIMESERIES_DATA_PATH}/{self.name}"
     
     @property
     def security_mapping_path(self) -> str:
+        """CSV path for security mapping file."""
+
         return f"{BASE_PATH}/security_mapping-{self.name}.csv"
 
     def get_security_mapping(self) -> pd.DataFrame:
+        """Load the security mapping CSV into a DataFrame."""
+
         return pd.read_csv(self.security_mapping_path)
 
     def get_price_history(self, security: "Security", intraday: bool = False, local_only: bool = False, **kwargs) -> pd.DataFrame:
+        """Retrieve price history for ``security`` from local and/or remote."""
+
         if intraday:
             raise DataSourceMethodException(f"Intraday not currently supported. Should not be used.")
         
@@ -65,18 +79,24 @@ class BaseDataSource(BaseModel):
         return df
     
     def _write_timeseries_to_local(self, security: "Security", df: pd.DataFrame, intraday: bool, series_type: str) -> None:
+        """Persist timeseries ``df`` to disk."""
+
         file_path = security.get_file_path(datasource_name=self.name, intraday=intraday, series_type=series_type)
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
         df.to_csv(file_path, index=True)
 
     def _read_timeseries_from_local(self, security: "Security", intraday: bool, series_type: str) -> pd.DataFrame:
+        """Load timeseries ``DataFrame`` from local storage if present."""
+
         file_path = Path(security.get_file_path(datasource_name=self.name, intraday=intraday, series_type=series_type))
         if not file_path.exists():
-            return pd.DataFrame() # or return None if preferred
+            return pd.DataFrame()
         df = pd.read_csv(file_path, parse_dates=["as_of_date"])
         return df
     
     def _load_price_history_from_remote(self, security: "Security", intraday: bool, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
+        """Download missing price history data from a remote source."""
+
         df_to_concat = []
 
         symbol = getattr(security, self.internal_mapping_code, None)
@@ -195,6 +215,7 @@ class BaseDataSource(BaseModel):
         intraday: bool,
         **kwargs,
     ) -> Tuple[datetime.datetime, datetime.datetime]:
+        """Return default start and end date for fetching data."""
         start_date = kwargs.get("start_date", self.data_start_date)
         end_date = kwargs.get("end_date", today_midnight() + datetime.timedelta(days=-1))
         return start_date, end_date
@@ -226,8 +247,9 @@ class BaseDataSource(BaseModel):
                 di[file_stem] = last_modified_datetime
 
         return di
-    
+
     def update_price_histories(self, intraday: bool = False, **kwargs) -> Dict[str, bool]:
+        """Update price history for all securities known to ``LocalDataSource``."""
         from .local import LocalDataSource
         li = LocalDataSource().get_all_securities(as_instance=True)
 
@@ -242,8 +264,9 @@ class BaseDataSource(BaseModel):
     @abstractmethod
     def _update_security_mapping(self, df: pd.DataFrame) -> pd.DataFrame:
         pass
-    
+
     def update_security_mapping(self) -> pd.DataFrame:
+        """Refresh the security mapping file from a remote source."""
         from .registry import LocalDataSource
         try:
             df = LocalDataSource().get_security_mapping()
@@ -257,6 +280,7 @@ class BaseDataSource(BaseModel):
         return df
 
     def full_update(self, start_date: Optional[datetime.datetime] = None, intraday: bool = False) -> Dict[str, bool]:
+        """Run a full update of mapping and timeseries data."""
         from .local import LocalDataSource
 
         df_mapping = self.update_security_mapping()

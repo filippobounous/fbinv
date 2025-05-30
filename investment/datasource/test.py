@@ -1,3 +1,5 @@
+"""Simple datasource used for testing purposes."""
+
 import pandas as pd
 from typing import TYPE_CHECKING, ClassVar
 
@@ -8,6 +10,7 @@ if TYPE_CHECKING:
     from ..core.security.registry import CurrencyCross, Equity, ETF, Fund
 
 class TestDataSource(BaseDataSource):
+    """Datasource used in unit tests to avoid network calls."""
     name: ClassVar[str] = "test"
 
     def _get_currency_cross_price_history_from_remote(self, security: 'CurrencyCross', intraday: bool) -> pd.DataFrame:

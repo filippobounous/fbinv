@@ -1,3 +1,5 @@
+"""Helper functions for bulk datasource updates."""
+
 from tqdm import tqdm
 from typing import TYPE_CHECKING, Dict, Tuple
 
@@ -7,6 +9,8 @@ if TYPE_CHECKING:
     from ..datasource.base import BaseDataSource
 
 def update_all_price_history(intraday: bool = False, local_only: bool = False) -> Dict[str, Dict[str, bool]]:
+    """Update price history for every registered datasource."""
+
     di = {}
     for ds in tqdm(all_datasource, desc="Updating all data sources"):
         ds_instance: "BaseDataSource" = ds()
@@ -14,6 +18,8 @@ def update_all_price_history(intraday: bool = False, local_only: bool = False) -
     return di
 
 def update_all_security_mapping() -> Dict[str, bool]:
+    """Update security mappings for all datasources."""
+
     di = {}
     for ds in tqdm(all_datasource, desc="Updating all security mappings"):
         ds_instance: "BaseDataSource" = ds()
@@ -21,6 +27,8 @@ def update_all_security_mapping() -> Dict[str, bool]:
     return di
 
 def update_all(intraday: bool = False, local_only: bool = False) -> Tuple[Dict[str, bool], Dict[str, Dict[str, bool]]]:
+    """Run update for both security mappings and price histories."""
+
     di_mapping = update_all_security_mapping()
     di_timeseries = update_all_price_history(intraday=intraday, local_only=local_only)
     return di_mapping, di_timeseries

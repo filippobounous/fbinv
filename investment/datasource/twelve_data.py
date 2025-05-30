@@ -1,3 +1,5 @@
+"""Datasource implementation for TwelveData."""
+
 import datetime
 import pandas as pd
 from pydantic import ConfigDict
@@ -21,6 +23,8 @@ if TYPE_CHECKING:
 # https://github.com/twelvedata/twelvedata-python
 
 class TwelveDataDataSource(BaseDataSource):
+    """Datasource for interacting with the TwelveData REST API."""
+
     name: ClassVar[str] = "twelve_data"
     base_url: str = "https://api.twelvedata.com"
     td: TDClient = TDClient(apikey=TWELVE_DATA_API_KEY)

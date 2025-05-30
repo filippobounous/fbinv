@@ -1,3 +1,5 @@
+"""Datasource for the OpenFIGI mapping service."""
+
 import datetime
 import pandas as pd
 import requests
@@ -15,6 +17,7 @@ if TYPE_CHECKING:
 # https://www.openfigi.com/api/documentation
 
 class OpenFigiDataSource(BaseDataSource):
+    """Retrieve security mapping information from OpenFIGI."""
     name: ClassVar[str] = "open_figi"
     base_url: str = "https://api.openfigi.com/v3/mapping"
     batch_size: int = 100

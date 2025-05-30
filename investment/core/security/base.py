@@ -1,3 +1,5 @@
+"""Base security class and helpers for interacting with datasources."""
+
 from typing import Optional, ClassVar, TYPE_CHECKING, Union, List
 
 import pandas as pd
@@ -14,6 +16,7 @@ if TYPE_CHECKING:
     from ...datasource.base import BaseDataSource
 
 class Security(BaseMappingEntity):
+    """Base representation of a tradable security."""
     entity_type: ClassVar[str] = "security"
     name: Optional[str] = None
     figi_code: Optional[str] = None
@@ -28,6 +31,7 @@ class Security(BaseMappingEntity):
     multiplier: Optional[float] = None
 
     def __init__(self, code: Optional[str] = None, **kwargs) -> None:
+        """Initialise a security instance loading details from mapping."""
         from ...datasource.registry import datasource_codes
 
         if code is not None:
@@ -44,6 +48,7 @@ class Security(BaseMappingEntity):
             raise ValueError(f"{self.code} is missing required values for: {missing}.")
 
     def get_file_path(self, datasource_name: str, intraday: bool, series_type: str) -> str:
+        """Return the local CSV path for a datasource series."""
         from ...datasource.registry import LocalDataSource, OpenFigiDataSource
 
         if datasource_name == LocalDataSource.name:
@@ -67,6 +72,7 @@ class Security(BaseMappingEntity):
         local_only: bool = True,
         intraday: bool = False
     ) -> pd.DataFrame:
+        """Retrieve price history for this security."""
         _datasource = get_datasource(datasource=datasource)
         return _datasource.get_price_history(
             security=self, intraday=intraday, local_only=local_only
@@ -79,6 +85,7 @@ class Security(BaseMappingEntity):
         datasource: Optional["BaseDataSource"] = None,
         local_only: bool = True,
     ) -> pd.DataFrame:
+        """Convenience wrapper to compute returns."""
         df = self.get_price_history(datasource=datasource, local_only=local_only, intraday=False)
 
         return ReturnsCalculator(
@@ -92,6 +99,7 @@ class Security(BaseMappingEntity):
         datasource: Optional["BaseDataSource"] = None,
         local_only: bool = True,
     ) -> pd.DataFrame:
+        """Convenience wrapper to compute realised volatility."""
         df = self.get_price_history(datasource=datasource, local_only=local_only, intraday=False)
 
         return RealisedVolatilityCalculator(
@@ -99,6 +107,7 @@ class Security(BaseMappingEntity):
         ).calculate(df=df)
 
     def convert_to_currency(self, currency: str) -> Union["Security", "Composite"]:
+        """Return this security converted to another reporting currency."""
         from .composite import Composite
         if currency ==  self.currency:
             return self

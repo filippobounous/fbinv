@@ -1,3 +1,5 @@
+"""Placeholder datasource representing the Bloomberg service."""
+
 import datetime
 import pandas as pd
 from typing import TYPE_CHECKING, ClassVar
@@ -9,6 +11,7 @@ if TYPE_CHECKING:
     from ..core.security.registry import CurrencyCross, Equity, ETF, Fund
 
 class BloombergDataSource(BaseDataSource):
+    """Datasource skeleton for Bloomberg integration."""
     name: ClassVar[str] = "bloomberg"
 
     def _get_currency_cross_price_history_from_remote(

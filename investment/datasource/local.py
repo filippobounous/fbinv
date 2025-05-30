@@ -1,3 +1,5 @@
+"""Datasource that reads data from the local filesystem only."""
+
 import datetime
 from typing import Any, Dict, Union, List, TYPE_CHECKING, ClassVar
 
@@ -14,14 +16,20 @@ if TYPE_CHECKING:
     from ..core import Portfolio
 
 class LocalDataSource(BaseDataSource):
+    """Datasource that serves data already available locally."""
+
     name: ClassVar[str] = "local"
 
     @property
     def portfolio_mapping(self) -> pd.DataFrame:
+        """Return the portfolio mapping table."""
+
         return pd.read_csv(f"{BASE_PATH}/portfolio_mapping.csv")
 
     @property
     def reporting_currency(self) -> pd.DataFrame:
+        """DataFrame mapping securities to their reporting currency."""
+
         return pd.read_csv(f"{BASE_PATH}/reporting_currency.csv")
 
     def _get_currency_cross_price_history_from_remote(
@@ -54,17 +62,19 @@ class LocalDataSource(BaseDataSource):
     
     @staticmethod
     def _format_price_history_from_remote(df: pd.DataFrame) -> pd.DataFrame:
+        """Return ``df`` unchanged as no remote calls are made."""
+
         return df
 
     def load_portfolio(self, portfolio: "Portfolio") -> Dict[str, Any]:
-        "Load a portfolio from the csv file."
+        """Load a portfolio's details from CSV."""
         df = self.portfolio_mapping
         row = df.loc[df.code == portfolio.code]
 
         return self._load(df=row, entity=portfolio)
 
     def load_security(self, security: "Security") -> Dict[str, Any]:
-        "Load a security from the csv file."
+        """Load a security's details from CSV and apply multipliers."""
         df = self.get_security_mapping()
         df_reporting_ccy = self.reporting_currency
 
@@ -78,10 +88,12 @@ class LocalDataSource(BaseDataSource):
         return self._load(df=row, entity=security)
     
     def load_composite(self, composite: "Composite") -> Dict[str, Any]:
+        """Placeholder for loading composite securities."""
         pass
 
     @staticmethod
     def _load(df: pd.DataFrame, entity: "BaseMappingEntity") -> Dict[str, Any]:
+        """Convert a single-row DataFrame to a mapping dictionary."""
         if len(df) > 1:
             raise SecurityMappingError(f"Duplicate {entity.entity_type} for code '{entity.code}'")
         if len(df) == 0:
@@ -111,7 +123,7 @@ class LocalDataSource(BaseDataSource):
         return di
 
     def get_all_securities(self, column: str = "code", as_instance: bool = False) -> List[Union[str, "Security"]]:
-        "List all available securities."
+        """Return all available securities either as codes or instances."""
         from ..core.security.registry import security_registry
 
         li = []

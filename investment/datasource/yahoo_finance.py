@@ -1,3 +1,5 @@
+"""Datasource implementation using the ``yfinance`` library."""
+
 import datetime
 import pandas as pd
 import re
@@ -13,6 +15,7 @@ if TYPE_CHECKING:
 # https://ranaroussi.github.io/yfinance/
 
 class YahooFinanceDataSource(BaseDataSource):
+    """Retrieve market data via Yahoo Finance."""
     name: ClassVar[str] = "yahoo_finance"
 
     def _get_currency_cross_price_history_from_remote(

@@ -1,3 +1,5 @@
+"""Datasource registry and factory helpers."""
+
 from typing import List, TYPE_CHECKING, Dict
 
 from .alpha_vantage import AlphaVantageDataSource
