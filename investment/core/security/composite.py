@@ -10,6 +10,7 @@ from ...utils.consts import OC
 if TYPE_CHECKING:
     from ...datasource.base import BaseDataSource
 
+
 class Composite(Security):
     entity_type: ClassVar[str] = "composite"
     security: Security
@@ -25,8 +26,7 @@ class Composite(Security):
             kwargs["composite_currency"] = currency_cross.currency
         elif composite_currency:
             kwargs["currency_cross"] = get_currency_cross(
-                origin_currency=security.currency,
-                result_currency=composite_currency
+                origin_currency=security.currency, result_currency=composite_currency
             )
 
         kwargs["code"] = f"{security.code}_{kwargs.get('composite_currency')}"
@@ -46,9 +46,16 @@ class Composite(Security):
         }
 
         ph_security = self.security.get_price_history(**kwargs)[OC]
-        ph_currency_cross = self.security.get_price_history(**kwargs)[OC]
+        ph_currency_cross = self.currency_cross.get_price_history(**kwargs)[OC]
 
         ph_security.columns = [f"{i}_origin" for i in ph_security.columns]
-        ph_currency_cross.columns = [f"{i}_conversion" for i in ph_currency_cross.columns]
+        ph_currency_cross.columns = [
+            f"{i}_conversion" for i in ph_currency_cross.columns
+        ]
 
-        import pdb; pdb.set_trace()
+        df = pd.concat([ph_security, ph_currency_cross], axis=1, join="inner")
+
+        df["open"] = df["open_origin"] * df["open_conversion"]
+        df["close"] = df["close_origin"] * df["close_conversion"]
+
+        return df[["open", "close"]]

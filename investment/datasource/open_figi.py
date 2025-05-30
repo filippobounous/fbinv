@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 # https://github.com/OpenFIGI/api-examples
 # https://www.openfigi.com/api/documentation
 
+
 class OpenFigiDataSource(BaseDataSource):
     name: ClassVar[str] = "open_figi"
     base_url: str = "https://api.openfigi.com/v3/mapping"
@@ -22,32 +23,48 @@ class OpenFigiDataSource(BaseDataSource):
 
     def _get_currency_cross_price_history_from_remote(
         self,
-        security: 'CurrencyCross', intraday: bool,
-        start_date: datetime.datetime, end_date: datetime.datetime,
+        security: "CurrencyCross",
+        intraday: bool,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
     ) -> pd.DataFrame:
-        raise DataSourceMethodException(f"No remote series for {self.name} datasource for {security.code}.")
+        raise DataSourceMethodException(
+            f"No remote series for {self.name} datasource for {security.code}."
+        )
 
     def _get_equity_price_history_from_remote(
         self,
-        security: 'Equity', intraday: bool,
-        start_date: datetime.datetime, end_date: datetime.datetime,
+        security: "Equity",
+        intraday: bool,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
     ) -> pd.DataFrame:
-        raise DataSourceMethodException(f"No remote series for {self.name} datasource for {security.code}.")
+        raise DataSourceMethodException(
+            f"No remote series for {self.name} datasource for {security.code}."
+        )
 
     def _get_etf_price_history_from_remote(
         self,
-        security: 'ETF', intraday: bool,
-        start_date: datetime.datetime, end_date: datetime.datetime,
+        security: "ETF",
+        intraday: bool,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
     ) -> pd.DataFrame:
-        raise DataSourceMethodException(f"No remote series for {self.name} datasource for {security.code}.")
+        raise DataSourceMethodException(
+            f"No remote series for {self.name} datasource for {security.code}."
+        )
 
     def _get_fund_price_history_from_remote(
         self,
-        security: 'Fund', intraday: bool,
-        start_date: datetime.datetime, end_date: datetime.datetime,
+        security: "Fund",
+        intraday: bool,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
     ) -> pd.DataFrame:
-        raise DataSourceMethodException(f"No remote series for {self.name} datasource for {security.code}.")
-    
+        raise DataSourceMethodException(
+            f"No remote series for {self.name} datasource for {security.code}."
+        )
+
     @staticmethod
     def _format_price_history_from_remote(df: pd.DataFrame) -> pd.DataFrame:
         return df
@@ -57,21 +74,25 @@ class OpenFigiDataSource(BaseDataSource):
 
         headers = {
             "Content-Type": "application/json",
-            "X-OPENFIGI-APIKEY": OPEN_FIGI_API_KEY
+            "X-OPENFIGI-APIKEY": OPEN_FIGI_API_KEY,
         }
 
         results = []
 
         for i in range(0, len(figis), self.batch_size):
-            batch = figis[i:i + self.batch_size]
+            batch = figis[i : i + self.batch_size]
             payload = [{"idType": "ID_BB_GLOBAL", "idValue": figi} for figi in batch]
 
             try:
-                resp = requests.post(self.base_url, json=payload, headers=headers, timeout=10)
+                resp = requests.post(
+                    self.base_url, json=payload, headers=headers, timeout=10
+                )
                 resp.raise_for_status()
                 batch_results = resp.json()
             except Exception as e:
-                raise RuntimeError(f"OpenFIGI batch failed for batch {i // self.batch_size + 1}: {e}")
+                raise RuntimeError(
+                    f"OpenFIGI batch failed for batch {i // self.batch_size + 1}: {e}"
+                )
 
             for j in range(len(batch)):
                 entry = batch_results[j] if j < len(batch_results) else {}

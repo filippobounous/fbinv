@@ -1,4 +1,4 @@
-from typing import List, TYPE_CHECKING, Dict
+from typing import List, TYPE_CHECKING, Dict, Type
 
 from .alpha_vantage import AlphaVantageDataSource
 from .bloomberg import BloombergDataSource
@@ -11,7 +11,7 @@ from .yahoo_finance import YahooFinanceDataSource
 if TYPE_CHECKING:
     from .base import BaseDataSource
 
-all_datasource: List["BaseDataSource"] = [
+all_datasource: List[Type["BaseDataSource"]] = [
     AlphaVantageDataSource,
     BloombergDataSource,
     FinancialTimesDataSource,
@@ -21,14 +21,12 @@ all_datasource: List["BaseDataSource"] = [
     YahooFinanceDataSource,
 ]
 
-datasource_registry: Dict[str, "BaseDataSource"] = {
-    i.name: i
-    for i in all_datasource
+datasource_registry: Dict[str, Type["BaseDataSource"]] = {
+    i.name: i for i in all_datasource
 }
 
-datasource_codes: List[str] = [
-    f"{i.name}_code"
-    for i in  all_datasource
-] + [f"{FinancialTimesDataSource.name}_security_type"]
+datasource_codes: List[str] = [f"{i.name}_code" for i in all_datasource] + [
+    f"{FinancialTimesDataSource.name}_security_type"
+]
 
-default_timeseries_datasource = YahooFinanceDataSource()
+default_timeseries_datasource: YahooFinanceDataSource = YahooFinanceDataSource()

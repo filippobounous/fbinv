@@ -1,14 +1,15 @@
 from pydantic import BaseModel
-from typing import Dict, Any
+from typing import Dict, Any, ClassVar
 
 from ..datasource.local import LocalDataSource
+
 
 class BaseMappingEntity(BaseModel):
     entity_type: str
     code: str
-    _local_datasource: LocalDataSource = LocalDataSource
+    _local_datasource: ClassVar[type[LocalDataSource]] = LocalDataSource
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
         lds: LocalDataSource = self._local_datasource()
