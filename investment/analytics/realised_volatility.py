@@ -1,8 +1,9 @@
-import numpy as np
-import pandas as pd
 from typing import List, Union, Dict, Callable
 
-from ..utils.consts import DEFAULT_RV_WIN_SIZE, DEFAULT_RV_MODEL, TRADING_DAYS
+import numpy as np
+import pandas as pd
+
+from ..utils.consts import DEFAULT_RV_WIN_SIZE, DEFAULT_RV_MODEL, TRADING_DAYS, HL, OHLC
 
 class RealisedVolatilityCalculator:
     def __init__(
@@ -12,7 +13,7 @@ class RealisedVolatilityCalculator:
             dt: int = TRADING_DAYS,
         ) -> None:
         self.dt = dt
-        
+
         if isinstance(rv_win_size, int):
             self.rv_win_size = [rv_win_size]
         else:
@@ -24,14 +25,34 @@ class RealisedVolatilityCalculator:
             self.rv_model = rv_model
 
     @property
-    def registry(self) -> Dict[str, Callable[[pd.DataFrame, int], pd.Series]]:
+    def registry(
+        self
+    ) -> Dict[str, Dict[str, Union[Callable[[pd.DataFrame, int], pd.Series], List[str]]]]:
         return {
-            "close_to_close": self._close_to_close,
-            "parkinson":  self._parkinson,
-            "garman_klass": self._garman_klass,
-            "rogers_satchell": self._rogers_satchell,
-            "yang_zhang": self._yang_zhang,
-            "gk_yang_zhang": self._gk_yang_zhang,
+            "close_to_close": {
+                "method": self._close_to_close,
+                "required": ["close"],
+            },
+            "parkinson": {
+                "method": self._parkinson,
+                "required": HL,
+            },
+            "garman_klass": {
+                "method": self._garman_klass,
+                "required": OHLC,
+            },
+            "rogers_satchell": {
+                "method": self._rogers_satchell,
+                "required": OHLC,
+            },
+            "yang_zhang": {
+                "method": self._yang_zhang,
+                "required": OHLC,
+            },
+            "gk_yang_zhang": {
+                "method": self._gk_yang_zhang,
+                "required": OHLC,
+            },
         }
 
     def calculate(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -39,9 +60,15 @@ class RealisedVolatilityCalculator:
 
         df_list = []
         for model in self.rv_model:
-            method = self.registry.get(model)
-            
-            if not method:
+            model_dict = self.registry.get(model)
+
+            if not model_dict:
+                continue
+
+            method = model_dict.get("method")
+            required_columns = model_dict.get("required")
+
+            if not all(i in required_columns for i in df.columns):
                 continue
 
             for win_size in self.rv_win_size:
@@ -84,7 +111,7 @@ class RealisedVolatilityCalculator:
         co = np.log(df['close'] / df['open'])
         rs: pd.Series = ho * (ho - co) + lo * (lo - co)
         return np.sqrt(rs.rolling(rv_win_size).mean()) * np.sqrt(self.dt)
-    
+
     def _gk_yang_zhang(self, df: pd.DataFrame, rv_win_size: int) -> pd.Series:
         gk = self._garman_klass(df=df, rv_win_size=rv_win_size, _return_initial_term=True)
         yz = np.log(df['open'] / df['close'].shift(1)) ** 2
