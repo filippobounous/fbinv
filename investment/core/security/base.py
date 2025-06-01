@@ -65,7 +65,7 @@ class Security(BaseMappingEntity):
         self,
         datasource: Optional["BaseDataSource"] = None,
         local_only: bool = True,
-        intraday: bool = False
+        intraday: bool = False,
     ) -> pd.DataFrame:
         _datasource = get_datasource(datasource=datasource)
         return _datasource.get_price_history(

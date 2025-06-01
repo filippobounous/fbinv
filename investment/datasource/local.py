@@ -8,10 +8,9 @@ from ..config import PORTFOLIO_PATH, BASE_PATH
 from ..utils.exceptions import DataSourceMethodException, SecurityMappingError
 
 if TYPE_CHECKING:
-    from ..core import Security
     from ..core.mapping import BaseMappingEntity
-    from ..core.security.registry import Composite, CurrencyCross, Equity, ETF, Fund
-    from ..core import Portfolio
+    from ..core.portfolio import Portfolio
+    from ..core.security.registry import Composite, CurrencyCross, Equity, ETF, Fund, Security
 
 class LocalDataSource(BaseDataSource):
     name: ClassVar[str] = "local"
@@ -116,7 +115,7 @@ class LocalDataSource(BaseDataSource):
             Union[Dict[str, datetime.datetime], List[Portfolio]]:Dictionary of file names
             and last modified date or List of Portfolios
         """
-        from ..core import Portfolio
+        from ..core.portfolio import Portfolio
 
         di = self._get_file_names_in_path(path=PORTFOLIO_PATH)
         if as_instance:

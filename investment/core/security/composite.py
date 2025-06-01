@@ -1,3 +1,5 @@
+"Composite security class to convert between currencies"
+
 from typing import Optional, TYPE_CHECKING, ClassVar
 
 import pandas as pd
@@ -11,6 +13,15 @@ if TYPE_CHECKING:
     from ...datasource.base import BaseDataSource
 
 class Composite(Security):
+    """
+    Composite Security.
+    
+    Converts a given security (Security) with currency to a different
+    currency using a CurrencyCross Security. Initalialised with:
+        security (Security): The base security to convert
+        currency_cross (opt, str): The currency to convert to
+        composite_currency (opt, CurrencyCross): The conversion security 
+    """
     entity_type: ClassVar[str] = "composite"
     security: Security
     currency_cross: CurrencyCross
@@ -31,6 +42,11 @@ class Composite(Security):
         kwargs["code"] = f"{security.code}_{kwargs.get('composite_currency')}"
 
         super().__init__(**kwargs)
+
+    def __repr__(self):
+        pa = f"security={self.security.code}, currency_cross={self.currency_cross.code}"
+        string = f"""Composite(entity_type={self.entity_type}, {pa})"""
+        return string
 
     def get_price_history(
         self,

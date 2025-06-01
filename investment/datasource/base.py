@@ -15,7 +15,7 @@ from ..utils.exceptions import DataSourceMethodException, AlphaVantageException,
 from ..utils.warnings import warnings
 
 if TYPE_CHECKING:
-    from ..core import Security
+    from ..core.security import Security
     from ..core.security.registry import CurrencyCross, Equity, ETF, Fund
 
 class BaseDataSource(BaseModel):

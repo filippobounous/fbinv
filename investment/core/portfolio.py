@@ -1,6 +1,7 @@
+from typing import Optional, ClassVar, List
+
 import pandas as pd
 from pydantic import ConfigDict, Field
-from typing import Optional, ClassVar
 
 from ..config import PORTFOLIO_PATH, DEFAULT_NAME
 from .mapping import BaseMappingEntity
@@ -90,5 +91,5 @@ class Portfolio(BaseMappingEntity):
 
         self.holdings = result
 
-    def get_price_history(self):
+    def get_price_history(self, currency: str):
         pass
