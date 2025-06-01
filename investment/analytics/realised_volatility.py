@@ -1,3 +1,5 @@
+"Realised Volatility Calculator for timeseries"
+
 from typing import List, Union, Dict, Callable
 
 import numpy as np
@@ -6,6 +8,14 @@ import pandas as pd
 from ..utils.consts import DEFAULT_RV_WIN_SIZE, DEFAULT_RV_MODEL, TRADING_DAYS, HL, OHLC
 
 class RealisedVolatilityCalculator:
+    """
+    Realised Volatility Calculator
+    
+    Calculator for realised volatility with various methods. Initialised with:
+    rv_win_size (List[int]) -> the realised volatility windows
+    rv_model (Lis[str]) -> the realised volatility models to calculate for
+    dt [int] -> The normalisation constant to use
+    """
     def __init__(
             self,
             rv_win_size: Union[int, List[int]] = DEFAULT_RV_WIN_SIZE,
@@ -28,6 +38,7 @@ class RealisedVolatilityCalculator:
     def registry(
         self
     ) -> Dict[str, Dict[str, Union[Callable[[pd.DataFrame, int], pd.Series], List[str]]]]:
+        "Registry of realised volatility methods and their required columns"
         return {
             "close_to_close": {
                 "method": self._close_to_close,
@@ -56,6 +67,7 @@ class RealisedVolatilityCalculator:
         }
 
     def calculate(self, df: pd.DataFrame) -> pd.DataFrame:
+        "Calculates the realised volatility for a given pd.DataFrame."
         df = df.sort_index()
 
         df_list = []
