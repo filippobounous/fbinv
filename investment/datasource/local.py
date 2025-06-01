@@ -10,7 +10,7 @@ from ..utils.exceptions import DataSourceMethodException, SecurityMappingError
 if TYPE_CHECKING:
     from ..core import Security
     from ..core.mapping import BaseMappingEntity
-    from ..core.security.registry import CurrencyCross, Equity, ETF, Fund
+    from ..core.security.registry import Composite, CurrencyCross, Equity, ETF, Fund
     from ..core import Portfolio
 
 class LocalDataSource(BaseDataSource):
@@ -29,29 +29,37 @@ class LocalDataSource(BaseDataSource):
         security: 'CurrencyCross', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
-        raise DataSourceMethodException(f"No remote series for {self.name} datasource for {security.code}.")
+        raise DataSourceMethodException(
+            f"No remote series for {self.name} datasource for {security.code}."
+        )
 
     def _get_equity_price_history_from_remote(
         self,
         security: 'Equity', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
-        raise DataSourceMethodException(f"No remote series for {self.name} datasource for {security.code}.")
+        raise DataSourceMethodException(
+            f"No remote series for {self.name} datasource for {security.code}."
+        )
 
     def _get_etf_price_history_from_remote(
         self,
         security: 'ETF', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
-        raise DataSourceMethodException(f"No remote series for {self.name} datasource for {security.code}.")
+        raise DataSourceMethodException(
+            f"No remote series for {self.name} datasource for {security.code}."
+        )
 
     def _get_fund_price_history_from_remote(
         self,
         security: 'Fund', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
-        raise DataSourceMethodException(f"No remote series for {self.name} datasource for {security.code}.")
-    
+        raise DataSourceMethodException(
+            f"No remote series for {self.name} datasource for {security.code}."
+        )
+
     @staticmethod
     def _format_price_history_from_remote(df: pd.DataFrame) -> pd.DataFrame:
         return df
@@ -76,9 +84,14 @@ class LocalDataSource(BaseDataSource):
         row = df.loc[df.code == security.code]
 
         return self._load(df=row, entity=security)
-    
+
     def load_composite(self, composite: "Composite") -> Dict[str, Any]:
-        pass
+        di = composite.security.model_dump()
+        di.pop("code") # remove code as not needed
+
+        di["currency"] = composite.currency_cross.currency
+
+        return di
 
     @staticmethod
     def _load(df: pd.DataFrame, entity: "BaseMappingEntity") -> Dict[str, Any]:
@@ -110,14 +123,16 @@ class LocalDataSource(BaseDataSource):
             return [Portfolio(name) for name, _ in di.items()]
         return di
 
-    def get_all_securities(self, column: str = "code", as_instance: bool = False) -> List[Union[str, "Security"]]:
+    def get_all_securities(
+        self, column: str = "code", as_instance: bool = False
+    ) -> List[Union[str, "Security"]]:
         "List all available securities."
         from ..core.security.registry import security_registry
 
         li = []
 
         df = self.get_security_mapping()
-        
+
         if as_instance:
             for _, row in df.iterrows():
                 code = row.get(column)
@@ -129,7 +144,7 @@ class LocalDataSource(BaseDataSource):
                     li.append(obj(code))
         else:
             li = df[column].to_list()
-        
+
         return li
 
     def _update_security_mapping(self, df: pd.DataFrame) -> pd.DataFrame:
