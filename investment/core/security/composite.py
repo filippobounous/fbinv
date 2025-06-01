@@ -14,7 +14,6 @@ class Composite(Security):
     entity_type: ClassVar[str] = "composite"
     security: Security
     currency_cross: CurrencyCross
-    composite_currency: str
 
     def __init__(self, **kwargs) -> None:
         security: "Security" = kwargs.get("security")
@@ -46,9 +45,17 @@ class Composite(Security):
         }
 
         ph_security = self.security.get_price_history(**kwargs)[OC]
-        ph_currency_cross = self.security.get_price_history(**kwargs)[OC]
+        ph_currency_cross = self.currency_cross.get_price_history(**kwargs)[OC]
 
-        ph_security.columns = [f"{i}_origin" for i in ph_security.columns]
-        ph_currency_cross.columns = [f"{i}_conversion" for i in ph_currency_cross.columns]
+        ph_security.columns = [f"{i}_sec" for i in ph_security.columns]
+        ph_currency_cross.columns = [f"{i}_ccy" for i in ph_currency_cross.columns]
 
-        import pdb; pdb.set_trace()
+        df = pd.merge(
+            left=ph_security, right=ph_currency_cross,
+            how="inner", left_index=True, right_index=True,
+        ).dropna()
+
+        df["open"] = df["open_sec"] * df["open_ccy"]
+        df["close"] = df["close_sec"] * df["close_ccy"]
+
+        return df[["open", "close"]]
