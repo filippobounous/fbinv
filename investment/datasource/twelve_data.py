@@ -23,13 +23,19 @@ if TYPE_CHECKING:
 class TwelveDataDataSource(BaseDataSource):
     name: ClassVar[str] = "twelve_data"
     base_url: str = "https://api.twelvedata.com"
-    td: TDClient = TDClient(apikey=TWELVE_DATA_API_KEY)
+    _td: Optional[TDClient] = None
     output_size: int = 5000
     request_counter: ClassVar[int] = 0
     window_start: ClassVar[datetime.datetime] = datetime.datetime.utcnow() # free version limitation
     max_requests_per_minute: ClassVar[int] = 8 # free version limitation
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    @property
+    def td(self) -> TDClient:
+        if not self._td:
+            self._td = TDClient(apikey=TWELVE_DATA_API_KEY)
+        return self._td
 
     def _get_currency_cross_price_history_from_remote(
         self,
