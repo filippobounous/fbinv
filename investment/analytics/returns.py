@@ -1,10 +1,20 @@
+"Returns Calculator for timeseries"
+
+from typing import Union, List
+
 import pandas as pd
 import numpy as np
-from typing import Union, List
 
 from ..utils.consts import DEFAULT_RET_WIN_SIZE
 
 class ReturnsCalculator:
+    """
+    Returns Calculator
+    
+    Calculator for returns for various window sizes. Initialised with:
+    use_ln_ret (bool) -> If to use ln(a/b) or just a/b
+    ret_win_size (List[int]) -> the returns windows
+    """
     def __init__(
             self,
             use_ln_ret: bool = True,
@@ -19,7 +29,7 @@ class ReturnsCalculator:
 
     def calculate(self, df: pd.DataFrame) -> pd.DataFrame:
         """
-        Calculate log and/or simple returns from the 'close' column for specified periods.
+        Calculate log or simple returns from the 'close' column for specified periods.
         """
         if df.empty:
             raise ValueError("Input DataFrame is empty.")
