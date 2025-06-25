@@ -1,9 +1,19 @@
+"Base class for initialisations from the mapping csv files available"
+
 from pydantic import BaseModel
 from typing import Dict, Any
 
 from ..datasource.local import LocalDataSource
 
 class BaseMappingEntity(BaseModel):
+    """
+    BaseMappingEntity.
+    
+    Returns required attributes to a class from the base csv mapping files.
+    Initialised with:
+        entity_type (str): The entity type to select the correct load_method.
+        code (str): The code for the entity to select the correct parameters.
+    """
     entity_type: str
     code: str
     _local_datasource: LocalDataSource = LocalDataSource
