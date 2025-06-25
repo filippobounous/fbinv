@@ -7,3 +7,5 @@ __pycache__/
 
 # environment variables
 .env
+
+notebooks_scratch/
