@@ -1,5 +1,5 @@
 import datetime
-from typing import Any, Dict, Union, List, TYPE_CHECKING, ClassVar
+from typing import Any, Dict, Union, List, TYPE_CHECKING, ClassVar, Optional
 
 import pandas as pd
 
@@ -84,20 +84,31 @@ class LocalDataSource(BaseDataSource):
 
         return self._load(df=row, entity=security)
 
-    def load_composite(self, composite: "Composite") -> Dict[str, Any]:
+    def load_composite_security(self, composite: "Composite") -> Dict[str, Any]:
         di = composite.security.model_dump()
         di.pop("code") # remove code as not needed
 
         di["currency"] = composite.currency_cross.currency
 
         return di
-
+    
+    def load_generic_security(self, **kwargs) -> "BaseSecurity":
+        from ..core.security.registry import security_registry
+        
+        df = self.get_security_mapping()
+        row = df[df.code == kwargs["code"]]
+        entity_type = self._load(df=row).get("type")
+        
+        entity = security_registry.get(entity_type)
+        
+        return entity(**kwargs)
+        
     @staticmethod
-    def _load(df: pd.DataFrame, entity: "BaseMappingEntity") -> Dict[str, Any]:
+    def _load(df: pd.DataFrame, entity: Optional["BaseMappingEntity"] = None) -> Dict[str, Any]:
         if len(df) > 1:
-            raise SecurityMappingError(f"Duplicate {entity.entity_type} for code '{entity.code}'")
+            raise SecurityMappingError(f"Duplicate {entity.entity_type} for code '{entity.code}'" if entity else "Duplicate data.")
         if len(df) == 0:
-            raise SecurityMappingError(f"No {entity.entity_type} for code '{entity.code}'")
+            raise SecurityMappingError(f"No {entity.entity_type} for code '{entity.code}'" if entity else "Missing data.")
 
         di = df.iloc[0].to_dict()
         return {k: v for k, v in di.items() if not pd.isna(v)}
