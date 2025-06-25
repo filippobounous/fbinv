@@ -5,7 +5,6 @@ from .currency_cross import CurrencyCross
 from .equity import Equity
 from .etf import ETF
 from .fund import Fund
-from .generic import Security
 
 if TYPE_CHECKING:
     from .base import BaseSecurity
@@ -16,7 +15,6 @@ all_securities: List['BaseSecurity']= [
     Equity,
     ETF,
     Fund,
-    Security
 ]
 
 security_registry: Dict[str, 'BaseSecurity'] = {
