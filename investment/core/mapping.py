@@ -14,12 +14,11 @@ class BaseMappingEntity(BaseModel):
         lds: LocalDataSource = self._local_datasource()
 
         load_methods = {
-            "security": lds.load_security,
+            "composite": lds.load_composite_security,
             "currency_cross": lds.load_security,
             "etf": lds.load_security,
             "fund": lds.load_security,
             "portfolio": lds.load_portfolio,
-            "composite": lds.load_composite,
         }
 
         init_method = load_methods.get(self.entity_type)
