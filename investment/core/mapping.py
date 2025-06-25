@@ -1,7 +1,8 @@
 "Base class for initialisations from the mapping csv files available"
 
-from pydantic import BaseModel
 from typing import Dict, Any
+
+from pydantic import BaseModel
 
 from ..datasource.local import LocalDataSource
 
