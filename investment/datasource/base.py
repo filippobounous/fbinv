@@ -15,7 +15,7 @@ from ..utils.exceptions import DataSourceMethodException, AlphaVantageException,
 from ..utils.warnings import warnings
 
 if TYPE_CHECKING:
-    from ..core.security import Security
+    from ..core.security import BaseSecurity
     from ..core.security.registry import CurrencyCross, Equity, ETF, Fund
 
 class BaseDataSource(BaseModel):
@@ -37,7 +37,7 @@ class BaseDataSource(BaseModel):
     def get_security_mapping(self) -> pd.DataFrame:
         return pd.read_csv(self.security_mapping_path)
 
-    def get_price_history(self, security: "Security", intraday: bool = False, local_only: bool = False, **kwargs) -> pd.DataFrame:
+    def get_price_history(self, security: "BaseSecurity", intraday: bool = False, local_only: bool = False, **kwargs) -> pd.DataFrame:
         if intraday:
             raise DataSourceMethodException(f"Intraday not currently supported. Should not be used.")
         
@@ -64,19 +64,19 @@ class BaseDataSource(BaseModel):
             
         return df
     
-    def _write_timeseries_to_local(self, security: "Security", df: pd.DataFrame, intraday: bool, series_type: str) -> None:
+    def _write_timeseries_to_local(self, security: "BaseSecurity", df: pd.DataFrame, intraday: bool, series_type: str) -> None:
         file_path = security.get_file_path(datasource_name=self.name, intraday=intraday, series_type=series_type)
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
         df.to_csv(file_path, index=True)
 
-    def _read_timeseries_from_local(self, security: "Security", intraday: bool, series_type: str) -> pd.DataFrame:
+    def _read_timeseries_from_local(self, security: "BaseSecurity", intraday: bool, series_type: str) -> pd.DataFrame:
         file_path = Path(security.get_file_path(datasource_name=self.name, intraday=intraday, series_type=series_type))
         if not file_path.exists():
             return pd.DataFrame() # or return None if preferred
         df = pd.read_csv(file_path, parse_dates=["as_of_date"])
         return df
     
-    def _load_price_history_from_remote(self, security: "Security", intraday: bool, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
+    def _load_price_history_from_remote(self, security: "BaseSecurity", intraday: bool, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
         df_to_concat = []
 
         symbol = getattr(security, self.internal_mapping_code, None)
@@ -129,7 +129,7 @@ class BaseDataSource(BaseModel):
 
     def _get_price_history_from_remote(
         self,
-        security: "Security", intraday: bool = False,
+        security: "BaseSecurity", intraday: bool = False,
         start_date: Optional[datetime.datetime] = None,
         end_date: Optional[datetime.datetime] = None,
     ) -> pd.DataFrame:

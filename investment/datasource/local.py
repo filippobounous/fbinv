@@ -10,7 +10,7 @@ from ..utils.exceptions import DataSourceMethodException, SecurityMappingError
 if TYPE_CHECKING:
     from ..core.mapping import BaseMappingEntity
     from ..core.portfolio import Portfolio
-    from ..core.security.registry import Composite, CurrencyCross, Equity, ETF, Fund, Security
+    from ..core.security.registry import Composite, CurrencyCross, Equity, ETF, Fund, BaseSecurity
 
 class LocalDataSource(BaseDataSource):
     name: ClassVar[str] = "local"
@@ -70,7 +70,7 @@ class LocalDataSource(BaseDataSource):
 
         return self._load(df=row, entity=portfolio)
 
-    def load_security(self, security: "Security") -> Dict[str, Any]:
+    def load_security(self, security: "BaseSecurity") -> Dict[str, Any]:
         "Load a security from the csv file."
         df = self.get_security_mapping()
         df_reporting_ccy = self.reporting_currency
@@ -124,7 +124,7 @@ class LocalDataSource(BaseDataSource):
 
     def get_all_securities(
         self, column: str = "code", as_instance: bool = False
-    ) -> List[Union[str, "Security"]]:
+    ) -> List[Union[str, "BaseSecurity"]]:
         "List all available securities."
         from ..core.security.registry import security_registry
 

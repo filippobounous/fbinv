@@ -5,6 +5,7 @@ from pydantic import ConfigDict, Field
 
 from ..config import PORTFOLIO_PATH, DEFAULT_NAME
 from .mapping import BaseMappingEntity
+from .security.base import BaseSecurity
 from .transactions import Transactions
 from ..utils.exceptions import TransactionsException
 

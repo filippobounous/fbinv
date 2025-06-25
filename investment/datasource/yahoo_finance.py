@@ -8,7 +8,7 @@ from .base import BaseDataSource
 from ..utils.date_utils import today_midnight
 
 if TYPE_CHECKING:
-    from ..core.security.registry import CurrencyCross, Equity, ETF, Fund, Security
+    from ..core.security.registry import CurrencyCross, Equity, ETF, Fund, BaseSecurity
 
 # https://ranaroussi.github.io/yfinance/
 
@@ -57,7 +57,7 @@ class YahooFinanceDataSource(BaseDataSource):
     
     def _get_security_ts_from_remote(
         self,
-        security: "Security", intraday: bool,
+        security: "BaseSecurity", intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
         symbol = security.yahoo_finance_code

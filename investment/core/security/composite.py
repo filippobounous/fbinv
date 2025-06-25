@@ -4,7 +4,7 @@ from typing import Optional, TYPE_CHECKING, ClassVar
 
 import pandas as pd
 
-from .base import Security
+from .base import BaseSecurity
 from .currency_cross import CurrencyCross
 from ..utils import get_currency_cross
 from ...utils.consts import OC
@@ -12,7 +12,7 @@ from ...utils.consts import OC
 if TYPE_CHECKING:
     from ...datasource.base import BaseDataSource
 
-class Composite(Security):
+class Composite(BaseSecurity):
     """
     Composite Security.
     
@@ -23,11 +23,11 @@ class Composite(Security):
         composite_currency (opt, CurrencyCross): The conversion security 
     """
     entity_type: ClassVar[str] = "composite"
-    security: Security
+    security: BaseSecurity
     currency_cross: CurrencyCross
 
     def __init__(self, **kwargs) -> None:
-        security: "Security" = kwargs.get("security")
+        security: "BaseSecurity" = kwargs.get("security")
         currency_cross: "CurrencyCross" = kwargs.get("currency_cross")
         composite_currency: str = kwargs.get("composite_currency")
 

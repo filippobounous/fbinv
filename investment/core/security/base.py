@@ -13,8 +13,8 @@ if TYPE_CHECKING:
     from .composite import Composite
     from ...datasource.base import BaseDataSource
 
-class Security(BaseMappingEntity):
-    entity_type: ClassVar[str] = "security"
+class BaseSecurity(BaseMappingEntity):
+    entity_type: ClassVar[str] = "base_security"
     name: Optional[str] = None
     figi_code: Optional[str] = None
     reporting_currency: Optional[str] = None
@@ -98,7 +98,7 @@ class Security(BaseMappingEntity):
             rv_win_size=rv_win_size, rv_model=rv_model
         ).calculate(df=df)
 
-    def convert_to_currency(self, currency: str) -> Union["Security", "Composite"]:
+    def convert_to_currency(self, currency: str) -> Union["BaseSecurity", "Composite"]:
         from .composite import Composite
         if currency ==  self.currency:
             return self

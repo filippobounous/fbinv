@@ -16,7 +16,7 @@ from ..utils.date_utils import today_midnight
 from ..utils.exceptions import TwelveDataException
 
 if TYPE_CHECKING:
-    from ..core.security.registry import CurrencyCross, Equity, ETF, Fund, Security
+    from ..core.security.registry import CurrencyCross, Equity, ETF, Fund, BaseSecurity
 
 # https://github.com/twelvedata/twelvedata-python
 
@@ -79,7 +79,7 @@ class TwelveDataDataSource(BaseDataSource):
 
     def _get_security_ts_from_remote(
         self,
-        security: 'Security', intraday: bool,
+        security: 'BaseSecurity', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
         return self._time_series(

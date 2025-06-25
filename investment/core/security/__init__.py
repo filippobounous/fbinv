@@ -1,6 +1,6 @@
 "Security class and subclasses"
 
-from .base import Security
+from .base import BaseSecurity
 from .composite import Composite
 from .currency_cross import CurrencyCross
 from .equity import Equity
