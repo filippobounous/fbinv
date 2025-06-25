@@ -1,3 +1,5 @@
+"Base Security class as a generic abstraction for all others"
+
 from typing import Optional, ClassVar, TYPE_CHECKING, Union, List
 
 import pandas as pd
@@ -14,6 +16,14 @@ if TYPE_CHECKING:
     from ...datasource.base import BaseDataSource
 
 class BaseSecurity(BaseMappingEntity):
+    """
+    BaseSecurity
+    
+    Abstraction for generalised security classes.
+    Not intended to be initialised alone.
+    Generic input is code, all other attributes are initialised using LocalDataSource
+    through BaseMappingEntity __init__.
+    """
     entity_type: ClassVar[str] = "base_security"
     name: Optional[str] = None
     figi_code: Optional[str] = None
@@ -44,6 +54,10 @@ class BaseSecurity(BaseMappingEntity):
             raise ValueError(f"{self.code} is missing required values for: {missing}.")
 
     def get_file_path(self, datasource_name: str, intraday: bool, series_type: str) -> str:
+        """
+        Returns the file path for the timeseries of a given security, datasource,
+        type and frequency
+        """
         from ...datasource.registry import LocalDataSource, OpenFigiDataSource
 
         if datasource_name == LocalDataSource.name:
@@ -67,6 +81,7 @@ class BaseSecurity(BaseMappingEntity):
         local_only: bool = True,
         intraday: bool = False,
     ) -> pd.DataFrame:
+        "Returns price history"
         _datasource = get_datasource(datasource=datasource)
         return _datasource.get_price_history(
             security=self, intraday=intraday, local_only=local_only
@@ -79,6 +94,7 @@ class BaseSecurity(BaseMappingEntity):
         datasource: Optional["BaseDataSource"] = None,
         local_only: bool = True,
     ) -> pd.DataFrame:
+        "Returns the returns series"
         df = self.get_price_history(datasource=datasource, local_only=local_only, intraday=False)
 
         return ReturnsCalculator(
@@ -92,6 +108,7 @@ class BaseSecurity(BaseMappingEntity):
         datasource: Optional["BaseDataSource"] = None,
         local_only: bool = True,
     ) -> pd.DataFrame:
+        "Returns the realised volatility series"
         df = self.get_price_history(datasource=datasource, local_only=local_only, intraday=False)
 
         return RealisedVolatilityCalculator(
@@ -99,6 +116,7 @@ class BaseSecurity(BaseMappingEntity):
         ).calculate(df=df)
 
     def convert_to_currency(self, currency: str) -> Union["BaseSecurity", "Composite"]:
+        "Converts a security to its composite self, by applying a currency conversion"
         from .composite import Composite
         if currency ==  self.currency:
             return self

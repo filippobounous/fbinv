@@ -1,3 +1,5 @@
+"Full registy of BaseSecuirty subclasses"
+
 from typing import TYPE_CHECKING, List, Dict
 
 from .composite import Composite
