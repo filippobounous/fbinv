@@ -6,6 +6,7 @@ setup(
     packages=find_packages(exclude=("notebooks")),
     install_requires=[
         "pandas",
+        "numpy",
         "pydantic",
         "yfinance",
         "twelvedata",
