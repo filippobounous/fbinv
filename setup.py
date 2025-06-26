@@ -13,6 +13,7 @@ setup(
         "requests",
         "openpyxl",
         "python-dotenv",
+        "tqdm",
     ],
     python_requires=">=3.9",
 )
