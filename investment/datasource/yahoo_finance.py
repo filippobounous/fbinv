@@ -1,9 +1,10 @@
 """Data source wrapper for Yahoo Finance."""
 
 import datetime
-import pandas as pd
 import re
 from typing import TYPE_CHECKING, ClassVar, Tuple
+
+import pandas as pd
 import yfinance as yf
 
 from .base import BaseDataSource
@@ -62,7 +63,7 @@ class YahooFinanceDataSource(BaseDataSource):
             security=security, intraday=intraday,
             start_date=start_date, end_date=end_date,
         )
-    
+
     def _get_security_ts_from_remote(
         self,
         security: "BaseSecurity", intraday: bool,
@@ -74,7 +75,7 @@ class YahooFinanceDataSource(BaseDataSource):
             symbol=symbol, intraday=intraday,
             start_date=start_date, end_date=end_date,
         )
-    
+
     @staticmethod
     def _format_price_history_from_remote(df: pd.DataFrame) -> pd.DataFrame:
         """Simplify yfinance's multi-level column index."""
@@ -85,7 +86,7 @@ class YahooFinanceDataSource(BaseDataSource):
         ]
         df_simple = df_simple.rename(columns={"date": "as_of_date"})
         return df_simple
-        
+
     def _time_series(
         self,
         symbol: str, intraday: bool,
@@ -94,11 +95,11 @@ class YahooFinanceDataSource(BaseDataSource):
         """Download raw data from Yahoo Finance."""
         if symbol is None:
             return pd.DataFrame()
-        
+
         interval =  "1m" if intraday else "1d"
 
         end_date = end_date + datetime.timedelta(days=2) # required by API
-        
+
         return yf.download(
             symbol,
             interval=interval,
@@ -116,7 +117,9 @@ class YahooFinanceDataSource(BaseDataSource):
     ) -> Tuple[datetime.datetime, datetime.datetime]:
         """Return start/end dates bounded by existing data."""
         if df.empty:
-            return super()._default_start_and_end_date(df=df, symbol=symbol, intraday=intraday, **kwargs)
+            return super()._default_start_and_end_date(
+                df=df, symbol=symbol, intraday=intraday, **kwargs
+            )
         start_date = df["as_of_date"].min()
         end_date = today_midnight()
         return start_date, end_date
