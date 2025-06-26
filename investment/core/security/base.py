@@ -61,9 +61,9 @@ class BaseSecurity(BaseMappingEntity):
         from ...datasource.registry import LocalDataSource, OpenFigiDataSource
 
         if datasource_name == LocalDataSource.name:
-            _code = "code"
+            _code = self.code
         elif datasource_name == OpenFigiDataSource.name:
-            _code = "figi_code"
+            _code = self.figi_code
         else:
             _code = getattr(self, f"{datasource_name}_code", None)
 
