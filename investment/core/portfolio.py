@@ -51,7 +51,7 @@ class Portfolio(BaseMappingEntity):
             self._get_path(label="transactions"),
             parse_dates=['as_of_date'],
         )
-        
+
     @property
     def all_security(self) -> List["BaseSecurity"]:
         """List portfolio securities as class instances."""
@@ -112,7 +112,7 @@ class Portfolio(BaseMappingEntity):
             'cum_quantity': 'quantity'
         })
         result["base_value"] = result["quantity"] * result["avg_price"]
-        
+
         result = result.merge(
             LocalDataSource().get_security_mapping()[["figi_code", "code"]],
             on="figi_code", how="left"
@@ -127,6 +127,8 @@ class Portfolio(BaseMappingEntity):
     ) -> pd.DataFrame:
         """Return time series of holdings values."""
         df = self._prepare_holdings_timeseries()
+
+        # TODO: Implement logic to get a full timeseries for a portfolio
 
         return df
 
@@ -161,5 +163,5 @@ class Portfolio(BaseMappingEntity):
             index=["as_of_date", "currency", "figi_code"], columns="value_type", values="value"
         ).reset_index()
         df.columns.name = ""
-        
+
         return df

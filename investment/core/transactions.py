@@ -1,3 +1,5 @@
+"Defines Transaction class to find transactions data"
+
 import pandas as pd
 from pydantic import BaseModel
 
@@ -37,10 +39,10 @@ class Transactions(BaseModel):
         df["account"] = transactions["Origin"].str[:-3]
         df["value"] = df["quantity"] * df["price"]
         df["as_of_date"] = pd.to_datetime(transactions["Date"])
-        
+
         df = df.drop(columns=["direction"])
         df = df.sort_values(['figi_code', 'as_of_date']).reset_index(drop=True)
-        
+
         df.to_csv(f"{self.portfolio_path}/{self.code}-transactions.csv", index=False)
 
     def load_and_save_cash_positions(self) -> None:
@@ -49,7 +51,7 @@ class Transactions(BaseModel):
         """
         import_df = self._load_transactions()
         import_df = import_df.set_index("Date")
-        
+
         df = (
             import_df[["Currency", "Net Value"]]
             .sort_index()
@@ -61,7 +63,7 @@ class Transactions(BaseModel):
             "Currency": "currency",
             "Net Value": "value",
         })
-        
+
         df["value"] = df["value"].round(2)
         df["change"] = df.groupby("currency")["value"].diff().fillna(df["value"])
         df["change"] = df["change"].round(2)
@@ -71,7 +73,7 @@ class Transactions(BaseModel):
     def _load_transactions(self) -> pd.DataFrame:
         """Read the raw transactions file."""
         return pd.read_excel(self.file_path, sheet_name=self.sheet_name)
-    
+
     def update(self) -> None:
         """Run both extraction helpers to refresh portfolio files."""
         self.extract_and_save_investment_transactions()
