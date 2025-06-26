@@ -53,7 +53,7 @@ class Portfolio(BaseMappingEntity):
         
     @property
     def all_security(self) -> List["BaseSecurity"]:
-        return [Generic(code).security for code in self.holdings.code.unique()]
+        return [Generic(code) for code in self.holdings.code.unique()]
 
     def update(self) -> None:
         tr = Transactions()
