@@ -122,7 +122,7 @@ class CompositeTest(unittest.TestCase):
         self.assertTrue((df['close'] == expected_close).all())
 
 class GenericTest(unittest.TestCase):
-    @patch('investment.core.security.generic.LocalDataSource')
+    @patch('investment.datasource.local.LocalDataSource')
     def test_generic_loads_security(self, MockLocal):
         base = BaseSecurity.model_construct(
             entity_type='equity',
