@@ -55,7 +55,7 @@ class Portfolio(BaseMappingEntity):
     @property
     def all_security(self) -> List["BaseSecurity"]:
         """List portfolio securities as class instances."""
-        return [Generic(code).security for code in self.holdings.code.unique()]
+        return [Generic(code) for code in self.holdings.code.unique()]
 
     def update(self) -> None:
         """Refresh transactions and reload holdings."""
