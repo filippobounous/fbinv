@@ -14,4 +14,3 @@ class TransactionsException(Exception):
 
 class SecurityMappingError(Exception):
     """Raised for issues within the security mapping files."""
-

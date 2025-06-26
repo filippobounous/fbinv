@@ -1,3 +1,8 @@
+"""
+Correlation class to calculate and analyse correlations between securities and
+portfolios to then allow further analysis
+""" # TODO
+
 from typing import Optional, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -12,4 +17,3 @@ class Correlation:
         portfolios: Optional[List["Portfolio"]] = None,
     ) -> None:
         """Store the input security and portfolio lists."""
-        pass

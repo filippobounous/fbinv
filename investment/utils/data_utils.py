@@ -1,6 +1,7 @@
 """Utility helpers for bulk data source updates."""
 
 from typing import TYPE_CHECKING, Dict, Tuple
+
 from tqdm import tqdm
 
 from ..datasource.registry import all_datasource
