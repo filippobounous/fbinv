@@ -27,6 +27,7 @@ class Composite(BaseSecurity):
     currency_cross: CurrencyCross
 
     def __init__(self, **kwargs) -> None:
+        """Create a currency converted security."""
         security: "BaseSecurity" = kwargs.get("security")
         currency_cross: "CurrencyCross" = kwargs.get("currency_cross")
         composite_currency: str = kwargs.get("composite_currency")
@@ -44,9 +45,9 @@ class Composite(BaseSecurity):
         super().__init__(**kwargs)
 
     def __repr__(self):
+        """Return debug representation."""
         pa = f"security={self.security.code}, currency_cross={self.currency_cross.code}"
-        string = f"""Composite(entity_type={self.entity_type}, {pa})"""
-        return string
+        return f"Composite(entity_type={self.entity_type}, {pa})"
 
     def get_price_history(
         self,
@@ -54,6 +55,7 @@ class Composite(BaseSecurity):
         local_only: bool = True,
         intraday: bool = False,
     ) -> pd.DataFrame:
+        """Return the converted price history series."""
         kwargs = {
             "datasource": datasource,
             "local_only": local_only,

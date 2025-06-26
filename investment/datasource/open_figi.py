@@ -1,3 +1,5 @@
+"""Data source that interfaces with the OpenFIGI API."""
+
 import datetime
 import pandas as pd
 import requests
@@ -15,6 +17,8 @@ if TYPE_CHECKING:
 # https://www.openfigi.com/api/documentation
 
 class OpenFigiDataSource(BaseDataSource):
+    """Data source for mapping codes via the OpenFIGI API."""
+
     name: ClassVar[str] = "open_figi"
     base_url: str = "https://api.openfigi.com/v3/mapping"
     batch_size: int = 100
@@ -25,6 +29,7 @@ class OpenFigiDataSource(BaseDataSource):
         security: 'CurrencyCross', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
+        """OpenFIGI does not provide price history."""
         raise DataSourceMethodException(f"No remote series for {self.name} datasource for {security.code}.")
 
     def _get_equity_price_history_from_remote(
@@ -32,6 +37,7 @@ class OpenFigiDataSource(BaseDataSource):
         security: 'Equity', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
+        """OpenFIGI does not provide price history."""
         raise DataSourceMethodException(f"No remote series for {self.name} datasource for {security.code}.")
 
     def _get_etf_price_history_from_remote(
@@ -39,6 +45,7 @@ class OpenFigiDataSource(BaseDataSource):
         security: 'ETF', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
+        """OpenFIGI does not provide price history."""
         raise DataSourceMethodException(f"No remote series for {self.name} datasource for {security.code}.")
 
     def _get_fund_price_history_from_remote(
@@ -46,13 +53,16 @@ class OpenFigiDataSource(BaseDataSource):
         security: 'Fund', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
+        """OpenFIGI does not provide price history."""
         raise DataSourceMethodException(f"No remote series for {self.name} datasource for {security.code}.")
     
     @staticmethod
     def _format_price_history_from_remote(df: pd.DataFrame) -> pd.DataFrame:
+        """Return the input DataFrame unchanged."""
         return df
 
     def _update_security_mapping(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Retrieve additional information for securities from OpenFIGI."""
         figis = df["figi_code"].to_list()
 
         headers = {

@@ -21,6 +21,8 @@ if TYPE_CHECKING:
 # https://github.com/twelvedata/twelvedata-python
 
 class TwelveDataDataSource(BaseDataSource):
+    """Data source wrapper around the Twelve Data API."""
+
     name: ClassVar[str] = "twelve_data"
     base_url: str = "https://api.twelvedata.com"
     _td: Optional[TDClient] = None
@@ -33,6 +35,7 @@ class TwelveDataDataSource(BaseDataSource):
 
     @property
     def td(self) -> TDClient:
+        """Lazy initialise the Twelve Data client."""
         if not self._td:
             self._td = TDClient(apikey=TWELVE_DATA_API_KEY)
         return self._td
@@ -42,6 +45,7 @@ class TwelveDataDataSource(BaseDataSource):
         security: 'CurrencyCross', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
+        """Retrieve FX prices from Twelve Data."""
         return self._get_security_ts_from_remote(
             security=security, intraday=intraday,
             start_date=start_date, end_date=end_date,
@@ -52,6 +56,7 @@ class TwelveDataDataSource(BaseDataSource):
         security: 'Equity', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
+        """Retrieve equity prices from Twelve Data."""
         return self._get_security_ts_from_remote(
             security=security, intraday=intraday,
             start_date=start_date, end_date=end_date,
@@ -62,6 +67,7 @@ class TwelveDataDataSource(BaseDataSource):
         security: 'ETF', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
+        """Retrieve ETF prices from Twelve Data."""
         return self._get_security_ts_from_remote(
             security=security, intraday=intraday,
             start_date=start_date, end_date=end_date,
@@ -72,6 +78,7 @@ class TwelveDataDataSource(BaseDataSource):
         security: 'Fund', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
+        """Retrieve fund prices from Twelve Data."""
         return self._get_security_ts_from_remote(
             security=security, intraday=intraday,
             start_date=start_date, end_date=end_date,
@@ -82,6 +89,7 @@ class TwelveDataDataSource(BaseDataSource):
         security: 'BaseSecurity', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
+        """Download raw time series data from Twelve Data."""
         return self._time_series(
             symbol=security.twelve_data_code, intraday=intraday,
             start_date=start_date, end_date=end_date,
@@ -89,6 +97,7 @@ class TwelveDataDataSource(BaseDataSource):
     
     @staticmethod
     def _format_price_history_from_remote(df: pd.DataFrame) -> pd.DataFrame:
+        """Rename columns to the common format."""
         if df.empty:
             return pd.DataFrame()
         else:
@@ -100,6 +109,7 @@ class TwelveDataDataSource(BaseDataSource):
         end_date: datetime.datetime,
         intraday: bool
     ) -> List[Tuple[datetime.datetime, datetime.datetime]]:
+        """Return consecutive date ranges according to API limits."""
         result = []
         current_start = start_date
         shifted_end_date = end_date + datetime.timedelta(days=2) # required by API
@@ -125,6 +135,7 @@ class TwelveDataDataSource(BaseDataSource):
         symbol: str, intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
+        """Request one or many time series pages and combine them."""
         interval = self._interval_code(intraday=intraday)
         dfs = []
 
@@ -153,6 +164,7 @@ class TwelveDataDataSource(BaseDataSource):
         return pd.concat(dfs)
 
     def _check_start_date_for_security(self, symbol: str, intraday: bool) -> Optional[datetime.datetime]:
+        """Return the earliest available date for a symbol."""
         df = self.get_security_mapping()
 
         # this actually does not get triggered as there is an earlier exception raised
@@ -170,12 +182,15 @@ class TwelveDataDataSource(BaseDataSource):
         return pd.to_datetime(value) if (value and not pd.isna(value)) else None
     
     def _interval_code(self, intraday: bool) -> str:
+        """Return API interval code based on intraday flag."""
         return "1min" if intraday else "1day"
     
     def _earliest_date_column(self, intraday: bool) -> str:
+        """Column name for earliest available date."""
         return f"earliest_date_intraday_{intraday}"
 
     def _respect_rate_limit(self):
+        """Sleep when the free API rate limit is reached."""
         cls = self.__class__  # For cleaner access to class variables
 
         now = datetime.datetime.utcnow()
@@ -195,10 +210,12 @@ class TwelveDataDataSource(BaseDataSource):
         cls.request_counter += 1
     
     def usage(self) -> Dict[str, Any]:
+        """Return the API usage statistics."""
         self._respect_rate_limit()
         return self.td.api_usage().as_json()
 
     def available_data(self, entity_type: str) -> pd.DataFrame:
+        """List securities available from Twelve Data for an entity type."""
         available_entities = {
             "currency_cross": "forex_pairs",
             "equity": "stocks",
@@ -222,6 +239,7 @@ class TwelveDataDataSource(BaseDataSource):
             return pd.DataFrame()
         
     def earliest_date(self, symbol: str, intraday: bool = False) -> Optional[datetime.datetime]:
+        """Return the earliest known date for a symbol."""
         self._respect_rate_limit()
         params = {
             "symbol": symbol,
@@ -238,6 +256,7 @@ class TwelveDataDataSource(BaseDataSource):
             return datetime.datetime.utcfromtimestamp(data.get("unix_time"))
         
     def _update_security_mapping(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Refresh mapping table for all securities."""
         df_list = []
         for entity_type, _df in tqdm(df.groupby("type"), desc=f"Updating security mapping for {self.name}"):
             mapping_df = self.available_data(entity_type=entity_type)
@@ -270,6 +289,7 @@ class TwelveDataDataSource(BaseDataSource):
         intraday: bool,
         **kwargs,
     ) -> Tuple[datetime.datetime, datetime.datetime]:
+        """Determine sensible date bounds for data retrieval."""
         start_date = kwargs.get("start_date", self._check_start_date_for_security(symbol=symbol, intraday=intraday))
         end_date = kwargs.get("end_date", today_midnight())
 
