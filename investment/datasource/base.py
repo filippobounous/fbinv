@@ -52,8 +52,6 @@ class BaseDataSource(BaseModel):
             df = pd.concat([df_remote, df_local])
             if df.empty:
                 return df
-            
-            df = df
         else:
             df = df_local
         

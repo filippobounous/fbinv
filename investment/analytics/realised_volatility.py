@@ -80,7 +80,7 @@ class RealisedVolatilityCalculator:
             method = model_dict.get("method")
             required_columns = model_dict.get("required")
 
-            if not all(i in required_columns for i in df.columns):
+            if not all(col in df.columns for col in required_columns):
                 continue
 
             for win_size in self.rv_win_size:
