@@ -19,6 +19,7 @@ class Generic:
     security: BaseSecurity
 
     def __init__(self, code: Optional[str] = None, **kwargs) -> None:
+        """Initialise the wrapped security from local mapping."""
         from ...datasource.local import LocalDataSource
 
         if code is not None:

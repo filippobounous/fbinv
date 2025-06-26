@@ -38,6 +38,7 @@ class BaseSecurity(BaseMappingEntity):
     multiplier: Optional[float] = None
 
     def __init__(self, code: Optional[str] = None, **kwargs) -> None:
+        """Initialise security attributes from local mapping data."""
         from ...datasource.registry import datasource_codes
 
         if code is not None:
