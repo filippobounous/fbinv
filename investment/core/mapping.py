@@ -20,6 +20,7 @@ class BaseMappingEntity(BaseModel):
     _local_datasource: LocalDataSource = LocalDataSource
 
     def __init__(self, **kwargs):
+        """Initialise entity attributes from the local mapping files."""
         super().__init__(**kwargs)
 
         lds: LocalDataSource = self._local_datasource()

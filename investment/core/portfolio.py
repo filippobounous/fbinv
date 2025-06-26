@@ -34,7 +34,7 @@ class Portfolio(BaseMappingEntity):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     def __init__(self, code: Optional[str] = None, **kwargs) -> None:
-
+        """Initialise portfolio data and load holdings."""
         if code is not None:
             kwargs["code"] = code
         if "code" not in kwargs:
@@ -46,6 +46,7 @@ class Portfolio(BaseMappingEntity):
 
     @property
     def transactions(self) -> pd.DataFrame:
+        """Return cached transaction DataFrame."""
         return pd.read_csv(
             self._get_path(label="transactions"),
             parse_dates=['as_of_date'],
@@ -53,9 +54,11 @@ class Portfolio(BaseMappingEntity):
         
     @property
     def all_security(self) -> List["BaseSecurity"]:
+        """List portfolio securities as class instances."""
         return [Generic(code) for code in self.holdings.code.unique()]
 
     def update(self) -> None:
+        """Refresh transactions and reload holdings."""
         tr = Transactions()
         if self.code == tr.code:
             Transactions().update()
@@ -64,14 +67,17 @@ class Portfolio(BaseMappingEntity):
             raise TransactionsException(f"Missing transactions updateable file for {self.code}")
 
     def _load_cash_and_holdings(self) -> None:
+        """Populate holdings and cash attributes from disk."""
         self._get_holdings()
         if self.has_cash and not self.ignore_cash:
             self._get_cash()
 
     def _get_path(self, label: str) -> str:
+        """Helper to construct a file path for portfolio data."""
         return f"{PORTFOLIO_PATH}/{self.code}-{label}.csv"
 
     def _get_cash(self) -> None:
+        """Load cash positions from disk."""
         df = pd.read_csv(
             self._get_path(label="cash"),
             parse_dates=['as_of_date']
@@ -86,6 +92,7 @@ class Portfolio(BaseMappingEntity):
         self.cash = df
 
     def _get_holdings(self) -> None:
+        """Load holdings derived from transactions."""
         df = self.transactions
 
         if self.account:
@@ -118,11 +125,13 @@ class Portfolio(BaseMappingEntity):
         convert_to_single_currency: bool = False,
         single_currency: Optional[str] = None,
     ) -> pd.DataFrame:
+        """Return time series of holdings values."""
         df = self._prepare_holdings_timeseries()
 
         return df
 
     def _prepare_holdings_timeseries(self) -> pd.DataFrame:
+        """Create a daily holdings DataFrame pivoted by currency and security."""
         df_pivot = self.holdings.pivot(
             index="as_of_date",
             columns=["currency", "figi_code"],

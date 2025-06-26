@@ -1,14 +1,17 @@
+"""Custom exception classes for the project."""
+
 class DataSourceMethodException(Exception):
-    pass
+    """Raised when a data source method is unavailable."""
 
 class AlphaVantageException(Exception):
-    pass
+    """Raised for AlphaVantage specific errors."""
 
 class TwelveDataException(Exception):
-    pass
+    """Raised for TwelveData specific errors."""
 
 class TransactionsException(Exception):
-    pass
+    """Raised when transaction data cannot be processed."""
 
 class SecurityMappingError(Exception):
-    pass
+    """Raised for issues within the security mapping files."""
+

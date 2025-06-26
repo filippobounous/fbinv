@@ -4,6 +4,8 @@ from pydantic import BaseModel
 from ..config import TRANSACTION_PATH, TRANSACTION_SHEET_NAME, PORTFOLIO_PATH, DEFAULT_NAME
 
 class Transactions(BaseModel):
+    """Helper for loading and saving portfolio transaction files."""
+
     code: str = DEFAULT_NAME
     file_path: str = TRANSACTION_PATH
     sheet_name: str = TRANSACTION_SHEET_NAME
@@ -67,8 +69,10 @@ class Transactions(BaseModel):
         df.to_csv(f"{self.portfolio_path}/{self.code}-cash.csv", index=False)
 
     def _load_transactions(self) -> pd.DataFrame:
+        """Read the raw transactions file."""
         return pd.read_excel(self.file_path, sheet_name=self.sheet_name)
     
     def update(self) -> None:
+        """Run both extraction helpers to refresh portfolio files."""
         self.extract_and_save_investment_transactions()
         self.load_and_save_cash_positions()

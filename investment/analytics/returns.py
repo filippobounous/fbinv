@@ -20,6 +20,7 @@ class ReturnsCalculator:
             use_ln_ret: bool = True,
             ret_win_size: Union[int, List[int]] = DEFAULT_RET_WIN_SIZE
         ) -> None:
+        """Initialise the calculator."""
         self.use_ln_ret = use_ln_ret
 
         if isinstance(ret_win_size, int):

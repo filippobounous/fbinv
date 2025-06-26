@@ -22,6 +22,7 @@ class RealisedVolatilityCalculator:
             rv_model: Union[str, List[str]] = DEFAULT_RV_MODEL,
             dt: int = TRADING_DAYS,
         ) -> None:
+        """Store parameters and normalisation constant."""
         self.dt = dt
 
         if isinstance(rv_win_size, int):
@@ -97,10 +98,12 @@ class RealisedVolatilityCalculator:
         return pd.concat(df_list).dropna().reset_index(drop=True)
 
     def _close_to_close(self, df: pd.DataFrame, rv_win_size: int) -> pd.Series:
+        """Close-to-close volatility estimator."""
         log_ret: pd.Series = np.log(df['close']).diff()
         return log_ret.rolling(rv_win_size).std() * np.sqrt(self.dt)
 
     def _parkinson(self, df: pd.DataFrame, rv_win_size: int) -> pd.Series:
+        """Parkinson volatility estimator."""
         rs: pd.Series = (1.0 / (4.0 * np.log(2))) * (np.log(df['high'] / df['low']) ** 2)
         return np.sqrt(rs.rolling(rv_win_size).mean()) * np.sqrt(self.dt)
 
@@ -110,6 +113,7 @@ class RealisedVolatilityCalculator:
         rv_win_size: int,
         _return_initial_term: bool = False,
     ) -> pd.Series:
+        """Garman–Klass volatility estimator."""
         term1 = 0.5 * (np.log(df['high'] / df['low']) ** 2)
         term2 = (2 * np.log(2) - 1) * (np.log(df['close'] / df['open']) ** 2)
         rs: pd.Series = term1 - term2
@@ -118,6 +122,7 @@ class RealisedVolatilityCalculator:
         return np.sqrt(rs.rolling(rv_win_size).mean()) * np.sqrt(self.dt)
 
     def _rogers_satchell(self, df: pd.DataFrame, rv_win_size: int) -> pd.Series:
+        """Rogers–Satchell volatility estimator."""
         ho = np.log(df['high'] / df['open'])
         lo = np.log(df['low'] / df['open'])
         co = np.log(df['close'] / df['open'])
@@ -125,12 +130,14 @@ class RealisedVolatilityCalculator:
         return np.sqrt(rs.rolling(rv_win_size).mean()) * np.sqrt(self.dt)
 
     def _gk_yang_zhang(self, df: pd.DataFrame, rv_win_size: int) -> pd.Series:
+        """Combination of Garman–Klass and Yang–Zhang estimators."""
         gk = self._garman_klass(df=df, rv_win_size=rv_win_size, _return_initial_term=True)
         yz = np.log(df['open'] / df['close'].shift(1)) ** 2
         rs: pd.Series = yz + gk
         return np.sqrt(rs.rolling(rv_win_size).mean()) * np.sqrt(self.dt)
 
     def _yang_zhang(self, df: pd.DataFrame, rv_win_size: int) -> pd.Series:
+        """Yang–Zhang volatility estimator."""
         log_open = np.log(df['open'])
         log_close: pd.Series = np.log(df['close'])
 

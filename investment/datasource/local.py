@@ -1,3 +1,5 @@
+"""Data source for reading local CSV files."""
+
 import datetime
 from typing import Any, Dict, Union, List, TYPE_CHECKING, ClassVar, Optional
 
@@ -13,14 +15,18 @@ if TYPE_CHECKING:
     from ..core.security.registry import Composite, CurrencyCross, Equity, ETF, Fund, BaseSecurity
 
 class LocalDataSource(BaseDataSource):
+    """Data source that reads from local CSV files only."""
+
     name: ClassVar[str] = "local"
 
     @property
     def portfolio_mapping(self) -> pd.DataFrame:
+        """Return portfolio mapping table from disk."""
         return pd.read_csv(f"{BASE_PATH}/portfolio_mapping.csv")
 
     @property
     def reporting_currency(self) -> pd.DataFrame:
+        """Return reporting currency reference table."""
         return pd.read_csv(f"{BASE_PATH}/reporting_currency.csv")
 
     def _get_currency_cross_price_history_from_remote(
@@ -28,6 +34,7 @@ class LocalDataSource(BaseDataSource):
         security: 'CurrencyCross', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
+        """Local source has no remote FX data."""
         raise DataSourceMethodException(
             f"No remote series for {self.name} datasource for {security.code}."
         )
@@ -37,6 +44,7 @@ class LocalDataSource(BaseDataSource):
         security: 'Equity', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
+        """Local source has no remote equity data."""
         raise DataSourceMethodException(
             f"No remote series for {self.name} datasource for {security.code}."
         )
@@ -46,6 +54,7 @@ class LocalDataSource(BaseDataSource):
         security: 'ETF', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
+        """Local source has no remote ETF data."""
         raise DataSourceMethodException(
             f"No remote series for {self.name} datasource for {security.code}."
         )
@@ -55,23 +64,25 @@ class LocalDataSource(BaseDataSource):
         security: 'Fund', intraday: bool,
         start_date: datetime.datetime, end_date: datetime.datetime,
     ) -> pd.DataFrame:
+        """Local source has no remote fund data."""
         raise DataSourceMethodException(
             f"No remote series for {self.name} datasource for {security.code}."
         )
 
     @staticmethod
     def _format_price_history_from_remote(df: pd.DataFrame) -> pd.DataFrame:
+        """Return the DataFrame unchanged."""
         return df
 
     def load_portfolio(self, portfolio: "Portfolio") -> Dict[str, Any]:
-        "Load a portfolio from the csv file."
+        """Load a portfolio from the CSV file."""
         df = self.portfolio_mapping
         row = df.loc[df.code == portfolio.code]
 
         return self._load(df=row, entity=portfolio)
 
     def load_security(self, security: "BaseSecurity") -> Dict[str, Any]:
-        "Load a security from the csv file."
+        """Load a security from the CSV file."""
         df = self.get_security_mapping()
         df_reporting_ccy = self.reporting_currency
 
@@ -85,6 +96,7 @@ class LocalDataSource(BaseDataSource):
         return self._load(df=row, entity=security)
 
     def load_composite_security(self, composite: "Composite") -> Dict[str, Any]:
+        """Return attributes for a composite security."""
         di = composite.security.model_dump()
         di.pop("code") # remove code as not needed
 
@@ -93,6 +105,7 @@ class LocalDataSource(BaseDataSource):
         return di
     
     def load_generic_security(self, **kwargs) -> "BaseSecurity":
+        """Instantiate a security based on mapping information."""
         from ..core.security.registry import security_registry
         
         df = self.get_security_mapping()
@@ -105,6 +118,7 @@ class LocalDataSource(BaseDataSource):
         
     @staticmethod
     def _load(df: pd.DataFrame, entity: Optional["BaseMappingEntity"] = None) -> Dict[str, Any]:
+        """Convert a single CSV row to a dictionary."""
         if len(df) > 1:
             raise SecurityMappingError(f"Duplicate {entity.entity_type} for code '{entity.code}'" if entity else "Duplicate data.")
         if len(df) == 0:
@@ -136,7 +150,7 @@ class LocalDataSource(BaseDataSource):
     def get_all_securities(
         self, column: str = "code", as_instance: bool = False
     ) -> List[Union[str, "BaseSecurity"]]:
-        "List all available securities."
+        """List all available securities."""
         from ..core.security.registry import security_registry
 
         li = []
@@ -158,4 +172,5 @@ class LocalDataSource(BaseDataSource):
         return li
 
     def _update_security_mapping(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Local source has no remote mapping update."""
         raise DataSourceMethodException(f"No remote security mapping for {self.name} datasource.")

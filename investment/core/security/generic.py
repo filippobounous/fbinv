@@ -18,7 +18,8 @@ class Generic:
 
     entity_type: ClassVar[str] = "generic"
 
-    def __new__(cls, code: Optional[str] = None, **kwargs) -> BaseSecurity:
+    def __new__(cls, code: Optional[str] = None, **kwargs) -> "BaseSecurity":
+        """Initialise the wrapped security from local mapping."""
         from ...datasource.local import LocalDataSource
 
         if code is not None:
