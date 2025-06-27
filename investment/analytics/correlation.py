@@ -44,13 +44,21 @@ class CorrelationCalculator:
 
         for port in self.portfolios:
             df = port.get_price_history()
-            s = df.groupby("as_of_date")["base_value"].sum().rename(port.code)
-            if use_returns:
-                if log_returns:
-                    s = np.log(s / s.shift(ret_win_size))
-                else:
-                    s = s.pct_change(ret_win_size)
-            series_list.append(s)
+
+            if "close_value" not in df.columns:
+                df["close_value"] = df["base_value"]
+
+            grouped = df.groupby(["as_of_date", "currency"])["close_value"].sum()
+
+            for currency in grouped.index.get_level_values("currency").unique():
+                s = grouped.xs(currency, level="currency")
+                s = s.rename(f"{port.code}_{currency}")
+                if use_returns:
+                    if log_returns:
+                        s = np.log(s / s.shift(ret_win_size))
+                    else:
+                        s = s.pct_change(ret_win_size)
+                series_list.append(s)
 
         df_all = pd.concat(series_list, axis=1)
         return df_all.dropna(how="any").sort_index()
