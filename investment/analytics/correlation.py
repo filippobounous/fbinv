@@ -2,6 +2,8 @@
 
 from typing import Optional, List, TYPE_CHECKING, Dict, Tuple, Union
 
+from ..utils.consts import DEFAULT_RET_WIN_SIZE, DEFAULT_CORR_MODEL
+
 import numpy as np
 import pandas as pd
 
@@ -63,14 +65,14 @@ class CorrelationCalculator:
     def _pairwise_correlation(
         self,
         df: pd.DataFrame,
-        method: str,
+        corr_model: str,
         window: Optional[int],
         lag: int,
     ) -> Union[pd.DataFrame, Dict[Tuple[str, str], pd.Series]]:
         """Compute pairwise correlations with optional rolling window and lag."""
 
         if window is None and lag == 0:
-            return df.corr(method=method)
+            return df.corr(method=corr_model)
 
         columns = list(df.columns)
         if window is None:
@@ -84,7 +86,7 @@ class CorrelationCalculator:
                 s2 = df[col2].shift(lag)
 
                 if window is None:
-                    corr_val = s1.corr(s2, method=method)
+                    corr_val = s1.corr(s2, method=corr_model)
                     result.loc[col1, col2] = corr_val
                     result.loc[col2, col1] = corr_val
                 else:
@@ -100,8 +102,8 @@ class CorrelationCalculator:
         self,
         use_returns: bool = False,
         log_returns: bool = True,
-        ret_win_size: int = 1,
-        method: str = "pearson",
+        ret_win_size: int = DEFAULT_RET_WIN_SIZE,
+        corr_model: str = DEFAULT_CORR_MODEL,
         window: Optional[int] = None,
         lag: int = 0,
     ) -> Union[pd.DataFrame, Dict[Tuple[str, str], pd.Series]]:
@@ -115,7 +117,7 @@ class CorrelationCalculator:
 
         return self._pairwise_correlation(
             df,
-            method=method,
+            corr_model=corr_model,
             window=window,
             lag=lag,
         )
@@ -147,8 +149,8 @@ class CorrelationCalculator:
         self,
         use_returns: bool = False,
         log_returns: bool = True,
-        ret_win_size: int = 1,
-        method: str = "pearson",
+        ret_win_size: int = DEFAULT_RET_WIN_SIZE,
+        corr_model: str = DEFAULT_CORR_MODEL,
     ) -> pd.DataFrame:
         """Return the partial correlation matrix controlling for all variables."""
 
@@ -158,7 +160,7 @@ class CorrelationCalculator:
             ret_win_size=ret_win_size,
         )
 
-        corr = df.corr(method=method)
+        corr = df.corr(method=corr_model)
         inv = np.linalg.pinv(corr.values)
         partial = -inv / np.sqrt(np.outer(np.diag(inv), np.diag(inv)))
         np.fill_diagonal(partial, 1.0)
@@ -168,8 +170,8 @@ class CorrelationCalculator:
         self,
         use_returns: bool = False,
         log_returns: bool = True,
-        ret_win_size: int = 1,
-        method: str = "pearson",
+        ret_win_size: int = DEFAULT_RET_WIN_SIZE,
+        corr_model: str = DEFAULT_CORR_MODEL,
         window: Optional[int] = None,
         lag: int = 0,
         downside: bool = True,
@@ -198,7 +200,7 @@ class CorrelationCalculator:
                 s2_f = s2[mask]
 
                 if window is None:
-                    corr_val = s1_f.corr(s2_f, method=method)
+                    corr_val = s1_f.corr(s2_f, method=corr_model)
                     result.loc[col1, col2] = corr_val
                     result.loc[col2, col1] = corr_val
                 else:
