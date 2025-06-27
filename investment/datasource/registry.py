@@ -1,3 +1,5 @@
+"""Registry of available data sources."""
+
 from typing import List, TYPE_CHECKING, Dict
 
 from .alpha_vantage import AlphaVantageDataSource

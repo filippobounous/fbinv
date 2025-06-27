@@ -1,5 +1,8 @@
-from dotenv import load_dotenv
+"""Configuration values loaded from environment variables."""
+
 import os
+
+from dotenv import load_dotenv
 
 load_dotenv()
 

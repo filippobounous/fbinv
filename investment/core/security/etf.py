@@ -1,4 +1,4 @@
-"ETF class for exchange-traded funds"
+"""ETF class for exchange-traded funds"""
 
 from typing import ClassVar
 

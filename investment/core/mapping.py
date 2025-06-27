@@ -1,32 +1,36 @@
-"Base class for initialisations from the mapping csv files available"
-
-from typing import Dict, Any, Optional
+"""Base class for initialisations from the mapping csv files available"""
 
 from abc import ABC, abstractmethod
+from typing import Dict, Any, Optional, TYPE_CHECKING, List, Union
+
 import pandas as pd
+from pydantic import BaseModel
 
 from ..analytics.metrics import PerformanceMetrics
 from ..analytics.var import VaRCalculator
-from ..utils.consts import TRADING_DAYS
+from ..analytics.realised_volatility import RealisedVolatilityCalculator
+from ..analytics.returns import ReturnsCalculator
+from ..datasource import LocalDataSource
+from ..utils.consts import (
+    DEFAULT_RET_WIN_SIZE,
+    DEFAULT_RV_WIN_SIZE,
+    DEFAULT_RV_MODEL,
+    TRADING_DAYS,
+)
 
-from pydantic import BaseModel
+if TYPE_CHECKING:
+    from ..datasource import BaseDataSource
 
-from ..datasource.local import LocalDataSource
 
 class BaseMappingEntity(BaseModel, ABC):
-    """
-    BaseMappingEntity.
-    
-    Returns required attributes to a class from the base csv mapping files.
-    Initialised with:
-        entity_type (str): The entity type to select the correct load_method.
-        code (str): The code for the entity to select the correct parameters.
-    """
+    """Base entity loaded from local mapping files."""
+
     entity_type: str
     code: str
     _local_datasource: LocalDataSource = LocalDataSource
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
+        """Initialise entity attributes from the local mapping files."""
         super().__init__(**kwargs)
 
         lds: LocalDataSource = self._local_datasource()
@@ -50,16 +54,52 @@ class BaseMappingEntity(BaseModel, ABC):
                 setattr(self, key, el)
 
     @abstractmethod
-    def get_price_history(self, **kwargs) -> pd.DataFrame:
-        """Return price history for the entity."""
-        raise NotImplementedError
+    def get_price_history(
+        self,
+        datasource: Optional["BaseDataSource"] = None,
+        local_only: bool = True,
+        intraday: bool = False,
+    ) -> pd.DataFrame:
+        """Returns time series of prices."""
+
+    def get_returns(
+        self,
+        use_ln_ret: bool = True,
+        ret_win_size: Union[int, List[int]] = DEFAULT_RET_WIN_SIZE,
+        datasource: Optional["BaseDataSource"] = None,
+        local_only: bool = True,
+    ) -> pd.DataFrame:
+        """Return the returns series."""
+        df = self.get_price_history(
+            datasource=datasource, local_only=local_only, intraday=False
+        )
+
+        return ReturnsCalculator(
+            ret_win_size=ret_win_size, use_ln_ret=use_ln_ret
+        ).calculate(df=df)
+
+    def get_realised_volatility(
+        self,
+        rv_model: Union[str, List[str]] = DEFAULT_RV_MODEL,
+        rv_win_size: Union[int, List[int]] = DEFAULT_RV_WIN_SIZE,
+        datasource: Optional["BaseDataSource"] = None,
+        local_only: bool = True,
+    ) -> pd.DataFrame:
+        """Return the realised volatility series."""
+        df = self.get_price_history(
+            datasource=datasource, local_only=local_only, intraday=False
+        )
+
+        return RealisedVolatilityCalculator(
+            rv_win_size=rv_win_size, rv_model=rv_model
+        ).calculate(df=df)
 
     def get_performance_metrics(
         self,
         risk_free_rate: float = 0.0,
         periods_per_year: int = TRADING_DAYS,
         confidence_level: float = 0.95,
-        **price_history_kwargs,
+        **price_history_kwargs: Any,
     ) -> Dict[str, float]:
         """Return common performance and risk metrics."""
         df = self.get_price_history(**price_history_kwargs)

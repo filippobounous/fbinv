@@ -1,1 +1,1 @@
-"Core module and submodules"
+"""Core module and submodules"""

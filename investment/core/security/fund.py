@@ -1,4 +1,4 @@
-"Fund class for mutual fund securities"
+"""Fund class for mutual fund securities"""
 
 from typing import ClassVar
 
