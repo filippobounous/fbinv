@@ -1,10 +1,10 @@
-"""Correlation Calculator for securities and portfolios.
+"""Correlation calculator for securities and portfolios.
 
-This module exposes :class:`CorrelationCalculator` which can compute
-pairwise correlations between security and portfolio time series.  It
-supports the standard ``pearson``, ``spearman`` and ``kendall``
-methods and can produce rolling or lagged correlations as well as
-partial and semi‑correlations.
+The :class:`CorrelationCalculator` assembles price or return series from
+`BaseSecurity` and `Portfolio` objects and computes pairwise correlation
+statistics.  It supports the standard Pearson, Spearman and Kendall
+models, optional rolling windows, time lags and more specialised
+measures such as partial and semi correlations.
 """
 
 from typing import Optional, List, TYPE_CHECKING, Dict, Tuple, Union
@@ -21,9 +21,11 @@ if TYPE_CHECKING:
 class CorrelationCalculator:
     """Calculator for correlations between securities and portfolios.
 
-    The calculator gathers price or return series for the supplied
-    entities and provides helpers to compute standard, rolling, lagged,
-    partial and semi correlations between every pair of series.
+    The calculator fetches historical price or return data from the
+    supplied entities and aligns them into a single ``DataFrame``.  A
+    variety of correlation measures can then be derived, including
+    standard, rolling and lagged correlations as well as more technical
+    partial and semi correlations.
     """
 
     def __init__(
@@ -49,7 +51,7 @@ class CorrelationCalculator:
         log_returns: bool,
         ret_win_size: int,
     ) -> pd.DataFrame:
-        """Collect price or return series for the stored entities.
+        """Collect aligned price or return series for the stored entities.
 
         Parameters
         ----------
@@ -66,8 +68,8 @@ class CorrelationCalculator:
         Returns
         -------
         pandas.DataFrame
-            A wide DataFrame indexed by date where each column represents a
-            security or portfolio series.
+            A wide DataFrame indexed by date with one column per security or
+            portfolio currency.  NaNs are dropped so all series are aligned.
         """
 
         series_list: List[pd.Series] = []
@@ -108,19 +110,21 @@ class CorrelationCalculator:
         window: Optional[int],
         lag: int,
     ) -> Union[pd.DataFrame, Dict[Tuple[str, str], pd.Series]]:
-        """Compute pairwise correlations for a DataFrame.
+        """Compute pairwise correlations for a ``DataFrame``.
 
         Parameters
         ----------
         df:
-            DataFrame of aligned series.
+            DataFrame containing aligned series.
         corr_model:
             Correlation method. Supported values are ``pearson``, ``spearman``
             and ``kendall``.
         window:
             Size of the rolling window. ``None`` returns a full-sample matrix.
+            Rolling computations rely on ``pandas.Series.rolling().corr``.
         lag:
-            Number of periods to shift the second series in each pair.
+            Number of periods to shift the second series in each pair for
+            cross-correlation analysis.
 
         Returns
         -------
@@ -171,7 +175,8 @@ class CorrelationCalculator:
         Parameters
         ----------
         use_returns:
-            If ``True`` correlations are computed on returns instead of prices.
+            If ``True`` correlations are computed on return series rather than
+            raw prices.
         log_returns:
             Whether returns should be logarithmic. Ignored when
             ``use_returns`` is ``False``.
@@ -183,7 +188,8 @@ class CorrelationCalculator:
             Rolling window for time-varying correlations. ``None`` returns a
             static matrix.
         lag:
-            Amount of lag applied to the second series in each pair.
+            Amount of lag applied to the second series in each pair.  Non-zero
+            values allow basic lead/lag analysis.
 
         Returns
         -------
@@ -216,7 +222,8 @@ class CorrelationCalculator:
         Returns
         -------
         float
-            Mean of all correlations excluding the diagonal.
+            Mean of all correlations excluding the diagonal so that only
+            pairwise relationships contribute.
         """
         tri = corr_matrix.where(~np.eye(len(corr_matrix), dtype=bool)).stack()
         return float(tri.mean())
@@ -234,7 +241,8 @@ class CorrelationCalculator:
         Returns
         -------
         pandas.Series
-            Series containing the mean correlation at each point in time.
+            Series containing the mean correlation at each point in time,
+            computed across all pairwise rolling correlations.
         """
         combined = pd.concat(corr_dict.values(), axis=1)
         return combined.mean(axis=1)
@@ -256,7 +264,8 @@ class CorrelationCalculator:
         Returns
         -------
         Dict[int, Union[pd.DataFrame, Dict[Tuple[str, str], pandas.Series]]]
-            Mapping of lag value to its corresponding correlation result.
+            Mapping of each lag value to the correlation matrix (or rolling
+            correlations) computed with that lag applied.
         """
         results = {}
         for l in lags:
@@ -283,6 +292,9 @@ class CorrelationCalculator:
         -------
         pandas.DataFrame
             Partial correlation matrix controlling for all included series.
+            The calculation uses the pseudoinverse of the full correlation
+            matrix to form the precision matrix ``Ω`` and applies
+            ``ρ_{ij·rest} = -Ω_{ij} / sqrt(Ω_{ii} Ω_{jj})``.
         """
 
         df = self._gather_series(
@@ -314,8 +326,9 @@ class CorrelationCalculator:
         use_returns, log_returns, ret_win_size, corr_model, window, lag:
             See :meth:`calculate` for parameter meanings.
         downside:
-            If ``True`` only negative observations are used, otherwise only
-            positive ones.
+            If ``True`` only negative observations are used; otherwise only
+            positive ones are considered.  Filtering is applied prior to
+            correlation so sample sizes may vary.
 
         Returns
         -------

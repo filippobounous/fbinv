@@ -1,5 +1,3 @@
-"""Tools for generating correlation reports."""
-
 from typing import List, Optional, Dict, Tuple, Union, TYPE_CHECKING
 
 import pandas as pd
