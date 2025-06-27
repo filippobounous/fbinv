@@ -1,1 +1,1 @@
-"Reports displays"
+"""Reports displays"""

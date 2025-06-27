@@ -1,4 +1,4 @@
-"Base class for initialisations from the mapping csv files available"
+"""Base class for initialisations from the mapping csv files available"""
 
 from typing import Dict, Any
 

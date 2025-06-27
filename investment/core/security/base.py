@@ -1,4 +1,4 @@
-"Base Security class as a generic abstraction for all others"
+"""Base Security class as a generic abstraction for all others"""
 
 from typing import Optional, ClassVar, TYPE_CHECKING, Union, List
 
@@ -82,7 +82,7 @@ class BaseSecurity(BaseMappingEntity):
         local_only: bool = True,
         intraday: bool = False,
     ) -> pd.DataFrame:
-        "Returns price history"
+        """Returns price history"""
         _datasource = get_datasource(datasource=datasource)
         return _datasource.get_price_history(
             security=self, intraday=intraday, local_only=local_only
@@ -95,7 +95,7 @@ class BaseSecurity(BaseMappingEntity):
         datasource: Optional["BaseDataSource"] = None,
         local_only: bool = True,
     ) -> pd.DataFrame:
-        "Returns the returns series"
+        """Returns the returns series"""
         df = self.get_price_history(datasource=datasource, local_only=local_only, intraday=False)
 
         return ReturnsCalculator(
@@ -109,7 +109,7 @@ class BaseSecurity(BaseMappingEntity):
         datasource: Optional["BaseDataSource"] = None,
         local_only: bool = True,
     ) -> pd.DataFrame:
-        "Returns the realised volatility series"
+        """Returns the realised volatility series"""
         df = self.get_price_history(datasource=datasource, local_only=local_only, intraday=False)
 
         return RealisedVolatilityCalculator(
@@ -117,7 +117,7 @@ class BaseSecurity(BaseMappingEntity):
         ).calculate(df=df)
 
     def convert_to_currency(self, currency: str) -> Union["BaseSecurity", "Composite"]:
-        "Converts a security to its composite self, by applying a currency conversion"
+        """Converts a security to its composite self, by applying a currency conversion"""
         from .composite import Composite
         if currency ==  self.currency:
             return self

@@ -1,4 +1,4 @@
-"Composite security class to convert between currencies"
+"""Composite security class to convert between currencies"""
 
 from typing import Optional, TYPE_CHECKING, ClassVar
 
