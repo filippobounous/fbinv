@@ -14,7 +14,6 @@ from twelvedata.exceptions import TwelveDataError
 
 from .base import BaseDataSource
 from ..config import TWELVE_DATA_API_KEY
-from ..utils.consts import DEFAULT_TIMEOUT
 from ..utils.date_utils import today_midnight
 from ..utils.exceptions import TwelveDataException
 

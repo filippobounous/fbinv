@@ -1,13 +1,12 @@
 """Data source wrapper for the Alpha Vantage API."""
 
+import datetime
 from typing import TYPE_CHECKING, ClassVar, Dict, Any, Tuple
 
-import datetime
 import pandas as pd
 
 from .base import BaseDataSource
 from ..config import ALPHA_VANTAGE_API_KEY
-from ..utils.consts import DEFAULT_TIMEOUT
 from ..utils.date_utils import today_midnight
 from ..utils.exceptions import DataSourceMethodException, AlphaVantageException
 
