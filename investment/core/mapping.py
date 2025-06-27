@@ -15,6 +15,9 @@ from ..utils.consts import (
     DEFAULT_RET_WIN_SIZE,
     DEFAULT_RV_WIN_SIZE,
     DEFAULT_RV_MODEL,
+    DEFAULT_RISK_FREE_RATE,
+    DEFAULT_CONFIDENCE_LEVEL,
+    DEFAULT_VAR_METHOD,
     TRADING_DAYS,
 )
 
@@ -96,13 +99,17 @@ class BaseMappingEntity(BaseModel, ABC):
 
     def get_performance_metrics(
         self,
-        risk_free_rate: float = 0.0,
+        risk_free_rate: float = DEFAULT_RISK_FREE_RATE,
         periods_per_year: int = TRADING_DAYS,
-        confidence_level: float = 0.95,
+        confidence_level: float = DEFAULT_CONFIDENCE_LEVEL,
+        datasource: Optional["BaseDataSource"] = None,
+        local_only: bool = True,
         **price_history_kwargs: Any,
     ) -> Dict[str, float]:
         """Return common performance and risk metrics."""
-        df = self.get_price_history(**price_history_kwargs)
+        df = self.get_price_history(
+            datasource=datasource, local_only=local_only, **price_history_kwargs
+        )
 
         return {
             "cumulative_return": PerformanceMetrics.cumulative_return(df),
@@ -127,8 +134,8 @@ class BaseMappingEntity(BaseModel, ABC):
 
     def get_value_at_risk(
         self,
-        confidence_level: float = 0.95,
-        method: str = "historical",
+        confidence_level: float = DEFAULT_CONFIDENCE_LEVEL,
+        method: str = DEFAULT_VAR_METHOD,
         datasource: Optional["BaseDataSource"] = None,
         local_only: bool = True,
         **price_history_kwargs: Any,

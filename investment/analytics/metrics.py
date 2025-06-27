@@ -1,4 +1,9 @@
-"""Performance related analytics for price history series."""
+"""Performance metrics for price history series.
+
+The :class:`PerformanceMetrics` class provides cumulative and annualised
+returns, drawdown measures and risk-adjusted ratios such as Sharpe and
+Sortino.
+"""
 
 from typing import Optional
 
@@ -9,7 +14,7 @@ from ..utils.consts import TRADING_DAYS
 from .base import _BaseAnalytics
 
 class PerformanceMetrics(_BaseAnalytics):
-    """Collection of portfolio performance calculations."""
+    """Collection of common portfolio performance calculations."""
 
     @classmethod
     def cumulative_return(cls, df: pd.DataFrame) -> float:

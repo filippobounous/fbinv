@@ -1,4 +1,8 @@
-"""Value-at-Risk analytics for price history series."""
+"""Value-at-Risk analytics for assessing downside risk.
+
+The :class:`VaRCalculator` provides historical, parametric and conditional
+Value-at-Risk estimations using validated return series.
+"""
 
 from statistics import NormalDist
 import pandas as pd

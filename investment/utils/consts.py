@@ -12,4 +12,9 @@ DEFAULT_RV_WIN_SIZE = 20
 DEFAULT_RV_MODEL = "close_to_close"
 TRADING_DAYS = 252
 
+# default parameters for analytics
+DEFAULT_RISK_FREE_RATE = 0.0
+DEFAULT_CONFIDENCE_LEVEL = 0.95
+DEFAULT_VAR_METHOD = "historical"
+
 DEFAULT_TIMEOUT = 60 # 60 seconds
