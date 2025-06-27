@@ -1,4 +1,11 @@
-"""Correlation Calculator for securities and portfolios."""
+"""Correlation Calculator for securities and portfolios.
+
+This module exposes :class:`CorrelationCalculator` which can compute
+pairwise correlations between security and portfolio time series.  It
+supports the standard ``pearson``, ``spearman`` and ``kendall``
+methods and can produce rolling or lagged correlations as well as
+partial and semi‑correlations.
+"""
 
 from typing import Optional, List, TYPE_CHECKING, Dict, Tuple, Union
 
@@ -12,14 +19,27 @@ if TYPE_CHECKING:
     from ..core.security import BaseSecurity
 
 class CorrelationCalculator:
-    """Calculate correlations for securities and portfolios."""
+    """Calculator for correlations between securities and portfolios.
+
+    The calculator gathers price or return series for the supplied
+    entities and provides helpers to compute standard, rolling, lagged,
+    partial and semi correlations between every pair of series.
+    """
 
     def __init__(
         self,
         securities: Optional[List["BaseSecurity"]] = None,
         portfolios: Optional[List["Portfolio"]] = None,
     ) -> None:
-        """Cache the input security and portfolio lists."""
+        """Initialise the calculator with optional entities.
+
+        Parameters
+        ----------
+        securities:
+            A list of :class:`BaseSecurity` instances to analyse.
+        portfolios:
+            A list of :class:`Portfolio` instances to analyse.
+        """
         self.securities: List["BaseSecurity"] = securities or []
         self.portfolios: List["Portfolio"] = portfolios or []
 
@@ -29,7 +49,26 @@ class CorrelationCalculator:
         log_returns: bool,
         ret_win_size: int,
     ) -> pd.DataFrame:
-        """Return a DataFrame of price or return series."""
+        """Collect price or return series for the stored entities.
+
+        Parameters
+        ----------
+        use_returns:
+            If ``True`` return percentage or logarithmic returns instead of
+            prices.
+        log_returns:
+            When ``use_returns`` is ``True`` select log returns (``ln``) or
+            simple percentage returns.
+        ret_win_size:
+            Window size used to compute returns when ``use_returns`` is
+            enabled.
+
+        Returns
+        -------
+        pandas.DataFrame
+            A wide DataFrame indexed by date where each column represents a
+            security or portfolio series.
+        """
 
         series_list: List[pd.Series] = []
 
@@ -69,7 +108,27 @@ class CorrelationCalculator:
         window: Optional[int],
         lag: int,
     ) -> Union[pd.DataFrame, Dict[Tuple[str, str], pd.Series]]:
-        """Compute pairwise correlations with optional rolling window and lag."""
+        """Compute pairwise correlations for a DataFrame.
+
+        Parameters
+        ----------
+        df:
+            DataFrame of aligned series.
+        corr_model:
+            Correlation method. Supported values are ``pearson``, ``spearman``
+            and ``kendall``.
+        window:
+            Size of the rolling window. ``None`` returns a full-sample matrix.
+        lag:
+            Number of periods to shift the second series in each pair.
+
+        Returns
+        -------
+        pandas.DataFrame or Dict[Tuple[str, str], pandas.Series]
+            If ``window`` is ``None``, a square correlation matrix is returned.
+            Otherwise a dictionary keyed by the pair of column names with
+            rolling correlation series.
+        """
 
         if window is None and lag == 0:
             return df.corr(method=corr_model)
@@ -107,7 +166,31 @@ class CorrelationCalculator:
         window: Optional[int] = None,
         lag: int = 0,
     ) -> Union[pd.DataFrame, Dict[Tuple[str, str], pd.Series]]:
-        """Return correlation results for the stored entities."""
+        """Calculate correlations for the stored securities and portfolios.
+
+        Parameters
+        ----------
+        use_returns:
+            If ``True`` correlations are computed on returns instead of prices.
+        log_returns:
+            Whether returns should be logarithmic. Ignored when
+            ``use_returns`` is ``False``.
+        ret_win_size:
+            Window used for return calculations.
+        corr_model:
+            Correlation method (``pearson``, ``spearman`` or ``kendall``).
+        window:
+            Rolling window for time-varying correlations. ``None`` returns a
+            static matrix.
+        lag:
+            Amount of lag applied to the second series in each pair.
+
+        Returns
+        -------
+        pandas.DataFrame or Dict[Tuple[str, str], pandas.Series]
+            Full correlation matrix or dictionary of rolling correlation
+            series depending on ``window``.
+        """
 
         df = self._gather_series(
             use_returns=use_returns,
@@ -123,14 +206,36 @@ class CorrelationCalculator:
         )
 
     def mean_correlation(self, corr_matrix: pd.DataFrame) -> float:
-        """Return the mean off-diagonal correlation from a matrix."""
+        """Return the mean off-diagonal correlation from a matrix.
+
+        Parameters
+        ----------
+        corr_matrix:
+            Square matrix of correlation coefficients.
+
+        Returns
+        -------
+        float
+            Mean of all correlations excluding the diagonal.
+        """
         tri = corr_matrix.where(~np.eye(len(corr_matrix), dtype=bool)).stack()
         return float(tri.mean())
 
     def rolling_mean_correlation(
         self, corr_dict: Dict[Tuple[str, str], pd.Series]
     ) -> pd.Series:
-        """Return the average rolling correlation across all pairs."""
+        """Return the average rolling correlation across all pairs.
+
+        Parameters
+        ----------
+        corr_dict:
+            Dictionary mapping column name tuples to rolling correlation series.
+
+        Returns
+        -------
+        pandas.Series
+            Series containing the mean correlation at each point in time.
+        """
         combined = pd.concat(corr_dict.values(), axis=1)
         return combined.mean(axis=1)
 
@@ -139,7 +244,20 @@ class CorrelationCalculator:
         lags: List[int],
         **kwargs,
     ) -> Dict[int, Union[pd.DataFrame, Dict[Tuple[str, str], pd.Series]]]:
-        """Compute correlations for multiple lags."""
+        """Compute correlations for multiple lags.
+
+        Parameters
+        ----------
+        lags:
+            List of lag values to evaluate.
+        **kwargs:
+            Additional keyword arguments forwarded to :meth:`calculate`.
+
+        Returns
+        -------
+        Dict[int, Union[pd.DataFrame, Dict[Tuple[str, str], pandas.Series]]]
+            Mapping of lag value to its corresponding correlation result.
+        """
         results = {}
         for l in lags:
             results[l] = self.calculate(lag=l, **kwargs)
@@ -152,7 +270,20 @@ class CorrelationCalculator:
         ret_win_size: int = DEFAULT_RET_WIN_SIZE,
         corr_model: str = DEFAULT_CORR_MODEL,
     ) -> pd.DataFrame:
-        """Return the partial correlation matrix controlling for all variables."""
+        """Return the partial correlation matrix.
+
+        Parameters
+        ----------
+        use_returns, log_returns, ret_win_size:
+            See :meth:`calculate` for definitions.
+        corr_model:
+            Correlation method to use.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Partial correlation matrix controlling for all included series.
+        """
 
         df = self._gather_series(
             use_returns=use_returns,
@@ -176,7 +307,22 @@ class CorrelationCalculator:
         lag: int = 0,
         downside: bool = True,
     ) -> Union[pd.DataFrame, Dict[Tuple[str, str], pd.Series]]:
-        """Return downside or upside correlations using only matching sign data."""
+        """Return downside or upside correlations using sign‑filtered data.
+
+        Parameters
+        ----------
+        use_returns, log_returns, ret_win_size, corr_model, window, lag:
+            See :meth:`calculate` for parameter meanings.
+        downside:
+            If ``True`` only negative observations are used, otherwise only
+            positive ones.
+
+        Returns
+        -------
+        pandas.DataFrame or Dict[Tuple[str, str], pandas.Series]
+            Correlation matrix or rolling correlation series depending on the
+            ``window`` argument.
+        """
 
         df = self._gather_series(
             use_returns=use_returns,
