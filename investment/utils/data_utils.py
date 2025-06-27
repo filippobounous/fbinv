@@ -9,7 +9,6 @@ from ..datasource.registry import all_datasource
 if TYPE_CHECKING:
     from ..datasource.base import BaseDataSource
 
-
 def update_all_price_history(
     intraday: bool = False, local_only: bool = False
 ) -> Dict[str, Dict[str, bool]]:
@@ -21,7 +20,6 @@ def update_all_price_history(
             intraday=intraday, local_only=local_only
         )
     return di
-
 
 def update_all_security_mapping() -> Dict[str, bool]:
     """Refresh the security mapping for every data source."""
