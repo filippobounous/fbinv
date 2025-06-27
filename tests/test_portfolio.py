@@ -6,7 +6,7 @@ from unittest import mock
 
 import pandas as pd
 
-from tests.test_utils import FakeLocalDataSource
+from test_utils import FakeLocalDataSource
 
 TEMP_DIR = tempfile.TemporaryDirectory()
 BASE = TEMP_DIR.name

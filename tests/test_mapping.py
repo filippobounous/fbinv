@@ -6,7 +6,7 @@ import unittest
 import pandas as pd
 from typing import Optional
 
-from tests.test_utils import FakeLocalDataSource
+from test_utils import FakeLocalDataSource
 
 # prepare environment before importing modules
 TEMP_DIR = tempfile.TemporaryDirectory()
