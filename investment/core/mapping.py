@@ -124,3 +124,28 @@ class BaseMappingEntity(BaseModel, ABC):
                 df, confidence_level=confidence_level
             ),
         }
+
+    def get_value_at_risk(
+        self,
+        confidence_level: float = 0.95,
+        method: str = "historical",
+        datasource: Optional["BaseDataSource"] = None,
+        local_only: bool = True,
+        **price_history_kwargs: Any,
+    ) -> float:
+        """Return Value-at-Risk using the specified method."""
+        df = self.get_price_history(
+            datasource=datasource, local_only=local_only, **price_history_kwargs
+        )
+
+        methods = {
+            "historical": VaRCalculator.value_at_risk,
+            "parametric": VaRCalculator.parametric_var,
+            "conditional": VaRCalculator.conditional_var,
+        }
+
+        calc = methods.get(method)
+        if calc is None:
+            raise KeyError(f"VaR method '{method}' not recognised.")
+
+        return calc(df, confidence_level=confidence_level)
