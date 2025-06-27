@@ -5,7 +5,6 @@ from time import sleep
 from typing import TYPE_CHECKING, ClassVar
 
 import pandas as pd
-import requests
 
 from .base import BaseDataSource
 from ..config import OPEN_FIGI_API_KEY
@@ -86,9 +85,9 @@ class OpenFigiDataSource(BaseDataSource):
             payload = [{"idType": "ID_BB_GLOBAL", "idValue": figi} for figi in batch]
 
             try:
-                resp = requests.post(self.base_url, json=payload, headers=headers, timeout=10)
-                resp.raise_for_status()
-                batch_results = resp.json()
+                batch_results = self._request(
+                    "post", self.base_url, json=payload, headers=headers
+                )
             except Exception as e:
                 raise RuntimeError(
                     f"OpenFIGI batch failed for batch {idx // self.batch_size + 1}: {e}"
