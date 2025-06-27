@@ -370,4 +370,3 @@ class CorrelationCalculator:
             np.fill_diagonal(result.values, 1.0)
             return result
         return result
-
