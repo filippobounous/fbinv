@@ -2,10 +2,10 @@
 
 from typing import Optional, List, TYPE_CHECKING, Dict, Tuple, Union
 
-from ..utils.consts import DEFAULT_RET_WIN_SIZE, DEFAULT_CORR_MODEL
-
 import numpy as np
 import pandas as pd
+
+from ..utils.consts import DEFAULT_RET_WIN_SIZE, DEFAULT_CORR_MODEL
 
 if TYPE_CHECKING:
     from ..core.portfolio import Portfolio
@@ -211,3 +211,4 @@ class CorrelationCalculator:
             np.fill_diagonal(result.values, 1.0)
             return result
         return result
+
