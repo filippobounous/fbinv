@@ -8,6 +8,8 @@ from typing import Optional, List, TYPE_CHECKING
 if TYPE_CHECKING:
     from ..core.portfolio import Portfolio
     from ..core.security import BaseSecurity
+
+
 class Correlation:
     """Placeholder for correlation calculations."""
 

@@ -7,6 +7,7 @@ import numpy as np
 
 from ..utils.consts import DEFAULT_RET_WIN_SIZE
 
+
 class ReturnsCalculator:
     """
     Returns Calculator

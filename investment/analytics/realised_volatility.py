@@ -7,6 +7,7 @@ import pandas as pd
 
 from ..utils.consts import DEFAULT_RV_WIN_SIZE, DEFAULT_RV_MODEL, TRADING_DAYS, HL, OHLC
 
+
 class RealisedVolatilityCalculator:
     """
     Realised Volatility Calculator

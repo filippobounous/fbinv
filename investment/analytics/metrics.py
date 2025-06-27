@@ -17,6 +17,7 @@ import pandas as pd
 from ..utils.consts import TRADING_DAYS
 from .base import _BaseAnalytics
 
+
 class PerformanceMetrics(_BaseAnalytics):
     """Collection of common portfolio performance calculations.
 

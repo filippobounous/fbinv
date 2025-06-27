@@ -4,6 +4,7 @@ from pandas import DataFrame, DatetimeIndex, Series
 
 from .returns import ReturnsCalculator
 
+
 class _BaseAnalytics:
     """Shared input validation for analytics calculators."""
 

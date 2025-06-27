@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 from ..config import TRANSACTION_PATH, TRANSACTION_SHEET_NAME, PORTFOLIO_PATH, DEFAULT_NAME
 
+
 class Transactions(BaseModel):
     """Helper for loading and saving portfolio transaction files."""
 

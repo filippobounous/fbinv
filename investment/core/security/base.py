@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from .composite import Composite
     from ...datasource.base import BaseDataSource
 
+
 class BaseSecurity(BaseMappingEntity):
     """
     BaseSecurity

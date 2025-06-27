@@ -11,6 +11,7 @@ from ..utils.exceptions import DataSourceMethodException
 if TYPE_CHECKING:
     from ..core.security.registry import CurrencyCross, Equity, ETF, Fund
 
+
 class BloombergDataSource(BaseDataSource):
     """Placeholder data source for Bloomberg integration."""
 

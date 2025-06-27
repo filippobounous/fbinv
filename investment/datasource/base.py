@@ -22,6 +22,7 @@ if TYPE_CHECKING:
     from ..core.security import BaseSecurity
     from ..core.security.registry import CurrencyCross, Equity, ETF, Fund
 
+
 class BaseDataSource(BaseModel):
     """Abstract interface for retrieving and caching data."""
 

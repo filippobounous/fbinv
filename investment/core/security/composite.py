@@ -12,6 +12,7 @@ from ...utils.consts import OC
 if TYPE_CHECKING:
     from ...datasource.base import BaseDataSource
 
+
 class Composite(BaseSecurity):
     """
     Composite Security.

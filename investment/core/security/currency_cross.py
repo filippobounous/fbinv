@@ -4,6 +4,7 @@ from typing import ClassVar, Optional
 
 from .base import BaseSecurity
 
+
 class CurrencyCross(BaseSecurity):
     """
     Currency Cross Security.
