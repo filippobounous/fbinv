@@ -73,7 +73,6 @@ class SecurityTests(unittest.TestCase):
                 self.assertTrue((df['open'] == sec_df['open'] * ccy_df['open']).all())
                 self.assertTrue((df['close'] == sec_df['close'] * ccy_df['close']).all())
 
-
     def test_get_price_history_uses_datasource(self):
         """Ensure datasource helper is consulted when fetching prices."""
         sec = generic.Generic("AAA")

@@ -67,7 +67,6 @@ class TransactionsTests(unittest.TestCase):
             m1.assert_called_once()
             m2.assert_called_once()
 
-
     def test_load_transactions_reads_excel(self):
         """_load_transactions reads data from Excel via pandas."""
         with mock.patch('pandas.read_excel', return_value=pd.DataFrame()) as re:

@@ -62,7 +62,6 @@ class PortfolioTests(unittest.TestCase):
         with self.assertWarns(UserWarning):
             p.get_price_history(intraday=True)
 
-
     def test_get_path(self):
         """_get_path builds the path to the transactions CSV."""
         p = Portfolio("PORT")

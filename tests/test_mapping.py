@@ -76,7 +76,6 @@ class MappingTests(unittest.TestCase):
         self.assertFalse(vol.empty)
         self.assertIn('volatility', vol.columns)
 
-
     def test_calculation_helpers_called_with_expected_args(self):
         """Verify ReturnsCalculator and RealisedVolatilityCalculator usage."""
         class Dummy(mapping.BaseMappingEntity):
