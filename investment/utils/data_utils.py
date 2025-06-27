@@ -1,13 +1,13 @@
 """Utility helpers for bulk data source updates."""
 
 from typing import TYPE_CHECKING, Dict, Tuple
+
 from tqdm import tqdm
 
 from ..datasource.registry import all_datasource
 
 if TYPE_CHECKING:
     from ..datasource.base import BaseDataSource
-
 
 def update_all_price_history(
     intraday: bool = False, local_only: bool = False
@@ -20,7 +20,6 @@ def update_all_price_history(
             intraday=intraday, local_only=local_only
         )
     return di
-
 
 def update_all_security_mapping() -> Dict[str, bool]:
     """Refresh the security mapping for every data source."""

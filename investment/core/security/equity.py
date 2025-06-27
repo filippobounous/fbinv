@@ -1,4 +1,4 @@
-"Equity class for single stock securities"
+"""Equity class for single stock securities"""
 
 from typing import ClassVar
 

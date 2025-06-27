@@ -103,26 +103,34 @@ class LocalDataSource(BaseDataSource):
         di["currency"] = composite.currency_cross.currency
 
         return di
-    
+
     def load_generic_security(self, **kwargs) -> "BaseSecurity":
         """Instantiate a security based on mapping information."""
         from ..core.security.registry import security_registry
-        
+
         df = self.get_security_mapping()
         row = df[df.code == kwargs["code"]]
         entity_type = self._load(df=row).get("type")
-        
+
         entity = security_registry.get(entity_type)
-        
+
         return entity(**kwargs)
-        
+
     @staticmethod
     def _load(df: pd.DataFrame, entity: Optional["BaseMappingEntity"] = None) -> Dict[str, Any]:
         """Convert a single CSV row to a dictionary."""
         if len(df) > 1:
-            raise SecurityMappingError(f"Duplicate {entity.entity_type} for code '{entity.code}'" if entity else "Duplicate data.")
+            raise SecurityMappingError(
+                f"Duplicate {entity.entity_type} for code '{entity.code}'"
+                if entity
+                else "Duplicate data."
+            )
         if len(df) == 0:
-            raise SecurityMappingError(f"No {entity.entity_type} for code '{entity.code}'" if entity else "Missing data.")
+            raise SecurityMappingError(
+                f"No {entity.entity_type} for code '{entity.code}'"
+                if entity
+                else "Missing data."
+            )
 
         di = df.iloc[0].to_dict()
         return {k: v for k, v in di.items() if not pd.isna(v)}

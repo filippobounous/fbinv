@@ -1,4 +1,4 @@
-"Security class and subclasses"
+"""Security class and subclasses"""
 
 from .base import BaseSecurity
 from .composite import Composite

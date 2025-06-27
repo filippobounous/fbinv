@@ -1,4 +1,4 @@
-"CurrencyCross class for exchange rates"
+"""CurrencyCross class for exchange rates"""
 
 from typing import ClassVar, Optional
 

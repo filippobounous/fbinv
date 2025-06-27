@@ -1,1 +1,1 @@
-
+"""Investment package"""

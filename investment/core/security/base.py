@@ -1,15 +1,12 @@
-"Base Security class as a generic abstraction for all others"
+"""Base Security class as a generic abstraction for all others"""
 
-from typing import Optional, ClassVar, TYPE_CHECKING, Union, List
+from typing import Optional, ClassVar, TYPE_CHECKING, Union
 
 import pandas as pd
 
-from ...analytics.realised_volatility import RealisedVolatilityCalculator
-from ...analytics.returns import ReturnsCalculator
 from ...config import TIMESERIES_DATA_PATH
 from ...datasource.utils import get_datasource
 from ..mapping import BaseMappingEntity
-from ...utils.consts import DEFAULT_RET_WIN_SIZE, DEFAULT_RV_WIN_SIZE, DEFAULT_RV_MODEL
 
 if TYPE_CHECKING:
     from .composite import Composite
@@ -82,42 +79,14 @@ class BaseSecurity(BaseMappingEntity):
         local_only: bool = True,
         intraday: bool = False,
     ) -> pd.DataFrame:
-        "Returns price history"
+        """Returns price history"""
         _datasource = get_datasource(datasource=datasource)
         return _datasource.get_price_history(
             security=self, intraday=intraday, local_only=local_only
         )
 
-    def get_returns(
-        self,
-        use_ln_ret: bool = True,
-        ret_win_size: Union[int, List[int]] = DEFAULT_RET_WIN_SIZE,
-        datasource: Optional["BaseDataSource"] = None,
-        local_only: bool = True,
-    ) -> pd.DataFrame:
-        "Returns the returns series"
-        df = self.get_price_history(datasource=datasource, local_only=local_only, intraday=False)
-
-        return ReturnsCalculator(
-            ret_win_size=ret_win_size, use_ln_ret=use_ln_ret
-        ).calculate(df=df)
-
-    def get_realised_volatility(
-        self,
-        rv_model: Union[str, List[str]] = DEFAULT_RV_MODEL,
-        rv_win_size: Union[int, List[int]] = DEFAULT_RV_WIN_SIZE,
-        datasource: Optional["BaseDataSource"] = None,
-        local_only: bool = True,
-    ) -> pd.DataFrame:
-        "Returns the realised volatility series"
-        df = self.get_price_history(datasource=datasource, local_only=local_only, intraday=False)
-
-        return RealisedVolatilityCalculator(
-            rv_win_size=rv_win_size, rv_model=rv_model
-        ).calculate(df=df)
-
     def convert_to_currency(self, currency: str) -> Union["BaseSecurity", "Composite"]:
-        "Converts a security to its composite self, by applying a currency conversion"
+        """Converts a security to its composite self, by applying a currency conversion"""
         from .composite import Composite
         if currency ==  self.currency:
             return self
