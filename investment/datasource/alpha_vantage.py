@@ -1,14 +1,12 @@
 """Data source wrapper for the Alpha Vantage API."""
 
+import datetime
 from typing import TYPE_CHECKING, ClassVar, Dict, Any, Tuple
 
-import datetime
 import pandas as pd
-import requests
 
 from .base import BaseDataSource
 from ..config import ALPHA_VANTAGE_API_KEY
-from ..utils.consts import DEFAULT_TIMEOUT
 from ..utils.date_utils import today_midnight
 from ..utils.exceptions import DataSourceMethodException, AlphaVantageException
 
@@ -123,7 +121,7 @@ class AlphaVantageDataSource(BaseDataSource):
 
     def _get_response(self, url: str, params: Dict[str, Any]) -> Dict[str, Any]:
         """Send request and validate the response."""
-        data = requests.get(url=url, params=params, timeout=DEFAULT_TIMEOUT).json()
+        data = self._request("get", url, params=params)
         self._check_response(data=data)
         return data
 

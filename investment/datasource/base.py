@@ -4,14 +4,16 @@ from abc import abstractmethod
 import datetime
 import os
 from pathlib import Path
-from typing import Dict, Optional, ClassVar, TYPE_CHECKING, Tuple
+from typing import Dict, Optional, ClassVar, TYPE_CHECKING, Tuple, Any
 
 import pandas as pd
 from pydantic import BaseModel
 from tqdm import tqdm
 
+import requests
+
 from ..config import TIMESERIES_DATA_PATH, BASE_PATH
-from ..utils.consts import DATA_START_DATE
+from ..utils.consts import DATA_START_DATE, DEFAULT_TIMEOUT
 from ..utils.date_utils import today_midnight
 from ..utils.exceptions import DataSourceMethodException, AlphaVantageException, TwelveDataException
 from ..utils.warnings import warnings
@@ -40,6 +42,16 @@ class BaseDataSource(BaseModel):
     def security_mapping_path(self) -> str:
         """CSV file containing this source's security mapping."""
         return f"{BASE_PATH}/security_mapping-{self.name}.csv"
+
+    @staticmethod
+    def _request(method: str, url: str, **kwargs) -> Any:
+        """Send an HTTP request with basic error handling."""
+        try:
+            response = requests.request(method, url, timeout=DEFAULT_TIMEOUT, **kwargs)
+            response.raise_for_status()
+            return response.json()
+        except requests.RequestException as exc:
+            raise RuntimeError(f"Request to {url} failed: {exc}") from exc
 
     def get_security_mapping(self) -> pd.DataFrame:
         """Load the mapping file from disk."""

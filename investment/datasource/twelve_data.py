@@ -8,14 +8,12 @@ import warnings
 
 import pandas as pd
 from pydantic import ConfigDict
-import requests
 from tqdm import tqdm
 from twelvedata import TDClient
 from twelvedata.exceptions import TwelveDataError
 
 from .base import BaseDataSource
 from ..config import TWELVE_DATA_API_KEY
-from ..utils.consts import DEFAULT_TIMEOUT
 from ..utils.date_utils import today_midnight
 from ..utils.exceptions import TwelveDataException
 
@@ -239,11 +237,11 @@ class TwelveDataDataSource(BaseDataSource):
         code = available_entities.get(entity_type)
         if code:
             url = f"{self.base_url}/{code}"
-            response = requests.get(url, timeout=DEFAULT_TIMEOUT)
+            response = self._request("get", url)
             if entity_type in ["fund", "bond"]:
-                data = response.json().get('result').get('list')
+                data = response.get('result').get('list')
             else:
-                data = response.json().get("data")
+                data = response.get("data")
             return pd.DataFrame(data)
         else:
             return pd.DataFrame()
@@ -260,9 +258,7 @@ class TwelveDataDataSource(BaseDataSource):
             "interval": self._interval_code(intraday=intraday),
         }
         url = f"{self.base_url}/earliest_timestamp"
-        response = requests.get(url, params=params, timeout=DEFAULT_TIMEOUT)
-
-        data = response.json()
+        data = self._request("get", url, params=params)
         if data.get("status") != "error":
             return datetime.datetime.utcfromtimestamp(data.get("unix_time"))
 
