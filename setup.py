@@ -6,12 +6,14 @@ setup(
     packages=find_packages(exclude=("notebooks")),
     install_requires=[
         "pandas",
+        "numpy",
         "pydantic",
         "yfinance",
         "twelvedata",
         "requests",
         "openpyxl",
         "python-dotenv",
+        "tqdm",
     ],
     python_requires=">=3.9",
 )

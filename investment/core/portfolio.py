@@ -1,6 +1,7 @@
 """Defines Portfolio class to manipulate multiple transactions together"""
 
 from typing import Optional, ClassVar, List
+import warnings
 
 import pandas as pd
 from pydantic import ConfigDict, Field
@@ -125,8 +126,12 @@ class Portfolio(BaseMappingEntity):
         self,
         datasource: Optional["BaseDataSource"] = None,
         local_only: bool = True,
+        intraday: bool = False
     ) -> pd.DataFrame:
         """Return time series of portfolio value by currency."""
+        if intraday:
+            warnings.warn("Portfolio does not handle intraday, defaulting to single day.")
+
         df = self.get_holdings_price_history(datasource=datasource, local_only=local_only)
 
         df = df.groupby(["currency", "as_of_date"])[
