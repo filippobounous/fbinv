@@ -1,4 +1,4 @@
-"Defines Transaction class to find transactions data"
+"""Defines Transaction class to find transactions data"""
 
 import pandas as pd
 from pydantic import BaseModel

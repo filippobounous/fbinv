@@ -1,4 +1,4 @@
-"Realised Volatility Calculator for timeseries"
+"""Realised Volatility Calculator for timeseries"""
 
 from typing import List, Union, Dict, Callable
 
@@ -39,7 +39,7 @@ class RealisedVolatilityCalculator:
     def registry(
         self
     ) -> Dict[str, Dict[str, Union[Callable[[pd.DataFrame, int], pd.Series], List[str]]]]:
-        "Registry of realised volatility methods and their required columns"
+        """Registry of realised volatility methods and their required columns"""
         return {
             "close_to_close": {
                 "method": self._close_to_close,
@@ -68,7 +68,7 @@ class RealisedVolatilityCalculator:
         }
 
     def calculate(self, df: pd.DataFrame) -> pd.DataFrame:
-        "Calculates the realised volatility for a given pd.DataFrame."
+        """Calculates the realised volatility for a given pd.DataFrame."""
         df = df.sort_index()
 
         df_list = []

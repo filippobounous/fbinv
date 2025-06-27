@@ -1,4 +1,4 @@
-"Factory class used to initialise the correct security from a given code"
+"""Factory class used to initialise the correct security from a given code"""
 
 from typing import ClassVar, Optional
 

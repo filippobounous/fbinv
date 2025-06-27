@@ -1,4 +1,4 @@
-"Returns Calculator for timeseries"
+"""Returns Calculator for timeseries"""
 
 from typing import Union, List
 

@@ -1,4 +1,4 @@
-"Defines Portfolio class to manipulate multiple transactions together"
+"""Defines Portfolio class to manipulate multiple transactions together"""
 
 from typing import Optional, ClassVar, List
 

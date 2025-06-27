@@ -1,4 +1,4 @@
-"Base DataSource from which its subclasses inherit"
+"""Base DataSource from which its subclasses inherit"""
 
 from abc import abstractmethod
 import datetime

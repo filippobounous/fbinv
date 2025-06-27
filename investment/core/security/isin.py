@@ -1,4 +1,4 @@
-"Intermediate ISIN class for ISIN-required securities"
+"""Intermediate ISIN class for ISIN-required securities"""
 
 from typing import ClassVar, Optional
 
