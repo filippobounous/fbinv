@@ -16,7 +16,6 @@ if TYPE_CHECKING:
 # https://github.com/OpenFIGI/api-examples
 # https://www.openfigi.com/api/documentation
 
-
 class OpenFigiDataSource(BaseDataSource):
     """Data source for mapping codes via the OpenFIGI API."""
 

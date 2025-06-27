@@ -16,7 +16,6 @@ from ..utils.consts import OHLC
 from ..utils.date_utils import today_midnight
 from ..utils.exceptions import TransactionsException
 
-
 class Portfolio(BaseMappingEntity):
     """
     Portfolio.

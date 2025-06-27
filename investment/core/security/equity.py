@@ -4,7 +4,6 @@ from typing import ClassVar
 
 from .isin import ISINSecurity
 
-
 class Equity(ISINSecurity):
     """
     Equity Security.

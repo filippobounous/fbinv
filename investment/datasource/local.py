@@ -14,7 +14,6 @@ if TYPE_CHECKING:
     from ..core.portfolio import Portfolio
     from ..core.security.registry import Composite, CurrencyCross, Equity, ETF, Fund, BaseSecurity
 
-
 class LocalDataSource(BaseDataSource):
     """Data source that reads from local CSV files only."""
 

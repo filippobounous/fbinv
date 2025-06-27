@@ -24,7 +24,6 @@ from ..utils.consts import (
 if TYPE_CHECKING:
     from ..datasource import BaseDataSource
 
-
 class BaseMappingEntity(BaseModel, ABC):
     """Base entity loaded from local mapping files."""
 

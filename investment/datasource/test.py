@@ -11,7 +11,6 @@ from ..utils.exceptions import DataSourceMethodException
 if TYPE_CHECKING:
     from ..core.security.registry import CurrencyCross, Equity, ETF, Fund
 
-
 class TestDataSource(BaseDataSource):
     """Very small data source used for tests only."""
 

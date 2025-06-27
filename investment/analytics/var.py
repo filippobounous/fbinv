@@ -13,7 +13,6 @@ import pandas as pd
 
 from .base import _BaseAnalytics
 
-
 class VaRCalculator(_BaseAnalytics):
     """Value-at-Risk related calculations.
 
