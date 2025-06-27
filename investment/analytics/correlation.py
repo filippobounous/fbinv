@@ -1,4 +1,4 @@
-"Correlation Calculator for securities and portfolios"
+"""Correlation Calculator for securities and portfolios."""
 
 from typing import Optional, List, TYPE_CHECKING, Dict, Tuple, Union
 
@@ -44,9 +44,6 @@ class CorrelationCalculator:
 
         for port in self.portfolios:
             df = port.get_price_history()
-
-            if "close_value" not in df.columns:
-                df["close_value"] = df["base_value"]
 
             grouped = df.groupby(["as_of_date", "currency"])["close_value"].sum()
 
