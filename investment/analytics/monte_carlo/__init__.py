@@ -25,4 +25,3 @@ __all__ = [
 #    for common exotic derivatives.
 #  - Support for regime-switching dynamics: allow model parameters to change
 #    according to a finite-state Markov chain.
-

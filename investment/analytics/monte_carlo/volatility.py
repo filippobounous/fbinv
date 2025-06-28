@@ -125,4 +125,3 @@ class VolatilityEngine(BaseMonteCarloEngine):
             vols[t] = vols[t - 1] * np.exp(-0.5 * nu ** 2 * self.dt + nu * sqrt_dt * z)
 
         return vols
-

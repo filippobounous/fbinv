@@ -4,7 +4,9 @@ from typing import Optional, Tuple
 
 import numpy as np
 
-class RandomGenerator:
+from .base import _BaseAnalytics
+
+class RandomGenerator(_BaseAnalytics):
     """Wrapper around ``numpy.random.Generator`` with helper methods."""
 
     def __init__(self, seed: Optional[int] = None) -> None:

@@ -100,4 +100,3 @@ class PricePathEngine(BaseMonteCarloEngine):
                 paths[t] *= jump_factor
 
         return paths
-
