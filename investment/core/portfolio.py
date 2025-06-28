@@ -12,7 +12,7 @@ from .mapping import BaseMappingEntity
 from .security.base import BaseSecurity
 from .security.generic import Generic
 from .transactions import Transactions
-from ..utils.consts import OHLC
+from ..utils.consts import OHLC, OC, DEFAULT_CURRENCY
 from ..utils.date_utils import today_midnight
 from ..utils.exceptions import TransactionsException
 
@@ -126,16 +126,21 @@ class Portfolio(BaseMappingEntity):
         self,
         datasource: Optional["BaseDataSource"] = None,
         local_only: bool = True,
-        intraday: bool = False
+        intraday: bool = False,
+        currency: str = DEFAULT_CURRENCY,
     ) -> pd.DataFrame:
         """Return time series of portfolio value by currency."""
         if intraday:
             warnings.warn("Portfolio does not handle intraday, defaulting to single day.")
 
-        df = self.get_holdings_price_history(datasource=datasource, local_only=local_only)
+        df = self.get_holdings_price_history(
+            datasource=datasource,
+            local_only=local_only,
+            currency=currency,
+        )
 
-        cols = OHLC + ["net", "entry"]
-        df = df.groupby(["currency", "as_of_date"])[
+        cols = OC + ["net", "entry"]
+        df = df.groupby("as_of_date")[
             [f"{i}_value" for i in cols]
         ].sum().rename(columns={
             f"{i}_value": i for i in cols
@@ -147,12 +152,16 @@ class Portfolio(BaseMappingEntity):
         self,
         datasource: Optional["BaseDataSource"] = None,
         local_only: bool = True,
+        currency: Optional[str] = None
     ) -> pd.DataFrame:
         """Return time series of holdings values."""
         df_holdings = self._prepare_holdings_timeseries()
 
         df = self._combine_with_security_price_history(
-            df=df_holdings, datasource=datasource, local_only=local_only,
+            df=df_holdings,
+            datasource=datasource,
+            local_only=local_only,
+            currency=currency,
         )
 
         for i in OHLC:
@@ -208,12 +217,17 @@ class Portfolio(BaseMappingEntity):
         df: pd.DataFrame,
         datasource: Optional["BaseDataSource"] = None,
         local_only: bool = True,
+        currency: Optional[str] = None
     ) -> pd.DataFrame:
         "Combine holdings timeseries with security price history"
         security_ph_list = []
 
         for security in self.all_securities:
-            _df_security = security.get_price_history(local_only=local_only, datasource=datasource)
+            _df_security = security.get_price_history(
+                local_only=local_only,
+                datasource=datasource,
+                currency=currency,
+            )
             if not _df_security.empty:
                 _df_security.loc[:, "code"] = security.code
                 security_ph_list.append(_df_security)

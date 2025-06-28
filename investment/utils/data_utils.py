@@ -16,7 +16,7 @@ def update_all_price_history(
     di = {}
     for ds in tqdm(all_datasource, desc="Updating all data sources"):
         ds_instance: "BaseDataSource" = ds()
-        di[ds_instance.name] = ds_instance.update_price_histories(
+        di[ds_instance.name] = ds_instance.update_price_history(
             intraday=intraday, local_only=local_only
         )
     return di

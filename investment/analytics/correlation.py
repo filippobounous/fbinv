@@ -87,31 +87,17 @@ class CorrelationCalculator(_BaseAnalytics):
 
         series_list: List[pd.Series] = []
 
-        for sec in self.securities:
+        all_objects = self.securities + self.portfolios
+        for obj in all_objects:
             if use_returns:
-                df = sec.get_returns(
+                df = obj.get_returns(
                     use_ln_ret=log_returns, ret_win_size=ret_win_size
                 )
-                s = df.set_index("as_of_date")["return"].rename(sec.code)
+                s = df.set_index("as_of_date")["return"].rename(obj.code)
             else:
-                df = sec.get_price_history()
-                s = df.set_index("as_of_date")["close"].rename(sec.code)
+                df = obj.get_price_history()
+                s = df.set_index("as_of_date")["close"].rename(obj.code)
             series_list.append(s)
-
-        for port in self.portfolios:
-            df = port.get_price_history()
-
-            grouped = df.groupby(["as_of_date", "currency"])["close_value"].sum()
-
-            for currency in grouped.index.get_level_values("currency").unique():
-                s = grouped.xs(currency, level="currency")
-                s = s.rename(f"{port.code}_{currency}")
-                if use_returns:
-                    if log_returns:
-                        s = np.log(s / s.shift(ret_win_size))
-                    else:
-                        s = s.pct_change(ret_win_size)
-                series_list.append(s)
 
         df_all = pd.concat(series_list, axis=1)
         return df_all.dropna(how="any").sort_index()

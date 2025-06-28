@@ -19,6 +19,7 @@ from ..utils.consts import (
     DEFAULT_CONFIDENCE_LEVEL,
     DEFAULT_VAR_MODEL,
     TRADING_DAYS,
+    DEFAULT_CURRENCY
 )
 
 if TYPE_CHECKING:
@@ -67,6 +68,7 @@ class BaseMappingEntity(BaseModel):
         datasource: Optional["BaseDataSource"] = None,
         local_only: bool = True,
         intraday: bool = False,
+        currency: str = DEFAULT_CURRENCY,
     ) -> pd.DataFrame:
         """Returns time series of prices."""
 
