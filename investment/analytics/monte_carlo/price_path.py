@@ -10,7 +10,7 @@ class PricePathEngine(BaseMonteCarloEngine):
     """Engine for generating correlated price or returns paths."""
 
     @staticmethod
-    def registry() -> dict[str, Callable[[Any], Any]]:
+    def registry() -> dict[str, Callable[[Any], np.ndarray]]:
         """Return available path generation methods."""
         return {
             "gbm": PricePathEngine.generate_paths,

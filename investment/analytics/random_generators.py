@@ -10,7 +10,7 @@ class RandomGenerator(_BaseAnalytics):
     """Wrapper around ``numpy.random.Generator`` with helper methods."""
 
     @staticmethod
-    def registry() -> Dict[str, Callable[[Any], Any]]:
+    def registry() -> Dict[str, Callable[[Any], np.ndarray]]:
         """Available random number generation routines."""
         return {
             "standard_normal": RandomGenerator.standard_normal,

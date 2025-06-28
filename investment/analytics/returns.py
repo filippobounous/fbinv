@@ -21,6 +21,7 @@ class ReturnsCalculator(_BaseAnalytics):
     def registry() -> Dict[str, Callable[[Any], Any]]:
         """Return mapping of available return calculations."""
         return {"returns": ReturnsCalculator.calculate}
+
     def __init__(
             self,
             use_ln_ret: bool = True,

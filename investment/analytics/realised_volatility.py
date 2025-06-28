@@ -36,34 +36,35 @@ class RealisedVolatilityCalculator(_BaseAnalytics):
         else:
             self.rv_model = rv_model
 
-    @property
-    def registry(
-        self
-    ) -> Dict[str, Dict[str, Union[Callable[[pd.DataFrame, int], pd.Series], List[str]]]]:
+    @staticmethod
+    def registry() -> Dict[
+        str,
+        Dict[str, Union[Callable[[pd.DataFrame, int], pd.Series], List[str]]]
+    ]:
         """Registry of realised volatility methods and their required columns"""
         return {
             "close_to_close": {
-                "method": self._close_to_close,
+                "method": RealisedVolatilityCalculator._close_to_close,
                 "required": ["close"],
             },
             "parkinson": {
-                "method": self._parkinson,
+                "method": RealisedVolatilityCalculator._parkinson,
                 "required": HL,
             },
             "garman_klass": {
-                "method": self._garman_klass,
+                "method": RealisedVolatilityCalculator._garman_klass,
                 "required": OHLC,
             },
             "rogers_satchell": {
-                "method": self._rogers_satchell,
+                "method": RealisedVolatilityCalculator._rogers_satchell,
                 "required": OHLC,
             },
             "yang_zhang": {
-                "method": self._yang_zhang,
+                "method": RealisedVolatilityCalculator._yang_zhang,
                 "required": OHLC,
             },
             "gk_yang_zhang": {
-                "method": self._gk_yang_zhang,
+                "method": RealisedVolatilityCalculator._gk_yang_zhang,
                 "required": OHLC,
             },
         }
@@ -74,7 +75,7 @@ class RealisedVolatilityCalculator(_BaseAnalytics):
 
         df_list = []
         for model in self.rv_model:
-            model_dict = self.registry.get(model)
+            model_dict = self.registry().get(model)
 
             if not model_dict:
                 continue
