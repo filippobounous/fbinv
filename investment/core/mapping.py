@@ -101,33 +101,49 @@ class BaseMappingEntity(BaseModel, ABC):
         risk_free_rate: float = DEFAULT_RISK_FREE_RATE,
         periods_per_year: int = TRADING_DAYS,
         confidence_level: float = DEFAULT_CONFIDENCE_LEVEL,
+        window: Optional[int] = None,
+        expanding: bool = False,
         datasource: Optional["BaseDataSource"] = None,
         local_only: bool = True,
         **price_history_kwargs: Any,
-    ) -> Dict[str, float]:
+    ) -> Dict[str, Union[float, pd.Series, None]]:
         """Return common performance and risk metrics."""
         df = self.get_price_history(
             datasource=datasource, local_only=local_only, **price_history_kwargs
         )
 
         return {
-            "cumulative_return": PerformanceMetrics.cumulative_return(df),
-            "annualised_return": PerformanceMetrics.annualised_return(
-                df, periods_per_year
+            "cumulative_return": PerformanceMetrics.cumulative_return(
+                df, window=window, expanding=expanding
             ),
-            "max_drawdown": PerformanceMetrics.max_drawdown(df),
+            "annualised_return": PerformanceMetrics.annualised_return(
+                df,
+                periods_per_year=periods_per_year,
+                window=window,
+                expanding=expanding,
+            ),
+            "max_drawdown": PerformanceMetrics.max_drawdown(
+                df, window=window, expanding=expanding
+            ),
             "sharpe_ratio": PerformanceMetrics.sharpe_ratio(
                 df,
                 risk_free_rate=risk_free_rate,
                 periods_per_year=periods_per_year,
+                window=window,
+                expanding=expanding,
             ),
             "sortino_ratio": PerformanceMetrics.sortino_ratio(
                 df,
                 risk_free_rate=risk_free_rate,
                 periods_per_year=periods_per_year,
+                window=window,
+                expanding=expanding,
             ),
             "value_at_risk": VaRCalculator.value_at_risk(
-                df, confidence_level=confidence_level
+                df,
+                confidence_level=confidence_level,
+                window=window,
+                expanding=expanding,
             ),
         }
 
@@ -135,10 +151,12 @@ class BaseMappingEntity(BaseModel, ABC):
         self,
         confidence_level: float = DEFAULT_CONFIDENCE_LEVEL,
         method: str = DEFAULT_VAR_METHOD,
+        window: Optional[int] = None,
+        expanding: bool = False,
         datasource: Optional["BaseDataSource"] = None,
         local_only: bool = True,
         **price_history_kwargs: Any,
-    ) -> float:
+    ) -> Union[float, pd.Series]:
         """Return Value-at-Risk using the specified method."""
         df = self.get_price_history(
             datasource=datasource, local_only=local_only, **price_history_kwargs
@@ -154,4 +172,9 @@ class BaseMappingEntity(BaseModel, ABC):
         if calc is None:
             raise KeyError(f"VaR method '{method}' not recognised.")
 
-        return calc(df, confidence_level=confidence_level)
+        return calc(
+            df,
+            confidence_level=confidence_level,
+            window=window,
+            expanding=expanding,
+        )
