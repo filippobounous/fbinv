@@ -1,6 +1,6 @@
 """Engines for generating correlated price or returns paths."""
 
-from typing import Callable, Union
+from typing import Callable, Union, Any
 
 import numpy as np
 
@@ -8,6 +8,14 @@ from .base import BaseMonteCarloEngine
 
 class PricePathEngine(BaseMonteCarloEngine):
     """Engine for generating correlated price or returns paths."""
+
+    @staticmethod
+    def registry() -> dict[str, Callable[[Any], Any]]:
+        """Return available path generation methods."""
+        return {
+            "gbm": PricePathEngine.generate_paths,
+            "jump_diffusion": PricePathEngine.generate_jump_diffusion_paths,
+        }
 
     def generate_paths(
         self,

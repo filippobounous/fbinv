@@ -1,6 +1,6 @@
 """Stochastic volatility model generators."""
 
-from typing import Union
+from typing import Union, Callable, Any
 
 import numpy as np
 
@@ -8,6 +8,15 @@ from .base import BaseMonteCarloEngine
 
 class VolatilityEngine(BaseMonteCarloEngine):
     """Engine for generating stochastic volatility paths."""
+
+    @staticmethod
+    def registry() -> dict[str, Callable[[Any], Any]]:
+        """Return available volatility generation methods."""
+        return {
+            "heston": VolatilityEngine.generate_heston_vol,
+            "garch": VolatilityEngine.generate_garch_vol,
+            "sabr": VolatilityEngine.generate_sabr_vol,
+        }
 
     def generate_heston_vol(
         self,
