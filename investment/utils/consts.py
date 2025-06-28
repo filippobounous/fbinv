@@ -8,6 +8,7 @@ HL = ["high", "low"]
 OHLC = OC + HL
 
 DEFAULT_RET_WIN_SIZE = 1
+DEFAULT_CORR_MODEL = "pearson"
 DEFAULT_RV_WIN_SIZE = 20
 DEFAULT_RV_MODEL = "close_to_close"
 DEFAULT_RISK_FREE_RATE = 0.0

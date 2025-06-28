@@ -54,7 +54,11 @@ class RandomGenerator(_BaseAnalytics):
         """
         return self._rng.normal(loc=mean, scale=std, size=size)
 
-    def uniform(self, low: float = 0.0, high: float = 1.0, size: Tuple[int, ...] | None = None) -> np.ndarray:
+    def uniform(
+        self,
+        low: float = 0.0, high: float = 1.0,
+        size: Tuple[int, ...] | None = None
+    ) -> np.ndarray:
         """Return draws from a uniform distribution.
 
         Parameters
@@ -76,4 +80,3 @@ class RandomGenerator(_BaseAnalytics):
     def set_seed(self, seed: Optional[int]) -> None:
         """Reset the underlying random number generator with a new seed."""
         self._rng = np.random.default_rng(seed)
-

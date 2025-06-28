@@ -1,1 +1,1 @@
-"""Reports displays"""
+"Reports for investment analytics"
