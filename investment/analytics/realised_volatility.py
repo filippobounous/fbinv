@@ -87,7 +87,7 @@ class RealisedVolatilityCalculator(_BaseAnalytics):
                 continue
 
             for win_size in self.rv_win_size:
-                vols = method(df=df, rv_win_size=win_size)
+                vols = method(self, df=df, rv_win_size=win_size)
                 temp_df = pd.DataFrame({
                     "as_of_date": df.index,
                     "volatility_type": 'realised',
