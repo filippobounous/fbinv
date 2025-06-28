@@ -9,13 +9,13 @@ derive cumulative and annualised performance statistics, drawdown measures and
 risk‑adjusted ratios such as Sharpe and Sortino.
 """
 
-from typing import Optional
+from typing import Optional, Callable, Any, Dict
 
 import numpy as np
 import pandas as pd
 
-from ..utils.consts import TRADING_DAYS
 from .base import _BaseAnalytics
+from ..utils.consts import TRADING_DAYS
 
 class PerformanceMetrics(_BaseAnalytics):
     """Collection of common portfolio performance calculations.
@@ -27,6 +27,22 @@ class PerformanceMetrics(_BaseAnalytics):
     return scalar values or, in the case of :meth:`drawdown_series`, a DataFrame
     describing the drawdown path.
     """
+
+    @staticmethod
+    def registry() -> Dict[str, Callable[[Any], Any]]:
+        """Return mapping of metric names to calculation methods."""
+        return {
+            "cumulative_return": PerformanceMetrics.cumulative_return,
+            "annualised_return": PerformanceMetrics.annualised_return,
+            "drawdown_series": PerformanceMetrics.drawdown_series,
+            "max_drawdown": PerformanceMetrics.max_drawdown,
+            "sharpe_ratio": PerformanceMetrics.sharpe_ratio,
+            "sortino_ratio": PerformanceMetrics.sortino_ratio,
+            "downside_volatility": PerformanceMetrics.downside_volatility,
+            "calmar_ratio": PerformanceMetrics.calmar_ratio,
+            "omega_ratio": PerformanceMetrics.omega_ratio,
+            "hit_ratio": PerformanceMetrics.hit_ratio,
+        }
 
     @classmethod
     def cumulative_return(cls, df: pd.DataFrame) -> float:
@@ -171,25 +187,6 @@ class PerformanceMetrics(_BaseAnalytics):
         if downside_std == 0:
             return None
         return float(excess.mean() / downside_std * np.sqrt(periods_per_year))
-
-    @classmethod
-    def volatility(cls, df: pd.DataFrame, periods_per_year: int = TRADING_DAYS) -> float:
-        """Annualised standard deviation of returns.
-
-        Parameters
-        ----------
-        df : pandas.DataFrame
-            Price history with a ``close`` column.
-        periods_per_year : int, optional
-            Number of observations that constitute a year.
-
-        Returns
-        -------
-        float
-            Annualised volatility expressed as a decimal value.
-        """
-        returns = cls._validate(df)
-        return float(returns.std() * np.sqrt(periods_per_year))
 
     @classmethod
     def downside_volatility(

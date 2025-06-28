@@ -1,6 +1,6 @@
 """Random generator utilities for Monte Carlo simulations."""
 
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Callable, Any, Dict
 
 import numpy as np
 
@@ -8,6 +8,16 @@ from .base import _BaseAnalytics
 
 class RandomGenerator(_BaseAnalytics):
     """Wrapper around ``numpy.random.Generator`` with helper methods."""
+
+    @staticmethod
+    def registry() -> Dict[str, Callable[[Any], np.ndarray]]:
+        """Available random number generation routines."""
+        return {
+            "standard_normal": RandomGenerator.standard_normal,
+            "antithetic_normal": RandomGenerator.antithetic_normal,
+            "normal": RandomGenerator.normal,
+            "uniform": RandomGenerator.uniform,
+        }
 
     def __init__(self, seed: Optional[int] = None) -> None:
         self._rng = np.random.default_rng(seed)

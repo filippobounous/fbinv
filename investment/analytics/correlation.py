@@ -7,7 +7,7 @@ models, optional rolling windows, time lags and more specialised
 measures such as partial and semi correlations.
 """
 
-from typing import Optional, List, TYPE_CHECKING, Dict, Tuple, Union
+from typing import Optional, List, TYPE_CHECKING, Dict, Tuple, Union, Callable, Any
 
 import numpy as np
 import pandas as pd
@@ -28,6 +28,18 @@ class CorrelationCalculator(_BaseAnalytics):
     standard, rolling and lagged correlations as well as more technical
     partial and semi correlations.
     """
+
+    @staticmethod
+    def registry() -> Dict[str, Callable[[Any], Any]]:
+        """Mapping of correlation helper names to methods."""
+        return {
+            "calculate": CorrelationCalculator.calculate,
+            "lagged": CorrelationCalculator.lagged,
+            "partial": CorrelationCalculator.partial,
+            "semi": CorrelationCalculator.semi,
+            "mean_correlation": CorrelationCalculator.mean_correlation,
+            "rolling_mean_correlation": CorrelationCalculator.rolling_mean_correlation,
+        }
 
     def __init__(
         self,

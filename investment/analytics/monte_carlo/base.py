@@ -55,7 +55,7 @@ class BaseMonteCarloEngine(_BaseAnalytics):
 
     @staticmethod
     @abstractmethod
-    def registry() -> Dict[str, Callable[[Any], Any]]:
+    def registry() -> Dict[str, Callable[[Any], np.ndarray]]:
         """Registry of MonteCarlo methods"""
 
     def _randn(self, size: tuple) -> np.ndarray:
