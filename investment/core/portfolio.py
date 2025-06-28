@@ -134,9 +134,12 @@ class Portfolio(BaseMappingEntity):
 
         df = self.get_holdings_price_history(datasource=datasource, local_only=local_only)
 
+        cols = OHLC + ["net", "entry"]
         df = df.groupby(["currency", "as_of_date"])[
-            [f"{i}_value" for i in OHLC + ["net", "entry"]]
-        ].sum()
+            [f"{i}_value" for i in cols]
+        ].sum().rename(columns={
+            f"{i}_value": i for i in cols
+        })
 
         return df
 
