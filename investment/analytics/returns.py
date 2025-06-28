@@ -1,6 +1,6 @@
 """Returns Calculator for timeseries"""
 
-from typing import Union, List
+from typing import Union, List, Callable, Any, Dict
 
 import pandas as pd
 import numpy as np
@@ -16,6 +16,11 @@ class ReturnsCalculator(_BaseAnalytics):
     use_ln_ret (bool) -> If to use ln(a/b) or just a/b
     ret_win_size (List[int]) -> the returns windows
     """
+
+    @staticmethod
+    def registry() -> Dict[str, Callable[[Any], Any]]:
+        """Return mapping of available return calculations."""
+        return {"returns": ReturnsCalculator.calculate}
     def __init__(
             self,
             use_ln_ret: bool = True,
