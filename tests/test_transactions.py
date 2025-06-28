@@ -61,11 +61,11 @@ class TransactionsTests(unittest.TestCase):
     def test_update_runs_helpers(self):
         """Update should call both extraction helper methods once."""
         tr = Transactions(code='PORT', portfolio_path=BASE)
-        with mock.patch.object(tr, 'extract_and_save_investment_transactions') as m1, \
-             mock.patch.object(tr, 'load_and_save_cash_positions') as m2:
+        with mock.patch.object(Transactions, 'extract_and_save_investment_transactions') as m1, \
+             mock.patch.object(Transactions, 'load_and_save_cash_positions') as m2:
             tr.update()
-            m1.assert_called_once()
-            m2.assert_called_once()
+            m1.assert_called_once_with(tr)
+            m2.assert_called_once_with(tr)
 
     def test_load_transactions_reads_excel(self):
         """_load_transactions reads data from Excel via pandas."""

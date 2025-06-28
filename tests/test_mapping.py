@@ -8,6 +8,7 @@ import pandas as pd
 from typing import Optional
 
 from test_utils import FakeLocalDataSource
+from investment.utils import consts
 
 # prepare environment before importing modules
 TEMP_DIR = tempfile.TemporaryDirectory()
@@ -83,18 +84,18 @@ class MappingTests(unittest.TestCase):
             entity_type: str = 'portfolio'
             def get_price_history(self, datasource=None, local_only=True, intraday=False):
                 return pd.DataFrame({'close': [1.0, 2.0], 'open': [1.0, 2.0], 'high': [1.0,2.0], 'low':[1.0,2.0]}, index=pd.date_range('2024-01-01', periods=2))
-        obj = Dummy(code='PORT')
-        with mock.patch.object(obj, 'get_price_history', wraps=obj.get_price_history) as ph, \
+        with mock.patch.object(Dummy, 'get_price_history', wraps=Dummy.get_price_history) as ph, \
              mock.patch('investment.core.mapping.ReturnsCalculator') as RC, \
              mock.patch('investment.core.mapping.RealisedVolatilityCalculator') as VC:
+            obj = Dummy(code='PORT')
             RC.return_value.calculate.return_value = pd.DataFrame()
             VC.return_value.calculate.return_value = pd.DataFrame()
             obj.get_returns(use_ln_ret=False, ret_win_size=2)
-            ph.assert_called_with(datasource=None, local_only=True, intraday=False)
+            ph.assert_called_with(obj, datasource=None, local_only=True, intraday=False)
             RC.assert_called_once_with(ret_win_size=2, use_ln_ret=False)
             RC.return_value.calculate.assert_called_once()
             obj.get_realised_volatility(rv_win_size=2)
-            VC.assert_called_once()
+            VC.assert_called_once_with(rv_win_size=2, rv_model=consts.DEFAULT_RV_MODEL)
             VC.return_value.calculate.assert_called_once()
 
     def test_portfolio_init_uses_local_datasource(self):

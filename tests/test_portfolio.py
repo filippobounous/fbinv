@@ -93,7 +93,7 @@ class PortfolioTests(unittest.TestCase):
         ph.index.name = "as_of_date"
         mock_sec = mock.Mock(code="AAA")
         mock_sec.get_price_history.return_value = ph
-        with mock.patch.object(p, "all_securities", [mock_sec]):
+        with mock.patch.object(Portfolio, "all_securities", new_callable=mock.PropertyMock, return_value=[mock_sec]):
             result = p._combine_with_security_price_history(df_holdings)
             row = result.reset_index().iloc[0]
             self.assertEqual(row["open_value"], 20.0)
