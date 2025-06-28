@@ -9,6 +9,8 @@ well as parametric and conditional forms often used in risk management.
 """
 
 from statistics import NormalDist
+from typing import Dict, Callable
+
 import pandas as pd
 
 from .base import _BaseAnalytics
@@ -20,6 +22,15 @@ class VaRCalculator(_BaseAnalytics):
     argument should contain historical prices indexed by dates and is
     converted to simple returns before the risk measure is computed.
     """
+
+    @staticmethod
+    def registry() -> Dict[str, Callable[[pd.DataFrame, float], float]]:
+        """Map method names to VaR calculation functions."""
+        return {
+            "historical": VaRCalculator.value_at_risk,
+            "parametric": VaRCalculator.parametric_var,
+            "conditional": VaRCalculator.conditional_var,
+        }
 
     @classmethod
     def value_at_risk(cls, df: pd.DataFrame, confidence_level: float = 0.95) -> float:

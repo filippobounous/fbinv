@@ -17,7 +17,7 @@ from ..utils.consts import (
     DEFAULT_RV_MODEL,
     DEFAULT_RISK_FREE_RATE,
     DEFAULT_CONFIDENCE_LEVEL,
-    DEFAULT_VAR_METHOD,
+    DEFAULT_VAR_MODEL,
     TRADING_DAYS,
 )
 
@@ -106,7 +106,6 @@ class BaseMappingEntity(BaseModel):
         self,
         risk_free_rate: float = DEFAULT_RISK_FREE_RATE,
         periods_per_year: int = TRADING_DAYS,
-        confidence_level: float = DEFAULT_CONFIDENCE_LEVEL,
         datasource: Optional["BaseDataSource"] = None,
         local_only: bool = True,
     ) -> Dict[str, float]:
@@ -136,22 +135,16 @@ class BaseMappingEntity(BaseModel):
     def get_value_at_risk(
         self,
         confidence_level: float = DEFAULT_CONFIDENCE_LEVEL,
-        method: str = DEFAULT_VAR_METHOD,
+        method: str = DEFAULT_VAR_MODEL,
         datasource: Optional["BaseDataSource"] = None,
         local_only: bool = True,
     ) -> float:
         """Return Value-at-Risk using the specified method."""
         df = self.get_price_history(
-            datasource=datasource, local_only=local_only, **price_history_kwargs
+            datasource=datasource, local_only=local_only,
         )
 
-        methods = {
-            "historical": VaRCalculator.value_at_risk,
-            "parametric": VaRCalculator.parametric_var,
-            "conditional": VaRCalculator.conditional_var,
-        }
-
-        calc = methods.get(method)
+        calc = VaRCalculator.registry().get(method)
         if calc is None:
             raise KeyError(f"VaR method '{method}' not recognised.")
 

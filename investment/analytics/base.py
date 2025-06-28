@@ -1,11 +1,19 @@
 """Common validation helper for analytics classes."""
 
+from abc import abstractmethod
+from typing import Dict, Callable, Any
+
 from pandas import DataFrame, DatetimeIndex, Series
 
 from .returns import ReturnsCalculator
 
 class _BaseAnalytics:
     """Shared input validation for analytics calculators."""
+
+    @staticmethod
+    @abstractmethod
+    def registry() -> Dict[str, Callable[[Any], Any]]:
+        """Map method names to calculation functions."""
 
     @staticmethod
     def _validate(df: DataFrame) -> Series:
