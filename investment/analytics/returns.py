@@ -5,9 +5,10 @@ from typing import Union, List
 import pandas as pd
 import numpy as np
 
+from .base import _BaseAnalytics
 from ..utils.consts import DEFAULT_RET_WIN_SIZE
 
-class ReturnsCalculator:
+class ReturnsCalculator(_BaseAnalytics):
     """
     Returns Calculator
     

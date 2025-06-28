@@ -5,9 +5,10 @@ from typing import List, Union, Dict, Callable
 import numpy as np
 import pandas as pd
 
+from .base import _BaseAnalytics
 from ..utils.consts import DEFAULT_RV_WIN_SIZE, DEFAULT_RV_MODEL, TRADING_DAYS, HL, OHLC
 
-class RealisedVolatilityCalculator:
+class RealisedVolatilityCalculator(_BaseAnalytics):
     """
     Realised Volatility Calculator
     

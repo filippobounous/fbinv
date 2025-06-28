@@ -6,10 +6,20 @@ from typing import Dict, Any, Optional, TYPE_CHECKING, List, Union
 import pandas as pd
 from pydantic import BaseModel
 
+from ..analytics.metrics import PerformanceMetrics
+from ..analytics.var import VaRCalculator
 from ..analytics.realised_volatility import RealisedVolatilityCalculator
 from ..analytics.returns import ReturnsCalculator
 from ..datasource import LocalDataSource
-from ..utils.consts import DEFAULT_RET_WIN_SIZE, DEFAULT_RV_WIN_SIZE, DEFAULT_RV_MODEL
+from ..utils.consts import (
+    DEFAULT_RET_WIN_SIZE,
+    DEFAULT_RV_WIN_SIZE,
+    DEFAULT_RV_MODEL,
+    DEFAULT_RISK_FREE_RATE,
+    DEFAULT_CONFIDENCE_LEVEL,
+    DEFAULT_VAR_MODEL,
+    TRADING_DAYS,
+)
 
 if TYPE_CHECKING:
     from ..datasource import BaseDataSource
@@ -27,7 +37,7 @@ class BaseMappingEntity(BaseModel):
     code: str
     _local_datasource: LocalDataSource = LocalDataSource
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         """Initialise entity attributes from the local mapping files."""
         super().__init__(**kwargs)
 
@@ -67,8 +77,10 @@ class BaseMappingEntity(BaseModel):
         datasource: Optional["BaseDataSource"] = None,
         local_only: bool = True,
     ) -> pd.DataFrame:
-        """Returns the returns series"""
-        df = self.get_price_history(datasource=datasource, local_only=local_only, intraday=False)
+        """Return the returns series."""
+        df = self.get_price_history(
+            datasource=datasource, local_only=local_only, intraday=False
+        )
 
         return ReturnsCalculator(
             ret_win_size=ret_win_size, use_ln_ret=use_ln_ret
@@ -81,9 +93,59 @@ class BaseMappingEntity(BaseModel):
         datasource: Optional["BaseDataSource"] = None,
         local_only: bool = True,
     ) -> pd.DataFrame:
-        """Returns the realised volatility series"""
-        df = self.get_price_history(datasource=datasource, local_only=local_only, intraday=False)
+        """Return the realised volatility series."""
+        df = self.get_price_history(
+            datasource=datasource, local_only=local_only, intraday=False
+        )
 
         return RealisedVolatilityCalculator(
             rv_win_size=rv_win_size, rv_model=rv_model
         ).calculate(df=df)
+
+    def get_performance_metrics(
+        self,
+        risk_free_rate: float = DEFAULT_RISK_FREE_RATE,
+        periods_per_year: int = TRADING_DAYS,
+        datasource: Optional["BaseDataSource"] = None,
+        local_only: bool = True,
+    ) -> Dict[str, float]:
+        """Return common performance and risk metrics."""
+        df = self.get_price_history(
+            datasource=datasource, local_only=local_only,
+        )
+
+        return {
+            "cumulative_return": PerformanceMetrics.cumulative_return(df),
+            "annualised_return": PerformanceMetrics.annualised_return(
+                df, periods_per_year
+            ),
+            "max_drawdown": PerformanceMetrics.max_drawdown(df),
+            "sharpe_ratio": PerformanceMetrics.sharpe_ratio(
+                df,
+                risk_free_rate=risk_free_rate,
+                periods_per_year=periods_per_year,
+            ),
+            "sortino_ratio": PerformanceMetrics.sortino_ratio(
+                df,
+                risk_free_rate=risk_free_rate,
+                periods_per_year=periods_per_year,
+            ),
+        }
+
+    def get_value_at_risk(
+        self,
+        confidence_level: float = DEFAULT_CONFIDENCE_LEVEL,
+        method: str = DEFAULT_VAR_MODEL,
+        datasource: Optional["BaseDataSource"] = None,
+        local_only: bool = True,
+    ) -> float:
+        """Return Value-at-Risk using the specified method."""
+        df = self.get_price_history(
+            datasource=datasource, local_only=local_only,
+        )
+
+        calc = VaRCalculator.registry().get(method)
+        if calc is None:
+            raise KeyError(f"VaR method '{method}' not recognised.")
+
+        return calc(df, confidence_level=confidence_level)

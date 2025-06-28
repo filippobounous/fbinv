@@ -1,12 +1,14 @@
 """Monte Carlo path generation utilities."""
 
-from typing import Callable, Optional, Union
+from abc import abstractmethod
+from typing import Callable, Optional, Union, Dict, Any
 
 import numpy as np
 
+from ..base import _BaseAnalytics
 from ..random_generators import RandomGenerator
 
-class BaseMonteCarloEngine:
+class BaseMonteCarloEngine(_BaseAnalytics):
     """Base class providing common Monte Carlo helpers.
 
     Parameters
@@ -38,6 +40,7 @@ class BaseMonteCarloEngine:
         random_generator: Optional[Union[RandomGenerator, Callable[[tuple], np.ndarray]]] = None,
         use_antithetic: bool = False,
     ) -> None:
+        """Base init class for the MonteCarlo engine"""
         self.n_steps = n_steps
         self.n_paths = n_paths
         self.dt = dt
@@ -49,6 +52,11 @@ class BaseMonteCarloEngine:
             self._chol = None
         self.random_generator = random_generator
         self.use_antithetic = use_antithetic
+
+    @staticmethod
+    @abstractmethod
+    def registry() -> Dict[str, Callable[[Any], Any]]:
+        """Registry of MonteCarlo methods"""
 
     def _randn(self, size: tuple) -> np.ndarray:
         """Return random draws using either a custom or NumPy generator.
@@ -191,7 +199,11 @@ class BaseMonteCarloEngine:
         return None
 
     @staticmethod
-    def apply_control_variate(sample: np.ndarray, control: np.ndarray, control_expectation: float) -> float:
+    def apply_control_variate(
+        sample: np.ndarray,
+        control: np.ndarray,
+        control_expectation: float,
+    ) -> float:
         """Return mean of ``sample`` adjusted with a control variate.
 
         Parameters
@@ -217,4 +229,3 @@ class BaseMonteCarloEngine:
             return sample.mean()
         beta = cov / var
         return sample.mean() - beta * (control.mean() - control_expectation)
-
