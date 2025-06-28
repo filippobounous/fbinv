@@ -1,6 +1,6 @@
 """Base class for initialisations from the mapping csv files available"""
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from typing import Dict, Any, Optional, TYPE_CHECKING, List, Union
 
 import pandas as pd
@@ -24,9 +24,15 @@ from ..utils.consts import (
 if TYPE_CHECKING:
     from ..datasource import BaseDataSource
 
-class BaseMappingEntity(BaseModel, ABC):
-    """Base entity loaded from local mapping files."""
-
+class BaseMappingEntity(BaseModel):
+    """
+    BaseMappingEntity.
+    
+    Returns required attributes to a class from the base csv mapping files.
+    Initialised with:
+        entity_type (str): The entity type to select the correct load_method.
+        code (str): The code for the entity to select the correct parameters.
+    """
     entity_type: str
     code: str
     _local_datasource: LocalDataSource = LocalDataSource
@@ -103,11 +109,10 @@ class BaseMappingEntity(BaseModel, ABC):
         confidence_level: float = DEFAULT_CONFIDENCE_LEVEL,
         datasource: Optional["BaseDataSource"] = None,
         local_only: bool = True,
-        **price_history_kwargs: Any,
     ) -> Dict[str, float]:
         """Return common performance and risk metrics."""
         df = self.get_price_history(
-            datasource=datasource, local_only=local_only, **price_history_kwargs
+            datasource=datasource, local_only=local_only,
         )
 
         return {
@@ -126,9 +131,6 @@ class BaseMappingEntity(BaseModel, ABC):
                 risk_free_rate=risk_free_rate,
                 periods_per_year=periods_per_year,
             ),
-            "value_at_risk": VaRCalculator.value_at_risk(
-                df, confidence_level=confidence_level
-            ),
         }
 
     def get_value_at_risk(
@@ -137,7 +139,6 @@ class BaseMappingEntity(BaseModel, ABC):
         method: str = DEFAULT_VAR_METHOD,
         datasource: Optional["BaseDataSource"] = None,
         local_only: bool = True,
-        **price_history_kwargs: Any,
     ) -> float:
         """Return Value-at-Risk using the specified method."""
         df = self.get_price_history(
