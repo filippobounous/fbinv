@@ -1,1 +1,1 @@
-"""Core module and submodules"""
+"""Investment core module and submodules"""
