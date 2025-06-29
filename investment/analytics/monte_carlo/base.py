@@ -1,7 +1,7 @@
 """Monte Carlo path generation utilities."""
 
 from abc import abstractmethod
-from typing import Callable, Any
+from typing import Callable
 
 import numpy as np
 
