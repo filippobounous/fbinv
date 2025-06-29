@@ -5,6 +5,7 @@ from time import sleep
 from typing import TYPE_CHECKING, ClassVar
 
 import pandas as pd
+import requests
 
 from .base import BaseDataSource
 from ..config import OPEN_FIGI_API_KEY
@@ -88,7 +89,7 @@ class OpenFigiDataSource(BaseDataSource):
                 batch_results = self._request(
                     "post", self.base_url, json=payload, headers=headers
                 )
-            except Exception as e:
+            except requests.RequestException as e:
                 raise RuntimeError(
                     f"OpenFIGI batch failed for batch {idx // self.batch_size + 1}: {e}"
                 ) from e
