@@ -14,6 +14,12 @@ from typing import Dict, Callable
 import pandas as pd
 
 from .base import _BaseAnalytics
+from ..utils.consts import DEFAULT_CONFIDENCE_LEVEL
+
+# TODO: rolling window with win_size instead of setting as single value
+# TODO: implement correlation for portfolio
+# TODO: rethink how this is used in the context of portfolio etc, perhaps should be done similarly
+# to correlation page
 
 class VaRCalculator(_BaseAnalytics):
     """Value-at-Risk related calculations.
@@ -27,13 +33,17 @@ class VaRCalculator(_BaseAnalytics):
     def registry() -> Dict[str, Callable[[pd.DataFrame, float], float]]:
         """Map method names to VaR calculation functions."""
         return {
-            "historical": VaRCalculator.value_at_risk,
+            "historical": VaRCalculator.historical_var,
             "parametric": VaRCalculator.parametric_var,
             "conditional": VaRCalculator.conditional_var,
         }
 
     @classmethod
-    def value_at_risk(cls, df: pd.DataFrame, confidence_level: float = 0.95) -> float:
+    def historical_var(
+        cls,
+        df: pd.DataFrame,
+        confidence_level: float = DEFAULT_CONFIDENCE_LEVEL,
+    ) -> float:
         """Historical VaR at the given confidence level.
 
         Parameters
@@ -41,7 +51,8 @@ class VaRCalculator(_BaseAnalytics):
         df : pandas.DataFrame
             Price history with a ``close`` column.
         confidence_level : float, optional
-            Probability used to determine the VaR quantile. Defaults to 0.95.
+            Probability used to determine the VaR quantile.
+            Defaults to ``DEFAULT_CONFIDENCE_LEVEL``.
 
         Returns
         -------
@@ -52,7 +63,11 @@ class VaRCalculator(_BaseAnalytics):
         return float(-returns.quantile(1 - confidence_level))
 
     @classmethod
-    def parametric_var(cls, df: pd.DataFrame, confidence_level: float = 0.95) -> float:
+    def parametric_var(
+        cls,
+        df: pd.DataFrame,
+        confidence_level: float = DEFAULT_CONFIDENCE_LEVEL,
+    ) -> float:
         """Parametric VaR assuming normally distributed returns.
 
         Parameters
@@ -61,6 +76,7 @@ class VaRCalculator(_BaseAnalytics):
             Price history with a ``close`` column.
         confidence_level : float, optional
             Confidence level used to compute the z‑score.
+            Defaults to ``DEFAULT_CONFIDENCE_LEVEL``.
 
         Returns
         -------
@@ -74,7 +90,11 @@ class VaRCalculator(_BaseAnalytics):
         return float(-(mean + z * std))
 
     @classmethod
-    def conditional_var(cls, df: pd.DataFrame, confidence_level: float = 0.95) -> float:
+    def conditional_var(
+        cls,
+        df: pd.DataFrame,
+        confidence_level: float = DEFAULT_CONFIDENCE_LEVEL,
+    ) -> float:
         """Expected shortfall conditional on losses beyond VaR.
 
         Parameters
@@ -83,6 +103,7 @@ class VaRCalculator(_BaseAnalytics):
             Price history with a ``close`` column.
         confidence_level : float, optional
             Confidence level used when computing the initial VaR threshold.
+            Defaults to ``DEFAULT_CONFIDENCE_LEVEL``.
 
         Returns
         -------
@@ -90,7 +111,7 @@ class VaRCalculator(_BaseAnalytics):
             Average loss given that losses exceed the VaR level.
         """
         returns = cls._validate(df)
-        var_threshold = -cls.value_at_risk(df, confidence_level)
+        var_threshold = -cls.historical_var(df, confidence_level)
         tail_losses = returns[returns <= -var_threshold]
         if tail_losses.empty:
             return float(var_threshold)

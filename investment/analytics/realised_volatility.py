@@ -97,7 +97,7 @@ class RealisedVolatilityCalculator(_BaseAnalytics):
                 })
                 df_list.append(temp_df)
 
-        return pd.concat(df_list).dropna().reset_index(drop=True)
+        return pd.concat(df_list).dropna().reset_index(drop=True).set_index()
 
     def _close_to_close(self, df: pd.DataFrame, rv_win_size: int) -> pd.Series:
         """Close-to-close volatility estimator."""
