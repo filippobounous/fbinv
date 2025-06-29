@@ -49,10 +49,15 @@ class Portfolio(BaseMappingEntity):
     @property
     def transactions(self) -> pd.DataFrame:
         """Return cached transaction DataFrame."""
-        return pd.read_csv(
-            self._get_path(label="transactions"),
-            parse_dates=['as_of_date'],
-        )
+        try:
+            return pd.read_csv(
+                self._get_path(label="transactions"),
+                parse_dates=['as_of_date'],
+            )
+        except FileNotFoundError as exc:
+            raise TransactionsException(
+                f"Transactions file not found for {self.code}"
+            ) from exc
 
     @property
     def all_securities(self) -> list["BaseSecurity"]:
@@ -163,6 +168,10 @@ class Portfolio(BaseMappingEntity):
             local_only=local_only,
             currency=currency,
         )
+
+        # Ensure price columns exist before attempting calculations
+        if not set(OHLC).issubset(df.columns):
+            return df
 
         for i in OHLC:
             df.loc[:, f"{i}_value"] = df[i] * df["quantity"]
