@@ -46,7 +46,8 @@ class VaRCalculator(_BaseAnalytics):
         df : pandas.DataFrame
             Price history with a ``close`` column.
         confidence_level : float, optional
-            Probability used to determine the VaR quantile. Defaults to DEFAULT_CONFIDENCE_LEVEL.
+            Probability used to determine the VaR quantile.
+            Defaults to ``DEFAULT_CONFIDENCE_LEVEL``.
 
         Returns
         -------
@@ -70,6 +71,7 @@ class VaRCalculator(_BaseAnalytics):
             Price history with a ``close`` column.
         confidence_level : float, optional
             Confidence level used to compute the z‑score.
+            Defaults to ``DEFAULT_CONFIDENCE_LEVEL``.
 
         Returns
         -------
@@ -96,6 +98,7 @@ class VaRCalculator(_BaseAnalytics):
             Price history with a ``close`` column.
         confidence_level : float, optional
             Confidence level used when computing the initial VaR threshold.
+            Defaults to ``DEFAULT_CONFIDENCE_LEVEL``.
 
         Returns
         -------
