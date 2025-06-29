@@ -181,7 +181,7 @@ class Portfolio(BaseMappingEntity):
         )
 
         full_date_range = pd.date_range(self.holdings['as_of_date'].min(), today_midnight())
-        week_mask = full_date_range.weekday < 5
+        week_mask = full_date_range.to_series().dt.weekday < 5
         weekdays_only = full_date_range[week_mask]
 
         df_pivot = df_pivot.reindex(weekdays_only)
