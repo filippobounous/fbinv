@@ -25,6 +25,11 @@ from ..utils.consts import (
 # TODO: implement correlation for portfolio
 # TODO: rethink how this is used in the context of portfolio etc, perhaps should be done similarly to correlation page
 
+# TODO: rolling window with win_size instead of setting as single value
+# TODO: implement correlation for portfolio
+# TODO: rethink how this is used in the context of portfolio etc, perhaps should be done similarly
+# to correlation page
+
 class PerformanceMetrics(_BaseAnalytics):
     """Collection of common portfolio performance calculations.
 
