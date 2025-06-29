@@ -1,6 +1,6 @@
 """Composite security class to convert between currencies"""
 
-from typing import Optional, TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING, ClassVar
 
 import pandas as pd
 
@@ -51,10 +51,10 @@ class Composite(BaseSecurity):
 
     def get_price_history(
         self,
-        datasource: Optional["BaseDataSource"] = None,
+        datasource: "BaseDataSource" | None = None,
         local_only: bool = True,
         intraday: bool = False,
-        currency: Optional[str] = None,
+        currency: str | None = None,
     ) -> pd.DataFrame:
         """Return the converted price history series."""
         kwargs = {

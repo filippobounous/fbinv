@@ -1,6 +1,6 @@
 """Registry of available data sources."""
 
-from typing import List, TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING
 
 from .alpha_vantage import AlphaVantageDataSource
 from .bloomberg import BloombergDataSource
@@ -13,7 +13,7 @@ from .yahoo_finance import YahooFinanceDataSource
 if TYPE_CHECKING:
     from .base import BaseDataSource
 
-all_datasource: List["BaseDataSource"] = [
+all_datasource: list["BaseDataSource"] = [
     AlphaVantageDataSource,
     BloombergDataSource,
     FinancialTimesDataSource,
@@ -23,12 +23,12 @@ all_datasource: List["BaseDataSource"] = [
     YahooFinanceDataSource,
 ]
 
-datasource_registry: Dict[str, "BaseDataSource"] = {
+datasource_registry: dict[str, "BaseDataSource"] = {
     i.name: i
     for i in all_datasource
 }
 
-datasource_codes: List[str] = [
+datasource_codes: list[str] = [
     f"{i.name}_code"
     for i in  all_datasource
 ] + [f"{FinancialTimesDataSource.name}_security_type"]

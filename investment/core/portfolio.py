@@ -1,6 +1,6 @@
 """Defines Portfolio class to manipulate multiple transactions together"""
 
-from typing import Optional, ClassVar, List
+from typing import ClassVar
 import warnings
 
 import pandas as pd
@@ -25,17 +25,17 @@ class Portfolio(BaseMappingEntity):
         code (str), by default, if this is not provided it uses DEFAULT_NAME
     """
     entity_type: ClassVar[str] = "portfolio"
-    owner: Optional[str] = None
-    has_cash: Optional[bool] = None
-    holdings: Optional[pd.DataFrame] = Field(default = None, repr=False)
-    cash: Optional[pd.DataFrame] = Field(default = None, repr=False)
-    account: Optional[str] = None
-    currency: Optional[str] = None
-    ignore_cash: Optional[bool] = False
+    owner: str | None = None
+    has_cash: bool | None = None
+    holdings: pd.DataFrame | None = Field(default=None, repr=False)
+    cash: pd.DataFrame | None = Field(default=None, repr=False)
+    account: str | None = None
+    currency: str | None = None
+    ignore_cash: bool | None = False
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    def __init__(self, code: Optional[str] = None, **kwargs) -> None:
+    def __init__(self, code: str | None = None, **kwargs) -> None:
         """Initialise portfolio data and load holdings."""
         if code is not None:
             kwargs["code"] = code
@@ -55,7 +55,7 @@ class Portfolio(BaseMappingEntity):
         )
 
     @property
-    def all_securities(self) -> List["BaseSecurity"]:
+    def all_securities(self) -> list["BaseSecurity"]:
         """List portfolio securities as class instances."""
         return [Generic(code) for code in self.holdings.code.unique()]
 
@@ -124,7 +124,7 @@ class Portfolio(BaseMappingEntity):
 
     def get_price_history(
         self,
-        datasource: Optional["BaseDataSource"] = None,
+        datasource: "BaseDataSource" | None = None,
         local_only: bool = True,
         intraday: bool = False,
         currency: str = DEFAULT_CURRENCY,
@@ -150,9 +150,9 @@ class Portfolio(BaseMappingEntity):
 
     def get_holdings_price_history(
         self,
-        datasource: Optional["BaseDataSource"] = None,
+        datasource: "BaseDataSource" | None = None,
         local_only: bool = True,
-        currency: Optional[str] = None
+        currency: str | None = None
     ) -> pd.DataFrame:
         """Return time series of holdings values."""
         df_holdings = self._prepare_holdings_timeseries()
@@ -217,9 +217,9 @@ class Portfolio(BaseMappingEntity):
     def _combine_with_security_price_history(
         self,
         df: pd.DataFrame,
-        datasource: Optional["BaseDataSource"] = None,
+        datasource: "BaseDataSource" | None = None,
         local_only: bool = True,
-        currency: Optional[str] = None
+        currency: str | None = None
     ) -> pd.DataFrame:
         "Combine holdings timeseries with security price history"
         security_ph_list = []

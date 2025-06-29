@@ -1,6 +1,6 @@
 """Full registy of BaseSecuirty subclasses"""
 
-from typing import TYPE_CHECKING, List, Dict
+from typing import TYPE_CHECKING
 
 from .composite import Composite
 from .currency_cross import CurrencyCross
@@ -11,7 +11,7 @@ from .fund import Fund
 if TYPE_CHECKING:
     from .base import BaseSecurity
 
-all_securities: List['BaseSecurity']= [
+all_securities: list['BaseSecurity']= [
     Composite,
     CurrencyCross,
     Equity,
@@ -19,7 +19,7 @@ all_securities: List['BaseSecurity']= [
     Fund,
 ]
 
-security_registry: Dict[str, 'BaseSecurity'] = {
+security_registry: dict[str, 'BaseSecurity'] = {
     i.entity_type: i
     for i in all_securities
 }

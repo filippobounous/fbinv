@@ -1,6 +1,6 @@
 """CurrencyCross class for exchange rates"""
 
-from typing import ClassVar, Optional
+from typing import ClassVar
 
 from .base import BaseSecurity
 
@@ -12,4 +12,4 @@ class CurrencyCross(BaseSecurity):
         code (str): The currency code given as XXXYYY 
     """
     entity_type: ClassVar[str] = "currency_cross"
-    currency_vs: Optional[str] = None
+    currency_vs: str | None = None
