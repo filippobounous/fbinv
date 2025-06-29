@@ -18,11 +18,11 @@ class RealisedVolatilityCalculator(_BaseAnalytics):
     dt [int] -> The normalisation constant to use
     """
     def __init__(
-            self,
-            rv_win_size: Union[int, List[int]] = DEFAULT_RV_WIN_SIZE,
-            rv_model: Union[str, List[str]] = DEFAULT_RV_MODEL,
-            dt: int = TRADING_DAYS,
-        ) -> None:
+        self,
+        rv_win_size: Union[int, List[int]] = DEFAULT_RV_WIN_SIZE,
+        rv_model: Union[str, List[str]] = DEFAULT_RV_MODEL,
+        dt: int = TRADING_DAYS,
+    ) -> None:
         """Store parameters and normalisation constant."""
         self.dt = dt
 
