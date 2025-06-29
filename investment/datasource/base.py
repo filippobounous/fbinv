@@ -278,7 +278,7 @@ class BaseDataSource(BaseModel):
 
         return di
 
-    def update_price_histories(self, intraday: bool = False, **kwargs) -> Dict[str, bool]:
+    def update_price_history(self, intraday: bool = False, **kwargs) -> Dict[str, bool]:
         """Update price histories for all known securities."""
         from .local import LocalDataSource
         li = LocalDataSource().get_all_securities(as_instance=True)
@@ -317,7 +317,7 @@ class BaseDataSource(BaseModel):
         from .local import LocalDataSource
 
         df_mapping = self.update_security_mapping()
-        di = self.update_price_histories(start_date=start_date, intraday=intraday)
+        di = self.update_price_history(start_date=start_date, intraday=intraday)
 
         li = LocalDataSource().get_all_securities(as_instance=True)
 

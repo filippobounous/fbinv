@@ -78,17 +78,30 @@ class BaseSecurity(BaseMappingEntity):
         datasource: Optional["BaseDataSource"] = None,
         local_only: bool = True,
         intraday: bool = False,
+        currency: Optional[str] = None,
     ) -> pd.DataFrame:
         """Returns price history"""
-        _datasource = get_datasource(datasource=datasource)
-        return _datasource.get_price_history(
-            security=self, intraday=intraday, local_only=local_only
-        )
+        if (not currency) or (currency == self.currency):
+            _datasource = get_datasource(datasource=datasource)
+            df =  _datasource.get_price_history(
+                security=self, intraday=intraday, local_only=local_only
+            )
+
+        else:
+            composite = self.convert_to_currency(currency=currency)
+            df = composite.get_price_history(
+                datasource=datasource,
+                local_only=local_only,
+                intraday=intraday,
+            )
+
+        return df
 
     def convert_to_currency(self, currency: str) -> Union["BaseSecurity", "Composite"]:
         """Converts a security to its composite self, by applying a currency conversion"""
         from .composite import Composite
-        if currency ==  self.currency:
-            return self
-        else:
-            return Composite(security=self, currency=currency)
+        return (
+            self
+            if currency ==  self.currency
+            else Composite(security=self, composite_currency=currency)
+        )

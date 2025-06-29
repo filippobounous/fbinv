@@ -54,6 +54,7 @@ class Composite(BaseSecurity):
         datasource: Optional["BaseDataSource"] = None,
         local_only: bool = True,
         intraday: bool = False,
+        currency: Optional[str] = None,
     ) -> pd.DataFrame:
         """Return the converted price history series."""
         kwargs = {

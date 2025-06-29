@@ -27,7 +27,7 @@ class LocalDataSource(BaseDataSource):
     @property
     def reporting_currency(self) -> pd.DataFrame:
         """Return reporting currency reference table."""
-        return pd.read_csv(f"{BASE_PATH}/reporting_currency.csv")
+        return pd.read_csv(f"{BASE_PATH}/reporting_currency_mapping.csv")
 
     def _get_currency_cross_price_history_from_remote(
         self,

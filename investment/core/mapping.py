@@ -18,7 +18,10 @@ from ..utils.consts import (
     DEFAULT_RISK_FREE_RATE,
     DEFAULT_CONFIDENCE_LEVEL,
     DEFAULT_VAR_MODEL,
+    DEFAULT_METRIC_WIN_SIZE,
+    DEFAULT_VAR_WIN_SIZE,
     TRADING_DAYS,
+    DEFAULT_CURRENCY
 )
 
 if TYPE_CHECKING:
@@ -67,6 +70,7 @@ class BaseMappingEntity(BaseModel):
         datasource: Optional["BaseDataSource"] = None,
         local_only: bool = True,
         intraday: bool = False,
+        currency: str = DEFAULT_CURRENCY,
     ) -> pd.DataFrame:
         """Returns time series of prices."""
 
@@ -104,41 +108,48 @@ class BaseMappingEntity(BaseModel):
 
     def get_performance_metrics(
         self,
+        metric_win_size: int = DEFAULT_METRIC_WIN_SIZE,
         risk_free_rate: float = DEFAULT_RISK_FREE_RATE,
         periods_per_year: int = TRADING_DAYS,
         datasource: Optional["BaseDataSource"] = None,
         local_only: bool = True,
-    ) -> Dict[str, float]:
+    ) -> pd.DataFrame:
         """Return common performance and risk metrics."""
         df = self.get_price_history(
             datasource=datasource, local_only=local_only,
         )
 
-        return {
-            "cumulative_return": PerformanceMetrics.cumulative_return(df),
-            "annualised_return": PerformanceMetrics.annualised_return(
-                df, periods_per_year
+        metrics = [
+            PerformanceMetrics.cumulative_return(df, metric_win_size=metric_win_size),
+            PerformanceMetrics.annualised_return(
+                df,
+                periods_per_year=periods_per_year,
+                metric_win_size=metric_win_size,
             ),
-            "max_drawdown": PerformanceMetrics.max_drawdown(df),
-            "sharpe_ratio": PerformanceMetrics.sharpe_ratio(
+            PerformanceMetrics.max_drawdown(df, metric_win_size=metric_win_size),
+            PerformanceMetrics.sharpe_ratio(
                 df,
                 risk_free_rate=risk_free_rate,
                 periods_per_year=periods_per_year,
+                metric_win_size=metric_win_size,
             ),
-            "sortino_ratio": PerformanceMetrics.sortino_ratio(
+            PerformanceMetrics.sortino_ratio(
                 df,
                 risk_free_rate=risk_free_rate,
                 periods_per_year=periods_per_year,
+                metric_win_size=metric_win_size,
             ),
-        }
+        ]
+        return pd.concat(metrics).reset_index(drop=True)
 
     def get_value_at_risk(
         self,
+        var_win_size: int = DEFAULT_VAR_WIN_SIZE,
         confidence_level: float = DEFAULT_CONFIDENCE_LEVEL,
         method: str = DEFAULT_VAR_MODEL,
         datasource: Optional["BaseDataSource"] = None,
         local_only: bool = True,
-    ) -> float:
+    ) -> pd.DataFrame:
         """Return Value-at-Risk using the specified method."""
         df = self.get_price_history(
             datasource=datasource, local_only=local_only,
@@ -148,4 +159,8 @@ class BaseMappingEntity(BaseModel):
         if calc is None:
             raise KeyError(f"VaR method '{method}' not recognised.")
 
-        return calc(df, confidence_level=confidence_level)
+        return calc(
+            df,
+            confidence_level=confidence_level,
+            var_win_size=var_win_size,
+        )

@@ -5,8 +5,6 @@ from typing import Dict, Callable, Any
 
 from pandas import DataFrame, DatetimeIndex, Series
 
-from .returns import ReturnsCalculator
-
 class _BaseAnalytics:
     """Shared input validation for analytics calculators."""
 
@@ -18,6 +16,8 @@ class _BaseAnalytics:
     @staticmethod
     def _validate(df: DataFrame) -> Series:
         """Validate input DataFrame and return simple returns series."""
+        from .returns import ReturnsCalculator
+
         if df.empty:
             raise ValueError("Input DataFrame is empty.")
         if "close" not in df.columns:
