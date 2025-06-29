@@ -38,8 +38,10 @@ class Transactions(BaseModel):
         mask = df.notna().all(axis=1)
         dropped = (~mask).sum()
         if dropped:
+            samples = transactions.loc[~mask, "Description"].head().tolist()
             warnings.warn(
-                f"Dropping {dropped} transaction rows with unmatched description pattern"
+                "Dropping %d transaction rows with unmatched description pattern. "
+                "Examples: %s" % (dropped, "; ".join(samples))
             )
         df = df[mask]
         transactions = transactions.loc[mask]
