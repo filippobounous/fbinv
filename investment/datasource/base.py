@@ -258,15 +258,21 @@ class BaseDataSource(BaseModel):
         Get file names from path with last modified dates.
 
         Args:
-            path (str): path_name
+            path (str): Directory to inspect.
 
         Returns:
-            Dict[str, datetime.datetime]: Dictionary of file names and last modified date.
+            Dict[str, datetime.datetime]: Dictionary of file names and last
+            modified date. If the path does not exist an empty dictionary is
+            returned.
         """
 
         folder = Path(path)
 
         di = {}
+        if not folder.exists():
+            return di
+        if not folder.is_dir():
+            raise NotADirectoryError(f"{path} is not a directory")
         for file_path in folder.iterdir():
             if file_path.is_file() and not file_path.name.startswith('.'): # skips hidden files
                 # Name without extension
