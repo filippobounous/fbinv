@@ -49,10 +49,15 @@ class Portfolio(BaseMappingEntity):
     @property
     def transactions(self) -> pd.DataFrame:
         """Return cached transaction DataFrame."""
-        return pd.read_csv(
-            self._get_path(label="transactions"),
-            parse_dates=['as_of_date'],
-        )
+        try:
+            return pd.read_csv(
+                self._get_path(label="transactions"),
+                parse_dates=['as_of_date'],
+            )
+        except FileNotFoundError as exc:
+            raise TransactionsException(
+                f"Transactions file not found for {self.code}"
+            ) from exc
 
     @property
     def all_securities(self) -> List["BaseSecurity"]:
