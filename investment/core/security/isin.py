@@ -1,6 +1,6 @@
 """Intermediate ISIN class for ISIN-required securities"""
 
-from typing import ClassVar, Optional
+from typing import ClassVar
 
 from .base import BaseSecurity
 
@@ -11,4 +11,4 @@ class ISINSecurity(BaseSecurity):
     Intermediate class to require isin_code across subclasses.
     """
     entity_type: ClassVar[str] = "isin"
-    isin_code: Optional[str] = None
+    isin_code: str | None = None

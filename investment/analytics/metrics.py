@@ -9,7 +9,7 @@ derive cumulative and annualised performance statistics, drawdown measures and
 risk‑adjusted ratios such as Sharpe and Sortino.
 """
 
-from typing import Optional, Callable, Any, Dict
+from typing import Callable, Any
 
 import numpy as np
 import pandas as pd
@@ -34,7 +34,7 @@ class PerformanceMetrics(_BaseAnalytics):
     """
 
     @staticmethod
-    def registry() -> Dict[str, Callable[[Any], Any]]:
+    def registry() -> dict[str, Callable[[Any], Any]]:
         """Return mapping of metric names to calculation methods."""
         return {
             "cumulative_return": PerformanceMetrics.cumulative_return,
@@ -139,7 +139,7 @@ class PerformanceMetrics(_BaseAnalytics):
         df: pd.DataFrame,
         risk_free_rate: float = 0.0,
         periods_per_year: int = TRADING_DAYS,
-    ) -> Optional[float]:
+    ) -> float | None:
         """Annualised Sharpe ratio of the returns series.
 
         Parameters
@@ -153,7 +153,7 @@ class PerformanceMetrics(_BaseAnalytics):
 
         Returns
         -------
-        Optional[float]
+        float | None
             Sharpe ratio or ``None`` if the return variance is zero.
         """
         returns = cls._validate(df)
@@ -169,7 +169,7 @@ class PerformanceMetrics(_BaseAnalytics):
         df: pd.DataFrame,
         risk_free_rate: float = 0.0,
         periods_per_year: int = TRADING_DAYS,
-    ) -> Optional[float]:
+    ) -> float | None:
         """Annualised Sortino ratio using downside deviation.
 
         Parameters
@@ -183,7 +183,7 @@ class PerformanceMetrics(_BaseAnalytics):
 
         Returns
         -------
-        Optional[float]
+        float | None
             Sortino ratio or ``None`` if downside deviation is zero.
         """
         returns = cls._validate(df)
@@ -220,7 +220,7 @@ class PerformanceMetrics(_BaseAnalytics):
     @classmethod
     def calmar_ratio(
         cls, df: pd.DataFrame, periods_per_year: int = TRADING_DAYS
-    ) -> Optional[float]:
+    ) -> float | None:
         """Ratio of annualised return to maximum drawdown.
 
         Parameters
@@ -232,7 +232,7 @@ class PerformanceMetrics(_BaseAnalytics):
 
         Returns
         -------
-        Optional[float]
+        float | None
             Calmar ratio or ``None`` if there is no drawdown.
         """
         ann_ret = cls.annualised_return(df, periods_per_year)
@@ -247,7 +247,7 @@ class PerformanceMetrics(_BaseAnalytics):
         df: pd.DataFrame,
         target_return: float = 0.0,
         periods_per_year: int = TRADING_DAYS,
-    ) -> Optional[float]:
+    ) -> float | None:
         """Omega ratio relative to ``target_return`` per year.
 
         Parameters
@@ -261,7 +261,7 @@ class PerformanceMetrics(_BaseAnalytics):
 
         Returns
         -------
-        Optional[float]
+        float | None
             Omega ratio or ``None`` if no negative excess returns are present.
         """
         returns = cls._validate(df)
