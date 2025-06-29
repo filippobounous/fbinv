@@ -3,7 +3,6 @@
 import datetime
 import re
 from typing import TYPE_CHECKING, ClassVar, Tuple
-
 import warnings
 
 import pandas as pd
