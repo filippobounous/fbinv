@@ -65,7 +65,7 @@ class BaseSecurity(BaseMappingEntity):
         else:
             _code = getattr(self, f"{datasource_name}_code", None)
 
-        code = _code.replace("/", "") if _code else _code
+        code = _code.replace("/", "").replace(" ", "_") if _code else _code
 
         data_frequency = "intraday" if intraday else "daily"
 
