@@ -1,6 +1,6 @@
 """Engines for generating correlated price or returns paths."""
 
-from typing import Callable, Any
+from typing import Callable
 
 import numpy as np
 

@@ -21,11 +21,6 @@ from ..utils.consts import (
     DEFAULT_RISK_FREE_RATE,
 )
 
-# TODO: rolling window with win_size instead of setting as single value
-# TODO: implement correlation for portfolio
-# TODO: rethink how this is used in the context of portfolio etc, perhaps should be done similarly to correlation page
-
-# TODO: rolling window with win_size instead of setting as single value
 # TODO: implement correlation for portfolio
 # TODO: rethink how this is used in the context of portfolio etc, perhaps should be done similarly
 # to correlation page

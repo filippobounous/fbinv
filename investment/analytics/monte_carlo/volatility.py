@@ -1,6 +1,6 @@
 """Stochastic volatility model generators."""
 
-from typing import Callable, Any
+from typing import Callable
 
 import numpy as np
 
