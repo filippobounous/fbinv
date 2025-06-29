@@ -9,7 +9,7 @@ well as parametric and conditional forms often used in risk management.
 """
 
 from statistics import NormalDist
-from typing import Dict, Callable
+from typing import Callable
 
 import pandas as pd
 
@@ -30,7 +30,7 @@ class VaRCalculator(_BaseAnalytics):
     """
 
     @staticmethod
-    def registry() -> Dict[str, Callable[[pd.DataFrame, float], float]]:
+    def registry() -> dict[str, Callable[[pd.DataFrame, float], float]]:
         """Map method names to VaR calculation functions."""
         return {
             "historical": VaRCalculator.historical_var,

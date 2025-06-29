@@ -2,7 +2,7 @@
 
 import datetime
 import re
-from typing import TYPE_CHECKING, ClassVar, Tuple
+from typing import TYPE_CHECKING, ClassVar
 import warnings
 
 import pandas as pd
@@ -115,7 +115,7 @@ class YahooFinanceDataSource(BaseDataSource):
         symbol: str,
         intraday: bool,
         **kwargs,
-    ) -> Tuple[datetime.datetime, datetime.datetime]:
+    ) -> tuple[datetime.datetime, datetime.datetime]:
         """Return start/end dates bounded by existing data."""
         if df.empty:
             return super()._default_start_and_end_date(
