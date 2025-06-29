@@ -1,7 +1,7 @@
 """Data source wrapper for the Alpha Vantage API."""
 
 import datetime
-from typing import TYPE_CHECKING, ClassVar, Dict, Any, Tuple
+from typing import TYPE_CHECKING, ClassVar, Any
 
 import pandas as pd
 
@@ -119,14 +119,14 @@ class AlphaVantageDataSource(BaseDataSource):
         df['as_of_date'] = pd.to_datetime(df['as_of_date'])
         return df
 
-    def _get_response(self, url: str, params: Dict[str, Any]) -> Dict[str, Any]:
+    def _get_response(self, url: str, params: dict[str, Any]) -> dict[str, Any]:
         """Send request and validate the response."""
         data = self._request("get", url, params=params)
         self._check_response(data=data)
         return data
 
     @staticmethod
-    def _check_response(data: Dict[str, Any]) -> None:
+    def _check_response(data: dict[str, Any]) -> None:
         """Raise helpful errors when the API returns messages."""
         info = data.get("Information")
         if info:
@@ -139,7 +139,7 @@ class AlphaVantageDataSource(BaseDataSource):
         self,
         df: pd.DataFrame, symbol: str,
         intraday: bool, **kwargs,
-    ) -> Tuple[datetime.datetime, datetime.datetime]:
+    ) -> tuple[datetime.datetime, datetime.datetime]:
         """Return sensible start/end dates for an update call."""
         if df.empty:
             return super()._default_start_and_end_date(

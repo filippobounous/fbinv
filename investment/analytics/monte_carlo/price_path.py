@@ -1,6 +1,6 @@
 """Engines for generating correlated price or returns paths."""
 
-from typing import Callable, Union, Any
+from typing import Callable, Any
 
 import numpy as np
 
@@ -20,8 +20,8 @@ class PricePathEngine(BaseMonteCarloEngine):
     def generate_paths(
         self,
         spots: np.ndarray,
-        drift: Union[float, np.ndarray, Callable[[int], np.ndarray]],
-        vol: Union[float, np.ndarray, Callable[[int], np.ndarray]],
+        drift: float | np.ndarray | Callable[[int], np.ndarray],
+        vol: float | np.ndarray | Callable[[int], np.ndarray],
     ) -> np.ndarray:
         """Generate correlated geometric Brownian motion paths.
 
@@ -66,8 +66,8 @@ class PricePathEngine(BaseMonteCarloEngine):
     def generate_jump_diffusion_paths(
         self,
         spots: np.ndarray,
-        drift: Union[float, np.ndarray, Callable[[int], np.ndarray]],
-        vol: Union[float, np.ndarray, Callable[[int], np.ndarray]],
+        drift: float | np.ndarray | Callable[[int], np.ndarray],
+        vol: float | np.ndarray | Callable[[int], np.ndarray],
         jump_intensity: float,
         jump_mean: float,
         jump_std: float,

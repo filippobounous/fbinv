@@ -1,6 +1,6 @@
 """Random generator utilities for Monte Carlo simulations."""
 
-from typing import Optional, Tuple, Callable, Any, Dict
+from typing import Callable, Any
 
 import numpy as np
 
@@ -10,7 +10,7 @@ class RandomGenerator(_BaseAnalytics):
     """Wrapper around ``numpy.random.Generator`` with helper methods."""
 
     @staticmethod
-    def registry() -> Dict[str, Callable[[Any], np.ndarray]]:
+    def registry() -> dict[str, Callable[[Any], np.ndarray]]:
         """Available random number generation routines."""
         return {
             "standard_normal": RandomGenerator.standard_normal,
@@ -19,14 +19,14 @@ class RandomGenerator(_BaseAnalytics):
             "uniform": RandomGenerator.uniform,
         }
 
-    def __init__(self, seed: Optional[int] = None) -> None:
+    def __init__(self, seed: int | None = None) -> None:
         self._rng = np.random.default_rng(seed)
 
-    def standard_normal(self, size: Tuple[int, ...]) -> np.ndarray:
+    def standard_normal(self, size: tuple[int, ...]) -> np.ndarray:
         """Return draws from a standard normal distribution."""
         return self._rng.standard_normal(size)
 
-    def antithetic_normal(self, size: Tuple[int, int]) -> np.ndarray:
+    def antithetic_normal(self, size: tuple[int, int]) -> np.ndarray:
         """Return antithetic standard normal draws.
 
         Parameters
@@ -45,7 +45,7 @@ class RandomGenerator(_BaseAnalytics):
         sample = self._rng.standard_normal((half, size[1]))
         return np.concatenate([sample, -sample], axis=0)
 
-    def normal(self, mean: float, std: float, size: Tuple[int, ...]) -> np.ndarray:
+    def normal(self, mean: float, std: float, size: tuple[int, ...]) -> np.ndarray:
         """Return draws from a normal distribution with mean and standard deviation.
 
         Parameters
@@ -67,7 +67,7 @@ class RandomGenerator(_BaseAnalytics):
     def uniform(
         self,
         low: float = 0.0, high: float = 1.0,
-        size: Tuple[int, ...] | None = None
+        size: tuple[int, ...] | None = None
     ) -> np.ndarray:
         """Return draws from a uniform distribution.
 
@@ -87,6 +87,6 @@ class RandomGenerator(_BaseAnalytics):
         """
         return self._rng.uniform(low=low, high=high, size=size)
 
-    def set_seed(self, seed: Optional[int]) -> None:
+    def set_seed(self, seed: int | None) -> None:
         """Reset the underlying random number generator with a new seed."""
         self._rng = np.random.default_rng(seed)

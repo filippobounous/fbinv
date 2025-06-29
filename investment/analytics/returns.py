@@ -1,6 +1,6 @@
 """Returns Calculator for timeseries"""
 
-from typing import Union, List, Callable, Any, Dict
+from typing import Callable, Any
 
 import pandas as pd
 import numpy as np
@@ -18,14 +18,14 @@ class ReturnsCalculator(_BaseAnalytics):
     """
 
     @staticmethod
-    def registry() -> Dict[str, Callable[[Any], Any]]:
+    def registry() -> dict[str, Callable[[Any], Any]]:
         """Return mapping of available return calculations."""
         return {"returns": ReturnsCalculator.calculate}
 
     def __init__(
             self,
             use_ln_ret: bool = True,
-            ret_win_size: Union[int, List[int]] = DEFAULT_RET_WIN_SIZE
+            ret_win_size: int | list[int] = DEFAULT_RET_WIN_SIZE
         ) -> None:
         """Initialise the calculator."""
         self.use_ln_ret = use_ln_ret
