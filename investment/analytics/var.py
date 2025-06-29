@@ -16,6 +16,11 @@ import pandas as pd
 from .base import _BaseAnalytics
 from ..utils.consts import DEFAULT_CONFIDENCE_LEVEL
 
+# TODO: rolling window with win_size instead of setting as single value
+# TODO: implement correlation for portfolio
+# TODO: rethink how this is used in the context of portfolio etc, perhaps should be done similarly
+# to correlation page
+
 class VaRCalculator(_BaseAnalytics):
     """Value-at-Risk related calculations.
 
