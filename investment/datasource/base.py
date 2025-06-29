@@ -130,7 +130,9 @@ class BaseDataSource(BaseModel):
 
         symbol = getattr(security, self.internal_mapping_code, None)
         if symbol is None:
-            warnings.warn(f"Mising internal code for {self.name} datasource for {security.code}")
+            warnings.warn(
+                f"Missing internal code for {self.name} datasource for {security.code}"
+            )
             return df
 
         try:
