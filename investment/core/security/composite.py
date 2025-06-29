@@ -1,6 +1,6 @@
 """Composite security class to convert between currencies"""
 
-from typing import Optional, TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING, ClassVar
 
 import pandas as pd
 
@@ -51,9 +51,10 @@ class Composite(BaseSecurity):
 
     def get_price_history(
         self,
-        datasource: Optional["BaseDataSource"] = None,
+        datasource: "BaseDataSource" | None = None,
         local_only: bool = True,
         intraday: bool = False,
+        currency: str | None = None,
     ) -> pd.DataFrame:
         """Return the converted price history series."""
         kwargs = {
@@ -62,8 +63,15 @@ class Composite(BaseSecurity):
             "intraday": intraday,
         }
 
-        ph_security = self.security.get_price_history(**kwargs)[OC]
-        ph_currency_cross = self.currency_cross.get_price_history(**kwargs)[OC]
+        ph_security = self.security.get_price_history(**kwargs)
+        ph_currency_cross = self.currency_cross.get_price_history(**kwargs)
+
+        # exit early if required columns are not present
+        if not set(OC).issubset(ph_security.columns) or not set(OC).issubset(ph_currency_cross.columns):
+            return pd.DataFrame()
+
+        ph_security = ph_security[OC]
+        ph_currency_cross = ph_currency_cross[OC]
 
         ph_security.columns = [f"{i}_sec" for i in ph_security.columns]
         ph_currency_cross.columns = [f"{i}_ccy" for i in ph_currency_cross.columns]

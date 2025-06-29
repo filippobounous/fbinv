@@ -4,7 +4,7 @@ from abc import abstractmethod
 import datetime
 import os
 from pathlib import Path
-from typing import Dict, Optional, ClassVar, TYPE_CHECKING, Tuple, Any
+from typing import ClassVar, TYPE_CHECKING, Any
 
 import pandas as pd
 from pydantic import BaseModel
@@ -130,7 +130,9 @@ class BaseDataSource(BaseModel):
 
         symbol = getattr(security, self.internal_mapping_code, None)
         if symbol is None:
-            warnings.warn(f"Mising internal code for {self.name} datasource for {security.code}")
+            warnings.warn(
+                f"Missing internal code for {self.name} datasource for {security.code}"
+            )
             return df
 
         try:
@@ -181,8 +183,8 @@ class BaseDataSource(BaseModel):
     def _get_price_history_from_remote(
         self,
         security: "BaseSecurity", intraday: bool = False,
-        start_date: Optional[datetime.datetime] = None,
-        end_date: Optional[datetime.datetime] = None,
+        start_date: datetime.datetime | None = None,
+        end_date: datetime.datetime | None = None,
     ) -> pd.DataFrame:
         """Dispatch to the correct remote retrieval method."""
         ts_method_dict = {
@@ -244,27 +246,33 @@ class BaseDataSource(BaseModel):
         self,
         df: pd.DataFrame, symbol: str,
         intraday: bool, **kwargs,
-    ) -> Tuple[datetime.datetime, datetime.datetime]:
+    ) -> tuple[datetime.datetime, datetime.datetime]:
         """Fallback implementation for determining update ranges."""
         start_date = kwargs.get("start_date", self.data_start_date)
         end_date = kwargs.get("end_date", today_midnight() + datetime.timedelta(days=-1))
         return start_date, end_date
 
     @staticmethod
-    def _get_file_names_in_path(path: str) -> Dict[str, datetime.datetime]:
+    def _get_file_names_in_path(path: str) -> dict[str, datetime.datetime]:
         """
         Get file names from path with last modified dates.
 
         Args:
-            path (str): path_name
+            path (str): Directory to inspect.
 
         Returns:
-            Dict[str, datetime.datetime]: Dictionary of file names and last modified date.
+            dict[str, datetime.datetime]: Dictionary of file names and last
+            modified date. If the path does not exist an empty dictionary is
+            returned.
         """
 
         folder = Path(path)
 
         di = {}
+        if not folder.exists():
+            return di
+        if not folder.is_dir():
+            raise NotADirectoryError(f"{path} is not a directory")
         for file_path in folder.iterdir():
             if file_path.is_file() and not file_path.name.startswith('.'): # skips hidden files
                 # Name without extension
@@ -278,7 +286,7 @@ class BaseDataSource(BaseModel):
 
         return di
 
-    def update_price_histories(self, intraday: bool = False, **kwargs) -> Dict[str, bool]:
+    def update_price_history(self, intraday: bool = False, **kwargs) -> dict[str, bool]:
         """Update price histories for all known securities."""
         from .local import LocalDataSource
         li = LocalDataSource().get_all_securities(as_instance=True)
@@ -311,13 +319,13 @@ class BaseDataSource(BaseModel):
 
     def full_update(
         self,
-        start_date: Optional[datetime.datetime] = None, intraday: bool = False
-    ) -> Dict[str, bool]:
+        start_date: datetime.datetime | None = None, intraday: bool = False
+    ) -> dict[str, bool]:
         """Update security mapping and all price histories."""
         from .local import LocalDataSource
 
         df_mapping = self.update_security_mapping()
-        di = self.update_price_histories(start_date=start_date, intraday=intraday)
+        di = self.update_price_history(start_date=start_date, intraday=intraday)
 
         li = LocalDataSource().get_all_securities(as_instance=True)
 

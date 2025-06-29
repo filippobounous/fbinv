@@ -1,7 +1,7 @@
 """Data source for reading local CSV files."""
 
 import datetime
-from typing import Any, Dict, Union, List, TYPE_CHECKING, ClassVar, Optional
+from typing import Any, TYPE_CHECKING, ClassVar
 
 import pandas as pd
 
@@ -27,7 +27,7 @@ class LocalDataSource(BaseDataSource):
     @property
     def reporting_currency(self) -> pd.DataFrame:
         """Return reporting currency reference table."""
-        return pd.read_csv(f"{BASE_PATH}/reporting_currency.csv")
+        return pd.read_csv(f"{BASE_PATH}/reporting_currency_mapping.csv")
 
     def _get_currency_cross_price_history_from_remote(
         self,
@@ -74,14 +74,14 @@ class LocalDataSource(BaseDataSource):
         """Return the DataFrame unchanged."""
         return df
 
-    def load_portfolio(self, portfolio: "Portfolio") -> Dict[str, Any]:
+    def load_portfolio(self, portfolio: "Portfolio") -> dict[str, Any]:
         """Load a portfolio from the CSV file."""
         df = self.portfolio_mapping
         row = df.loc[df.code == portfolio.code]
 
         return self._load(df=row, entity=portfolio)
 
-    def load_security(self, security: "BaseSecurity") -> Dict[str, Any]:
+    def load_security(self, security: "BaseSecurity") -> dict[str, Any]:
         """Load a security from the CSV file."""
         df = self.get_security_mapping()
         df_reporting_ccy = self.reporting_currency
@@ -95,7 +95,7 @@ class LocalDataSource(BaseDataSource):
 
         return self._load(df=row, entity=security)
 
-    def load_composite_security(self, composite: "Composite") -> Dict[str, Any]:
+    def load_composite_security(self, composite: "Composite") -> dict[str, Any]:
         """Return attributes for a composite security."""
         di = composite.security.model_dump()
         di.pop("code") # remove code as not needed
@@ -117,7 +117,7 @@ class LocalDataSource(BaseDataSource):
         return entity(**kwargs)
 
     @staticmethod
-    def _load(df: pd.DataFrame, entity: Optional["BaseMappingEntity"] = None) -> Dict[str, Any]:
+    def _load(df: pd.DataFrame, entity: "BaseMappingEntity" | None = None) -> dict[str, Any]:
         """Convert a single CSV row to a dictionary."""
         if len(df) > 1:
             raise SecurityMappingError(
@@ -137,7 +137,7 @@ class LocalDataSource(BaseDataSource):
 
     def get_all_portfolios(
         self, as_instance: bool = False
-    ) -> Union[Dict[str, datetime.datetime], List["Portfolio"]]:
+    ) -> dict[str, datetime.datetime] | list["Portfolio"]:
         """
         Get all available portfolios with last modified date.
         
@@ -145,7 +145,7 @@ class LocalDataSource(BaseDataSource):
             as_instance (bool): If True then returns a list of Portfolio classes.
 
         Returns:
-            Union[Dict[str, datetime.datetime], List[Portfolio]]:Dictionary of file names
+            Union[dict[str, datetime.datetime], list[Portfolio]]:Dictionary of file names
             and last modified date or List of Portfolios
         """
         from ..core.portfolio import Portfolio
@@ -157,7 +157,7 @@ class LocalDataSource(BaseDataSource):
 
     def get_all_securities(
         self, column: str = "code", as_instance: bool = False
-    ) -> List[Union[str, "BaseSecurity"]]:
+    ) -> list[str | "BaseSecurity"]:
         """List all available securities."""
         from ..core.security.registry import security_registry
 

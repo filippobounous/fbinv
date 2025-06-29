@@ -1,6 +1,6 @@
 """Stochastic volatility model generators."""
 
-from typing import Union, Callable, Any
+from typing import Callable, Any
 
 import numpy as np
 
@@ -10,7 +10,7 @@ class VolatilityEngine(BaseMonteCarloEngine):
     """Engine for generating stochastic volatility paths."""
 
     @staticmethod
-    def registry() -> dict[str, Callable[[Any], np.ndarray]]:
+    def registry() -> dict[str, Callable[..., np.ndarray]]:
         """Return available volatility generation methods."""
         return {
             "heston": VolatilityEngine.generate_heston_vol,
@@ -20,7 +20,7 @@ class VolatilityEngine(BaseMonteCarloEngine):
 
     def generate_heston_vol(
         self,
-        vol0: Union[float, np.ndarray],
+        vol0: float | np.ndarray,
         kappa: float,
         theta: float,
         xi: float,
@@ -60,7 +60,7 @@ class VolatilityEngine(BaseMonteCarloEngine):
 
     def generate_garch_vol(
         self,
-        vol0: Union[float, np.ndarray],
+        vol0: float | np.ndarray,
         omega: float,
         alpha: float,
         beta: float,
@@ -105,7 +105,7 @@ class VolatilityEngine(BaseMonteCarloEngine):
 
     def generate_sabr_vol(
         self,
-        vol0: Union[float, np.ndarray],
+        vol0: float | np.ndarray,
         nu: float,
     ) -> np.ndarray:
         """Generate volatility paths using a lognormal SABR volatility process.

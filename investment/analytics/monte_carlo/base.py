@@ -1,7 +1,7 @@
 """Monte Carlo path generation utilities."""
 
 from abc import abstractmethod
-from typing import Callable, Optional, Union, Dict, Any
+from typing import Callable, Any
 
 import numpy as np
 
@@ -35,9 +35,9 @@ class BaseMonteCarloEngine(_BaseAnalytics):
         n_steps: int,
         n_paths: int,
         dt: float = 1 / 252,
-        corr_matrix: Optional[Union[np.ndarray, Callable[[int], np.ndarray]]] = None,
-        random_state: Optional[int] = None,
-        random_generator: Optional[Union[RandomGenerator, Callable[[tuple], np.ndarray]]] = None,
+        corr_matrix: np.ndarray | Callable[[int], np.ndarray] | None = None,
+        random_state: int | None = None,
+        random_generator: RandomGenerator | Callable[[tuple], np.ndarray] | None = None,
         use_antithetic: bool = False,
     ) -> None:
         """Base init class for the MonteCarlo engine"""
@@ -55,7 +55,7 @@ class BaseMonteCarloEngine(_BaseAnalytics):
 
     @staticmethod
     @abstractmethod
-    def registry() -> Dict[str, Callable[[Any], np.ndarray]]:
+    def registry() -> dict[str, Callable[..., np.ndarray]]:
         """Registry of MonteCarlo methods"""
 
     def _randn(self, size: tuple) -> np.ndarray:
@@ -102,7 +102,7 @@ class BaseMonteCarloEngine(_BaseAnalytics):
 
     def _prepare_vol(
         self,
-        vol: Union[float, np.ndarray, Callable[[int], np.ndarray]],
+        vol: float | np.ndarray | Callable[[int], np.ndarray],
         step: int,
         n_assets: int,
     ) -> np.ndarray:
@@ -140,7 +140,7 @@ class BaseMonteCarloEngine(_BaseAnalytics):
         return sigma
 
     def _prepare_drift(
-        self, drift: Union[float, np.ndarray, Callable[[int], np.ndarray]], step: int, n_assets: int
+        self, drift: float | np.ndarray | Callable[[int], np.ndarray], step: int, n_assets: int
     ) -> np.ndarray:
         """Return the drift for a given simulation step.
 
@@ -174,7 +174,7 @@ class BaseMonteCarloEngine(_BaseAnalytics):
                 mu = drift[step]
         return mu
 
-    def _prepare_corr(self, step: int) -> Optional[np.ndarray]:
+    def _prepare_corr(self, step: int) -> np.ndarray | None:
         """Return Cholesky factor for correlations at a given step.
 
         Parameters

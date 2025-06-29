@@ -7,7 +7,7 @@ models, optional rolling windows, time lags and more specialised
 measures such as partial and semi correlations.
 """
 
-from typing import Optional, List, TYPE_CHECKING, Dict, Tuple, Union, Callable, Any
+from typing import TYPE_CHECKING, Callable, Any
 
 import numpy as np
 import pandas as pd
@@ -30,7 +30,7 @@ class CorrelationCalculator(_BaseAnalytics):
     """
 
     @staticmethod
-    def registry() -> Dict[str, Callable[[Any], Any]]:
+    def registry() -> dict[str, Callable[..., Any]]:
         """Mapping of correlation helper names to methods."""
         return {
             "calculate": CorrelationCalculator.calculate,
@@ -43,8 +43,8 @@ class CorrelationCalculator(_BaseAnalytics):
 
     def __init__(
         self,
-        securities: Optional[List["BaseSecurity"]] = None,
-        portfolios: Optional[List["Portfolio"]] = None,
+        securities: list["BaseSecurity"] | None = None,
+        portfolios: list["Portfolio"] | None = None,
     ) -> None:
         """Initialise the calculator with optional entities.
 
@@ -55,8 +55,8 @@ class CorrelationCalculator(_BaseAnalytics):
         portfolios:
             A list of :class:`Portfolio` instances to analyse.
         """
-        self.securities: List["BaseSecurity"] = securities or []
-        self.portfolios: List["Portfolio"] = portfolios or []
+        self.securities: list["BaseSecurity"] = securities or []
+        self.portfolios: list["Portfolio"] = portfolios or []
 
     def _gather_series(
         self,
@@ -85,33 +85,19 @@ class CorrelationCalculator(_BaseAnalytics):
             portfolio currency.  NaNs are dropped so all series are aligned.
         """
 
-        series_list: List[pd.Series] = []
+        series_list: list[pd.Series] = []
 
-        for sec in self.securities:
+        all_objects = self.securities + self.portfolios
+        for obj in all_objects:
             if use_returns:
-                df = sec.get_returns(
+                df = obj.get_returns(
                     use_ln_ret=log_returns, ret_win_size=ret_win_size
                 )
-                s = df.set_index("as_of_date")["return"].rename(sec.code)
+                s = df.set_index("as_of_date")["return"].rename(obj.code)
             else:
-                df = sec.get_price_history()
-                s = df.set_index("as_of_date")["close"].rename(sec.code)
+                df = obj.get_price_history()
+                s = df.set_index("as_of_date")["close"].rename(obj.code)
             series_list.append(s)
-
-        for port in self.portfolios:
-            df = port.get_price_history()
-
-            grouped = df.groupby(["as_of_date", "currency"])["close_value"].sum()
-
-            for currency in grouped.index.get_level_values("currency").unique():
-                s = grouped.xs(currency, level="currency")
-                s = s.rename(f"{port.code}_{currency}")
-                if use_returns:
-                    if log_returns:
-                        s = np.log(s / s.shift(ret_win_size))
-                    else:
-                        s = s.pct_change(ret_win_size)
-                series_list.append(s)
 
         df_all = pd.concat(series_list, axis=1)
         return df_all.dropna(how="any").sort_index()
@@ -120,9 +106,9 @@ class CorrelationCalculator(_BaseAnalytics):
         self,
         df: pd.DataFrame,
         corr_model: str,
-        window: Optional[int],
+        window: int | None,
         lag: int,
-    ) -> Union[pd.DataFrame, Dict[Tuple[str, str], pd.Series]]:
+    ) -> pd.DataFrame | dict[tuple[str, str], pd.Series]:
         """Compute pairwise correlations for a ``DataFrame``.
 
         Parameters
@@ -180,9 +166,9 @@ class CorrelationCalculator(_BaseAnalytics):
         log_returns: bool = True,
         ret_win_size: int = DEFAULT_RET_WIN_SIZE,
         corr_model: str = DEFAULT_CORR_MODEL,
-        window: Optional[int] = None,
+        window: int | None = None,
         lag: int = 0,
-    ) -> Union[pd.DataFrame, Dict[Tuple[str, str], pd.Series]]:
+    ) -> pd.DataFrame | dict[tuple[str, str], pd.Series]:
         """Calculate correlations for the stored securities and portfolios.
 
         Parameters
@@ -242,7 +228,7 @@ class CorrelationCalculator(_BaseAnalytics):
         return float(tri.mean())
 
     def rolling_mean_correlation(
-        self, corr_dict: Dict[Tuple[str, str], pd.Series]
+        self, corr_dict: dict[tuple[str, str], pd.Series]
     ) -> pd.Series:
         """Return the average rolling correlation across all pairs.
 
@@ -262,9 +248,9 @@ class CorrelationCalculator(_BaseAnalytics):
 
     def lagged(
         self,
-        lags: List[int],
+        lags: list[int],
         **kwargs,
-    ) -> Dict[int, Union[pd.DataFrame, Dict[Tuple[str, str], pd.Series]]]:
+    ) -> dict[int, pd.DataFrame | dict[tuple[str, str], pd.Series]]:
         """Compute correlations for multiple lags.
 
         Parameters
@@ -328,10 +314,10 @@ class CorrelationCalculator(_BaseAnalytics):
         log_returns: bool = True,
         ret_win_size: int = DEFAULT_RET_WIN_SIZE,
         corr_model: str = DEFAULT_CORR_MODEL,
-        window: Optional[int] = None,
+        window: int | None = None,
         lag: int = 0,
         downside: bool = True,
-    ) -> Union[pd.DataFrame, Dict[Tuple[str, str], pd.Series]]:
+    ) -> pd.DataFrame | dict[tuple[str, str], pd.Series]:
         """Return downside or upside correlations using sign‑filtered data.
 
         Parameters
