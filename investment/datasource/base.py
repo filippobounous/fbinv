@@ -261,7 +261,7 @@ class BaseDataSource(BaseModel):
             path (str): Directory to inspect.
 
         Returns:
-            Dict[str, datetime.datetime]: Dictionary of file names and last
+            dict[str, datetime.datetime]: Dictionary of file names and last
             modified date. If the path does not exist an empty dictionary is
             returned.
         """

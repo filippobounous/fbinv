@@ -18,7 +18,7 @@ class ReturnsCalculator(_BaseAnalytics):
     """
 
     @staticmethod
-    def registry() -> dict[str, Callable[[Any], Any]]:
+    def registry() -> dict[str, Callable[..., pd.DataFrame]]:
         """Return mapping of available return calculations."""
         return {"returns": ReturnsCalculator.calculate}
 

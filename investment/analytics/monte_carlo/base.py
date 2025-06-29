@@ -1,7 +1,7 @@
 """Monte Carlo path generation utilities."""
 
 from abc import abstractmethod
-from typing import Callable, Any
+from typing import Callable
 
 import numpy as np
 
@@ -55,7 +55,7 @@ class BaseMonteCarloEngine(_BaseAnalytics):
 
     @staticmethod
     @abstractmethod
-    def registry() -> dict[str, Callable[[Any], np.ndarray]]:
+    def registry() -> dict[str, Callable[..., np.ndarray]]:
         """Registry of MonteCarlo methods"""
 
     def _randn(self, size: tuple) -> np.ndarray:

@@ -13,8 +13,8 @@ class RealisedVolatilityCalculator(_BaseAnalytics):
     Realised Volatility Calculator
     
     Calculator for realised volatility with various methods. Initialised with:
-    rv_win_size (List[int]) -> the realised volatility windows
-    rv_model (Lis[str]) -> the realised volatility models to calculate for
+    rv_win_size (list[int]) -> the realised volatility windows
+    rv_model (list[str]) -> the realised volatility models to calculate for
     dt [int] -> The normalisation constant to use
     """
     def __init__(

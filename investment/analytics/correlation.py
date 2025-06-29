@@ -30,7 +30,7 @@ class CorrelationCalculator(_BaseAnalytics):
     """
 
     @staticmethod
-    def registry() -> dict[str, Callable[[Any], Any]]:
+    def registry() -> dict[str, Callable[..., Any]]:
         """Mapping of correlation helper names to methods."""
         return {
             "calculate": CorrelationCalculator.calculate,

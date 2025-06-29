@@ -10,7 +10,7 @@ class _BaseAnalytics:
 
     @staticmethod
     @abstractmethod
-    def registry() -> dict[str, Callable[[Any], Any]]:
+    def registry() -> dict[str, Callable[..., Any]]:
         """Map method names to calculation functions."""
 
     @staticmethod
