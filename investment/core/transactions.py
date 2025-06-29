@@ -1,7 +1,8 @@
 """Defines Transaction class to find transactions data"""
 
-import pandas as pd
 import warnings
+
+import pandas as pd
 from pydantic import BaseModel
 
 from ..config import TRANSACTION_PATH, TRANSACTION_SHEET_NAME, PORTFOLIO_PATH, DEFAULT_NAME
