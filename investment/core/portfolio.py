@@ -164,6 +164,10 @@ class Portfolio(BaseMappingEntity):
             currency=currency,
         )
 
+        # Ensure price columns exist before attempting calculations
+        if not set(OHLC).issubset(df.columns):
+            return df
+
         for i in OHLC:
             df.loc[:, f"{i}_value"] = df[i] * df["quantity"]
         df.loc[:, "net_value"] = df["close_value"] - df["entry_value"]
