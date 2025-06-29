@@ -7,7 +7,7 @@ and converted to simple returns.
 """
 
 from statistics import NormalDist
-from typing import Callable, Dict, Optional, Union
+from typing import Callable
 
 import pandas as pd
 
@@ -19,12 +19,11 @@ from ..utils.consts import DEFAULT_CONFIDENCE_LEVEL, DEFAULT_VAR_WIN_SIZE
 # TODO: rethink how this is used in the context of portfolio etc, perhaps should be done similarly
 # to correlation page
 
-
 class VaRCalculator(_BaseAnalytics):
     """Value-at-Risk related calculations."""
 
     @staticmethod
-    def registry() -> Dict[str, Callable[..., pd.DataFrame]]:
+    def registry() -> dict[str, Callable[..., pd.DataFrame]]:
         """Map method names to VaR calculation functions."""
         return {
             "historical": VaRCalculator.historical_var,
@@ -73,7 +72,6 @@ class VaRCalculator(_BaseAnalytics):
 
         Returns a DataFrame with columns ``as_of_date`` and ``var`` alongside
         the input parameters.
-=======
         """
         returns = cls._validate(df)
 

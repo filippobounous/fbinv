@@ -1,6 +1,6 @@
 """Base Security class as a generic abstraction for all others"""
 
-from typing import Optional, ClassVar, TYPE_CHECKING, Union
+from typing import ClassVar, TYPE_CHECKING
 
 import pandas as pd
 
@@ -22,19 +22,19 @@ class BaseSecurity(BaseMappingEntity):
     through BaseMappingEntity __init__.
     """
     entity_type: ClassVar[str] = "base_security"
-    name: Optional[str] = None
-    figi_code: Optional[str] = None
-    reporting_currency: Optional[str] = None
-    currency: Optional[str] = None
-    financial_times_code: Optional[str] = None
-    financial_times_security_type: Optional[str] = None
-    bloomberg_code: Optional[str] = None
-    yahoo_finance_code: Optional[str] = None
-    twelve_data_code: Optional[str] = None
-    alpha_vantage_code: Optional[str] = None
-    multiplier: Optional[float] = None
+    name: str | None = None
+    figi_code: str | None = None
+    reporting_currency: str | None = None
+    currency: str | None = None
+    financial_times_code: str | None = None
+    financial_times_security_type: str | None = None
+    bloomberg_code: str | None = None
+    yahoo_finance_code: str | None = None
+    twelve_data_code: str | None = None
+    alpha_vantage_code: str | None = None
+    multiplier: float | None = None
 
-    def __init__(self, code: Optional[str] = None, **kwargs) -> None:
+    def __init__(self, code: str | None = None, **kwargs) -> None:
         """Initialise security attributes from local mapping data."""
         from ...datasource.registry import datasource_codes
 
@@ -65,7 +65,7 @@ class BaseSecurity(BaseMappingEntity):
         else:
             _code = getattr(self, f"{datasource_name}_code", None)
 
-        code = _code.replace("/", "") if _code else _code
+        code = _code.replace("/", "").replace(" ", "_") if _code else _code
 
         data_frequency = "intraday" if intraday else "daily"
 
@@ -75,10 +75,10 @@ class BaseSecurity(BaseMappingEntity):
 
     def get_price_history(
         self,
-        datasource: Optional["BaseDataSource"] = None,
+        datasource: "BaseDataSource" | None = None,
         local_only: bool = True,
         intraday: bool = False,
-        currency: Optional[str] = None,
+        currency: str | None = None,
     ) -> pd.DataFrame:
         """Returns price history"""
         if (not currency) or (currency == self.currency):
@@ -97,7 +97,7 @@ class BaseSecurity(BaseMappingEntity):
 
         return df
 
-    def convert_to_currency(self, currency: str) -> Union["BaseSecurity", "Composite"]:
+    def convert_to_currency(self, currency: str) -> "BaseSecurity" | "Composite":
         """Converts a security to its composite self, by applying a currency conversion"""
         from .composite import Composite
         return (

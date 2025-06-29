@@ -3,7 +3,7 @@
 import datetime
 from itertools import product
 from time import sleep
-from typing import TYPE_CHECKING, List, Dict, ClassVar, Tuple, Any, Optional
+from typing import TYPE_CHECKING, ClassVar, Any
 import warnings
 
 import pandas as pd
@@ -27,7 +27,7 @@ class TwelveDataDataSource(BaseDataSource):
 
     name: ClassVar[str] = "twelve_data"
     base_url: str = "https://api.twelvedata.com"
-    _td: Optional[TDClient] = None
+    _td: TDClient | None = None
     output_size: int = 5000
     request_counter: ClassVar[int] = 0
     window_start: ClassVar[datetime.datetime] = datetime.datetime.utcnow() # free version limitation
@@ -110,7 +110,7 @@ class TwelveDataDataSource(BaseDataSource):
         start_date: datetime.datetime,
         end_date: datetime.datetime,
         intraday: bool
-    ) -> List[Tuple[datetime.datetime, datetime.datetime]]:
+    ) -> list[tuple[datetime.datetime, datetime.datetime]]:
         """Return consecutive date ranges according to API limits."""
         result = []
         current_start = start_date
@@ -171,7 +171,7 @@ class TwelveDataDataSource(BaseDataSource):
     def _check_start_date_for_security(
         self,
         symbol: str, intraday: bool
-    ) -> Optional[datetime.datetime]:
+    ) -> datetime.datetime | None:
         """Return the earliest available date for a symbol."""
         df = self.get_security_mapping()
 
@@ -217,7 +217,7 @@ class TwelveDataDataSource(BaseDataSource):
 
         cls.request_counter += 1
 
-    def usage(self) -> Dict[str, Any]:
+    def usage(self) -> dict[str, Any]:
         """Return the API usage statistics."""
         self._respect_rate_limit()
         return self.td.api_usage().as_json()
@@ -249,7 +249,7 @@ class TwelveDataDataSource(BaseDataSource):
     def earliest_date(
         self,
         symbol: str, intraday: bool = False
-    ) -> Optional[datetime.datetime]:
+    ) -> datetime.datetime | None:
         """Return the earliest known date for a symbol."""
         self._respect_rate_limit()
         params = {
@@ -297,7 +297,7 @@ class TwelveDataDataSource(BaseDataSource):
         symbol: str,
         intraday: bool,
         **kwargs,
-    ) -> Tuple[datetime.datetime, datetime.datetime]:
+    ) -> tuple[datetime.datetime, datetime.datetime]:
         """Determine sensible date bounds for data retrieval."""
         start_date = kwargs.get(
             "start_date",

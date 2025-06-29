@@ -1,5 +1,7 @@
 """Defines Transaction class to find transactions data"""
 
+import warnings
+
 import pandas as pd
 from pydantic import BaseModel
 
@@ -33,6 +35,18 @@ class Transactions(BaseModel):
         )
 
         df = transactions["Description"].str.extract(pattern)
+        # drop rows where the regex failed before parsing numbers
+        mask = df.notna().all(axis=1)
+        dropped = (~mask).sum()
+        if dropped:
+            samples = transactions.loc[~mask, "Description"].head().tolist()
+            warnings.warn(
+                "Dropping %d transaction rows with unmatched description pattern. "
+                "Examples: %s" % (dropped, "; ".join(samples))
+            )
+        df = df[mask]
+        transactions = transactions.loc[mask]
+
         df["quantity"] = df["quantity"].astype(float)
         df["price"] = df["price"].astype(float)
         df["quantity"] = df["quantity"] * df["direction"].map({"B": 1, "S": -1}).fillna(0)

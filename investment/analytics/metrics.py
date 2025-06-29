@@ -9,7 +9,7 @@ derive cumulative and annualised performance statistics, drawdown measures and
 risk‑adjusted ratios such as Sharpe and Sortino.
 """
 
-from typing import Optional, Callable, Any, Dict, Union
+from typing import Callable, Any
 
 import numpy as np
 import pandas as pd
@@ -42,7 +42,7 @@ class PerformanceMetrics(_BaseAnalytics):
     """
 
     @staticmethod
-    def registry() -> Dict[str, Callable[..., Union[pd.Series, pd.DataFrame]]]:
+    def registry() -> dict[str, Callable[..., pd.DataFrame]]:
         """Return mapping of metric names to calculation methods."""
         return {
             "cumulative_return": PerformanceMetrics.cumulative_return,
@@ -352,9 +352,12 @@ class PerformanceMetrics(_BaseAnalytics):
         ann_ret = cls.annualised_return(
             df,
             periods_per_year=periods_per_year,
-            window=metric_win_size,
+            metric_win_size=metric_win_size,
         )["value"]
-        max_dd = cls.max_drawdown(df, window=metric_win_size)["value"]
+        max_dd = cls.max_drawdown(
+            df,
+            metric_win_size=metric_win_size,
+        )["value"]
         result = ann_ret / abs(max_dd)
         return cls._to_dataframe(
             result,

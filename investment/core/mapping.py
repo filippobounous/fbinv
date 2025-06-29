@@ -1,7 +1,7 @@
 """Base class for initialisations from the mapping csv files available"""
 
 from abc import abstractmethod
-from typing import Dict, Any, Optional, TYPE_CHECKING, List, Union
+from typing import Any, TYPE_CHECKING
 
 import pandas as pd
 from pydantic import BaseModel
@@ -59,7 +59,7 @@ class BaseMappingEntity(BaseModel):
         if init_method is None:
             raise KeyError(f"Entity type '{self.entity_type}' has not been configured.")
 
-        di: Dict[str, Any] = init_method(self)
+        di: dict[str, Any] = init_method(self)
         for key, el in di.items():
             if hasattr(self, key):
                 setattr(self, key, el)
@@ -67,7 +67,7 @@ class BaseMappingEntity(BaseModel):
     @abstractmethod
     def get_price_history(
         self,
-        datasource: Optional["BaseDataSource"] = None,
+        datasource: "BaseDataSource" | None = None,
         local_only: bool = True,
         intraday: bool = False,
         currency: str = DEFAULT_CURRENCY,
@@ -77,8 +77,8 @@ class BaseMappingEntity(BaseModel):
     def get_returns(
         self,
         use_ln_ret: bool = True,
-        ret_win_size: Union[int, List[int]] = DEFAULT_RET_WIN_SIZE,
-        datasource: Optional["BaseDataSource"] = None,
+        ret_win_size: int | list[int] = DEFAULT_RET_WIN_SIZE,
+        datasource: "BaseDataSource" | None = None,
         local_only: bool = True,
     ) -> pd.DataFrame:
         """Return the returns series."""
@@ -92,9 +92,9 @@ class BaseMappingEntity(BaseModel):
 
     def get_realised_volatility(
         self,
-        rv_model: Union[str, List[str]] = DEFAULT_RV_MODEL,
-        rv_win_size: Union[int, List[int]] = DEFAULT_RV_WIN_SIZE,
-        datasource: Optional["BaseDataSource"] = None,
+        rv_model: str | list[str] = DEFAULT_RV_MODEL,
+        rv_win_size: int | list[int] = DEFAULT_RV_WIN_SIZE,
+        datasource: "BaseDataSource" | None = None,
         local_only: bool = True,
     ) -> pd.DataFrame:
         """Return the realised volatility series."""
@@ -111,7 +111,7 @@ class BaseMappingEntity(BaseModel):
         metric_win_size: int = DEFAULT_METRIC_WIN_SIZE,
         risk_free_rate: float = DEFAULT_RISK_FREE_RATE,
         periods_per_year: int = TRADING_DAYS,
-        datasource: Optional["BaseDataSource"] = None,
+        datasource: "BaseDataSource" | None = None,
         local_only: bool = True,
     ) -> pd.DataFrame:
         """Return common performance and risk metrics."""
@@ -147,7 +147,7 @@ class BaseMappingEntity(BaseModel):
         var_win_size: int = DEFAULT_VAR_WIN_SIZE,
         confidence_level: float = DEFAULT_CONFIDENCE_LEVEL,
         method: str = DEFAULT_VAR_MODEL,
-        datasource: Optional["BaseDataSource"] = None,
+        datasource: "BaseDataSource" | None = None,
         local_only: bool = True,
     ) -> pd.DataFrame:
         """Return Value-at-Risk using the specified method."""

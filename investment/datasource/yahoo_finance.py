@@ -2,7 +2,8 @@
 
 import datetime
 import re
-from typing import TYPE_CHECKING, ClassVar, Tuple
+from typing import TYPE_CHECKING, ClassVar
+import warnings
 
 import pandas as pd
 import yfinance as yf
@@ -114,7 +115,7 @@ class YahooFinanceDataSource(BaseDataSource):
         symbol: str,
         intraday: bool,
         **kwargs,
-    ) -> Tuple[datetime.datetime, datetime.datetime]:
+    ) -> tuple[datetime.datetime, datetime.datetime]:
         """Return start/end dates bounded by existing data."""
         if df.empty:
             return super()._default_start_and_end_date(
@@ -126,5 +127,15 @@ class YahooFinanceDataSource(BaseDataSource):
 
     def _update_security_mapping(self, df: pd.DataFrame) -> pd.DataFrame:
         """Retrieve metadata for each security via yfinance."""
-        dict_list = [yf.Ticker(sec).info for sec in df[self.internal_mapping_code].to_list()]
-        return pd.DataFrame(dict_list)
+        results = []
+        for sec in df[self.internal_mapping_code].to_list():
+            try:
+                results.append(yf.Ticker(sec).info)
+            except Exception:
+                warnings.warn(
+                    f"Failed to retrieve info for {sec}, skipping.",
+                    RuntimeWarning,
+                )
+                continue
+
+        return pd.DataFrame(results)

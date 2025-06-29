@@ -1,7 +1,7 @@
 """Common validation helper for analytics classes."""
 
 from abc import abstractmethod
-from typing import Dict, Callable, Any
+from typing import Callable, Any
 
 from pandas import DataFrame, DatetimeIndex, Series
 
@@ -10,7 +10,7 @@ class _BaseAnalytics:
 
     @staticmethod
     @abstractmethod
-    def registry() -> Dict[str, Callable[[Any], Any]]:
+    def registry() -> dict[str, Callable[..., Any]]:
         """Map method names to calculation functions."""
 
     @staticmethod
