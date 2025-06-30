@@ -6,6 +6,15 @@ from unittest import mock
 import pandas as pd
 
 from investment import config
+from investment.core.security import (
+    Composite,
+    CurrencyCross,
+    Equity,
+    ETF,
+    Fund,
+    Generic,
+    security_registry,
+)
 from investment.datasource.test import TestDataSource
 
 class SecurityTestCase(TestCase):
@@ -20,8 +29,6 @@ class SecurityTestCase(TestCase):
         self.ds_patch.stop()
 
     def test_get_file_path(self):
-        from investment.core.security import Equity
-
         sec = Equity("TEST")
         path = sec.get_file_path(
             datasource_name="local", intraday=False, series_type="price_history"
@@ -33,8 +40,6 @@ class SecurityTestCase(TestCase):
         self.assertEqual(path, expected)
 
     def test_convert_to_currency(self):
-        from investment.core.security import Equity
-
         sec = Equity("TEST")
         self.assertIs(sec.convert_to_currency("USD"), sec)
         with mock.patch(
@@ -46,8 +51,6 @@ class SecurityTestCase(TestCase):
             self.assertIs(result, comp_instance)
 
     def test_get_price_history_self_currency(self):
-        from investment.core.security import Equity
-
         sec = Equity("TEST")
         df = pd.DataFrame({
             "as_of_date": [pd.Timestamp("2020-01-01")],
@@ -64,8 +67,6 @@ class SecurityTestCase(TestCase):
         self.assertTrue(result.equals(df))
 
     def test_get_price_history_other_currency(self):
-        from investment.core.security import Equity
-
         sec = Equity("TEST")
         comp_df = pd.DataFrame({"open": [2], "close": [3]})
         comp = mock.Mock()
@@ -79,11 +80,8 @@ class SecurityTestCase(TestCase):
         self.assertIs(result, comp_df)
 
     def test_composite_get_price_history(self):
-        from investment.core.security import Equity, CurrencyCross
-        from investment.core.security.composite import Composite
-
         sec = Equity("AAA")
-        cc = CurrencyCross("USDEUR")
+        cc = CurrencyCross("EURUSD")
         ph_sec = pd.DataFrame(
             {
                 "as_of_date": [pd.Timestamp("2020-01-01"), pd.Timestamp("2020-01-02")],
@@ -117,7 +115,6 @@ class SecurityTestCase(TestCase):
         pd.testing.assert_frame_equal(result.reset_index(drop=True), expected.reset_index(drop=True))
 
     def test_generic_factory(self):
-        from investment.core.security import Generic, Equity
         with mock.patch(
             "investment.datasource.local.LocalDataSource.load_generic_security",
             return_value=Equity("TEST"),
@@ -127,13 +124,8 @@ class SecurityTestCase(TestCase):
         self.assertIsInstance(sec, Equity)
 
     def test_security_registry(self):
-        from investment.core.security.registry import security_registry
-        from investment.core.security import Equity, ETF, Fund, CurrencyCross, Composite
-
         self.assertIs(security_registry["equity"], Equity)
         self.assertIs(security_registry["etf"], ETF)
         self.assertIs(security_registry["fund"], Fund)
         self.assertIs(security_registry["currency_cross"], CurrencyCross)
         self.assertIs(security_registry["composite"], Composite)
-
-
