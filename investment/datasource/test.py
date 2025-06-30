@@ -6,13 +6,12 @@ from typing import TYPE_CHECKING, ClassVar, Any
 import pandas as pd
 
 from .base import BaseDataSource
+from ..core.security import CurrencyCross
 from ..utils.exceptions import DataSourceMethodException
 
 if TYPE_CHECKING:
     from ..core.portfolio import Portfolio
-    from ..core.security.base import BaseSecurity
-    from ..core.security.composite import Composite
-    from ..core.security.registry import CurrencyCross, ETF, Equity, Fund
+    from ..core.security import ETF, Equity, Fund, Composite, BaseSecurity
 
 class TestDataSource(BaseDataSource):
     """Very small data source used for tests only."""
@@ -74,7 +73,7 @@ class TestDataSource(BaseDataSource):
     # --- methods for test mapping -------------------------------------------------
     def load_security(self, security: "BaseSecurity") -> dict[str, Any]:
         """Return dummy attributes for any security."""
-        return {
+        di = {
             "name": "dummy",
             "figi_code": "FIGI",
             "reporting_currency": "USD",
@@ -86,7 +85,13 @@ class TestDataSource(BaseDataSource):
             "twelve_data_code": "td",
             "alpha_vantage_code": "av",
             "multiplier": 1.0,
+            "isin_code": "isin",
         }
+
+        if isinstance(security, CurrencyCross):
+            di["currency_vs"] = security.code[3:]
+
+        return di
 
     def load_composite_security(self, composite: "Composite") -> dict[str, Any]:
         di = self.load_security(composite.security)
@@ -109,4 +114,3 @@ class TestDataSource(BaseDataSource):
                 return pd.DataFrame()
 
         return DummySecurity(**kwargs)  # type: ignore[arg-type]
-

@@ -5,7 +5,7 @@ from typing import Callable, Any
 
 from pandas import DataFrame, DatetimeIndex, Series
 
-class _BaseAnalytics:
+class BaseAnalytics:
     """Shared input validation for analytics calculators."""
 
     @staticmethod
