@@ -1,7 +1,7 @@
 """Simple local data source used for testing."""
 
 import datetime
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING, ClassVar, Any
 
 import pandas as pd
 
@@ -9,12 +9,16 @@ from .base import BaseDataSource
 from ..utils.exceptions import DataSourceMethodException
 
 if TYPE_CHECKING:
-    from ..core.security.registry import CurrencyCross, Equity, ETF, Fund
+    from ..core.portfolio import Portfolio
+    from ..core.security.base import BaseSecurity
+    from ..core.security.composite import Composite
+    from ..core.security.registry import CurrencyCross, ETF, Equity, Fund
 
 class TestDataSource(BaseDataSource):
     """Very small data source used for tests only."""
 
     name: ClassVar[str] = "test"
+    __test__ = False  # avoid pytest treating this as a test class
 
     def _get_currency_cross_price_history_from_remote(
         self,
@@ -66,3 +70,43 @@ class TestDataSource(BaseDataSource):
         raise DataSourceMethodException(
             f"No remote security mapping for {self.name} datasource."
         )
+
+    # --- methods for test mapping -------------------------------------------------
+    def load_security(self, security: "BaseSecurity") -> dict[str, Any]:
+        """Return dummy attributes for any security."""
+        return {
+            "name": "dummy",
+            "figi_code": "FIGI",
+            "reporting_currency": "USD",
+            "currency": "USD",
+            "financial_times_code": "ft",
+            "financial_times_security_type": "stock",
+            "bloomberg_code": "bb",
+            "yahoo_finance_code": "yf",
+            "twelve_data_code": "td",
+            "alpha_vantage_code": "av",
+            "multiplier": 1.0,
+        }
+
+    def load_composite_security(self, composite: "Composite") -> dict[str, Any]:
+        di = self.load_security(composite.security)
+        di["currency"] = composite.currency_cross.currency
+        return di
+
+    # placeholder loaders so BaseMappingEntity initialisation succeeds
+    def load_portfolio(self, portfolio: "Portfolio") -> dict[str, Any]:
+        """Return dummy portfolio attributes."""
+        return {}
+
+    def load_generic_security(self, **kwargs) -> "BaseSecurity":
+        """Return a generic BaseSecurity instance for tests."""
+        from ..core.security.base import BaseSecurity
+
+        class DummySecurity(BaseSecurity):
+            entity_type: str = "dummy"
+
+            def get_price_history(self, *args, **kwargs) -> pd.DataFrame:
+                return pd.DataFrame()
+
+        return DummySecurity(**kwargs)  # type: ignore[arg-type]
+
