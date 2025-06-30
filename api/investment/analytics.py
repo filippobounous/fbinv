@@ -19,6 +19,8 @@ from investment.utils.consts import (
     TRADING_DAYS,
 )
 
+from .utils import EXPECTED_EXCEPTIONS
+
 router = APIRouter(prefix="/analytics")
 
 @router.post("/correlations")
@@ -74,7 +76,7 @@ async def calculate_returns(
                 local_only=local_only,
             )
             results[code] = df.to_dict(orient="records")
-        except Exception as exc:  # pragma: no cover - small wrapper
+        except EXPECTED_EXCEPTIONS as exc:  # pragma: no cover - small wrapper
             results[code] = {"error": str(exc)}
 
     for code in security_codes:
@@ -85,7 +87,7 @@ async def calculate_returns(
                 local_only=local_only,
             )
             results[code] = df.to_dict(orient="records")
-        except Exception as exc:  # pragma: no cover - small wrapper
+        except EXPECTED_EXCEPTIONS as exc:  # pragma: no cover - small wrapper
             results[code] = {"error": str(exc)}
 
     return results
@@ -112,7 +114,7 @@ async def get_prices(
                 currency=currency,
             )
             results[code] = df.to_dict(orient="records")
-        except Exception as exc:  # pragma: no cover - small wrapper
+        except EXPECTED_EXCEPTIONS as exc:  # pragma: no cover - small wrapper
             results[code] = {"error": str(exc)}
 
     for code in security_codes:
@@ -123,7 +125,7 @@ async def get_prices(
                 currency=currency,
             )
             results[code] = df.to_dict(orient="records")
-        except Exception as exc:  # pragma: no cover - small wrapper
+        except EXPECTED_EXCEPTIONS as exc:  # pragma: no cover - small wrapper
             results[code] = {"error": str(exc)}
 
     return results
@@ -147,7 +149,7 @@ async def calculate_realised_volatility(
                 local_only=local_only,
             )
             results[code] = df.to_dict(orient="records")
-        except Exception as exc:  # pragma: no cover - small wrapper
+        except EXPECTED_EXCEPTIONS as exc:  # pragma: no cover - small wrapper
             results[code] = {"error": str(exc)}
 
     for code in security_codes or []:
@@ -158,7 +160,7 @@ async def calculate_realised_volatility(
                 local_only=local_only,
             )
             results[code] = df.to_dict(orient="records")
-        except Exception as exc:  # pragma: no cover - small wrapper
+        except EXPECTED_EXCEPTIONS as exc:  # pragma: no cover - small wrapper
             results[code] = {"error": str(exc)}
 
     return results
@@ -184,7 +186,7 @@ async def get_metrics(
                 local_only=local_only,
             )
             results[code] = metrics
-        except Exception as exc:  # pragma: no cover - small wrapper
+        except EXPECTED_EXCEPTIONS as exc:  # pragma: no cover - small wrapper
             results[code] = {"error": str(exc)}
 
     for code in security_codes or []:
@@ -196,7 +198,7 @@ async def get_metrics(
                 local_only=local_only,
             )
             results[code] = metrics
-        except Exception as exc:  # pragma: no cover - small wrapper
+        except EXPECTED_EXCEPTIONS as exc:  # pragma: no cover - small wrapper
             results[code] = {"error": str(exc)}
 
     return results
@@ -222,7 +224,7 @@ async def get_value_at_risk(
                 local_only=local_only,
             )
             results[code] = var_value
-        except Exception as exc:  # pragma: no cover - small wrapper
+        except EXPECTED_EXCEPTIONS as exc:  # pragma: no cover - small wrapper
             results[code] = {"error": str(exc)}
 
     for code in security_codes or []:
@@ -234,7 +236,7 @@ async def get_value_at_risk(
                 local_only=local_only,
             )
             results[code] = var_value
-        except Exception as exc:  # pragma: no cover - small wrapper
+        except EXPECTED_EXCEPTIONS as exc:  # pragma: no cover - small wrapper
             results[code] = {"error": str(exc)}
 
     return results
