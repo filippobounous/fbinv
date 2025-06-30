@@ -96,10 +96,10 @@ class CorrelationCalculator(BaseAnalytics):
                 s = df.set_index("as_of_date")["return"].rename(obj.code)
             else:
                 df = obj.get_price_history()
-                s = df.set_index("as_of_date")["close"].rename(obj.code)
+                s = df["close"].rename(obj.code)
             series_list.append(s)
+            df_all = pd.concat(series_list, axis=1)
 
-        df_all = pd.concat(series_list, axis=1)
         return df_all.dropna(how="any").sort_index()
 
     def _pairwise_correlation(

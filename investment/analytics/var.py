@@ -53,13 +53,12 @@ class VaRCalculator(BaseAnalytics):
 
         return pd.DataFrame(
             {
-                "as_of_date": series.index,
                 "var_method": var_method,
                 "var_win_size": var_win_size,
                 "confidence_level": confidence_level,
                 "var": series,
             }
-        )
+        ).reset_index()
 
     @classmethod
     def historical_var(
