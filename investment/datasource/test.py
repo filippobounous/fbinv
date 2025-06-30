@@ -1,7 +1,7 @@
 """Simple local data source used for testing."""
 
 import datetime
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING, ClassVar, Any
 
 import pandas as pd
 
@@ -9,6 +9,8 @@ from .base import BaseDataSource
 from ..utils.exceptions import DataSourceMethodException
 
 if TYPE_CHECKING:
+    from ..core.security.base import BaseSecurity
+    from ..core.security.composite import Composite
     from ..core.security.registry import CurrencyCross, Equity, ETF, Fund
 
 class TestDataSource(BaseDataSource):
@@ -66,3 +68,26 @@ class TestDataSource(BaseDataSource):
         raise DataSourceMethodException(
             f"No remote security mapping for {self.name} datasource."
         )
+
+    # --- methods for test mapping -------------------------------------------------
+    def load_security(self, security: "BaseSecurity") -> dict[str, Any]:
+        """Return dummy attributes for any security."""
+        return {
+            "name": "dummy",
+            "figi_code": "FIGI",
+            "reporting_currency": "USD",
+            "currency": "USD",
+            "financial_times_code": "ft",
+            "financial_times_security_type": "stock",
+            "bloomberg_code": "bb",
+            "yahoo_finance_code": "yf",
+            "twelve_data_code": "td",
+            "alpha_vantage_code": "av",
+            "multiplier": 1.0,
+        }
+
+    def load_composite_security(self, composite: "Composite") -> dict[str, Any]:
+        di = self.load_security(composite.security)
+        di["currency"] = composite.currency_cross.currency
+        return di
+
