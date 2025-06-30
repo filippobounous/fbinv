@@ -14,6 +14,8 @@ from investment.utils.consts import (
     DEFAULT_RISK_FREE_RATE,
     DEFAULT_CONFIDENCE_LEVEL,
     DEFAULT_VAR_MODEL,
+    DEFAULT_METRIC_WIN_SIZE,
+    DEFAULT_VAR_WIN_SIZE,
     TRADING_DAYS,
 )
 
@@ -165,6 +167,7 @@ async def calculate_realised_volatility(
 async def get_metrics(
     portfolio_codes: list[str] | None = None,
     security_codes: list[str] | None = None,
+    metric_win_size: int = DEFAULT_METRIC_WIN_SIZE,
     risk_free_rate: float = DEFAULT_RISK_FREE_RATE,
     periods_per_year: int = TRADING_DAYS,
     local_only: bool = True,
@@ -175,6 +178,7 @@ async def get_metrics(
     for code in portfolio_codes or []:
         try:
             metrics = Portfolio(code).get_performance_metrics(
+                metric_win_size=metric_win_size,
                 risk_free_rate=risk_free_rate,
                 periods_per_year=periods_per_year,
                 local_only=local_only,
@@ -186,6 +190,7 @@ async def get_metrics(
     for code in security_codes or []:
         try:
             metrics = Generic(code).get_performance_metrics(
+                metric_win_size=metric_win_size,
                 risk_free_rate=risk_free_rate,
                 periods_per_year=periods_per_year,
                 local_only=local_only,
@@ -200,6 +205,7 @@ async def get_metrics(
 async def get_value_at_risk(
     portfolio_codes: list[str] | None = None,
     security_codes: list[str] | None = None,
+    var_win_size: int = DEFAULT_VAR_WIN_SIZE,
     confidence_level: float = DEFAULT_CONFIDENCE_LEVEL,
     method: str = DEFAULT_VAR_MODEL,
     local_only: bool = True,
@@ -210,6 +216,7 @@ async def get_value_at_risk(
     for code in portfolio_codes or []:
         try:
             var_value = Portfolio(code).get_value_at_risk(
+                var_win_size=var_win_size,
                 confidence_level=confidence_level,
                 method=method,
                 local_only=local_only,
@@ -221,6 +228,7 @@ async def get_value_at_risk(
     for code in security_codes or []:
         try:
             var_value = Generic(code).get_value_at_risk(
+                var_win_size=var_win_size,
                 confidence_level=confidence_level,
                 method=method,
                 local_only=local_only,
