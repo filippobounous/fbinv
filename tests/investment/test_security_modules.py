@@ -1,3 +1,5 @@
+"""Unit tests covering security submodule initialisation."""
+
 import unittest
 from unittest import mock
 

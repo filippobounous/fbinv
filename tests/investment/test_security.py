@@ -1,3 +1,5 @@
+"""Unit tests for the security module and related classes."""
+
 from unittest import TestCase
 from unittest import mock
 

@@ -1,3 +1,5 @@
+"""Test suite configuration and environment variables."""
+
 import os
 
 # Setup environment variables required for tests before importing config
