@@ -11,7 +11,7 @@ from typing import Callable
 
 import pandas as pd
 
-from .base import _BaseAnalytics
+from .base import BaseAnalytics
 from ..utils.consts import DEFAULT_CONFIDENCE_LEVEL, DEFAULT_VAR_WIN_SIZE
 
 # TODO: rolling window with win_size instead of setting as single value
@@ -19,7 +19,7 @@ from ..utils.consts import DEFAULT_CONFIDENCE_LEVEL, DEFAULT_VAR_WIN_SIZE
 # TODO: rethink how this is used in the context of portfolio etc, perhaps should be done similarly
 # to correlation page
 
-class VaRCalculator(_BaseAnalytics):
+class VaRCalculator(BaseAnalytics):
     """Value-at-Risk related calculations."""
 
     @staticmethod

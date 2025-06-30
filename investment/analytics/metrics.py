@@ -14,7 +14,7 @@ from typing import Callable, Any
 import numpy as np
 import pandas as pd
 
-from .base import _BaseAnalytics
+from .base import BaseAnalytics
 from ..utils.consts import (
     TRADING_DAYS,
     DEFAULT_METRIC_WIN_SIZE,
@@ -25,7 +25,7 @@ from ..utils.consts import (
 # TODO: rethink how this is used in the context of portfolio etc, perhaps should be done similarly
 # to correlation page
 
-class PerformanceMetrics(_BaseAnalytics):
+class PerformanceMetrics(BaseAnalytics):
     """Collection of common portfolio performance calculations.
 
     Each metric is implemented as a class method so that the class can be used

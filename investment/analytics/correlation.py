@@ -12,14 +12,14 @@ from typing import TYPE_CHECKING, Callable, Any
 import numpy as np
 import pandas as pd
 
-from .base import _BaseAnalytics
+from .base import BaseAnalytics
 from ..utils.consts import DEFAULT_RET_WIN_SIZE, DEFAULT_CORR_MODEL
 
 if TYPE_CHECKING:
     from ..core.portfolio import Portfolio
     from ..core.security import BaseSecurity
 
-class CorrelationCalculator(_BaseAnalytics):
+class CorrelationCalculator(BaseAnalytics):
     """Calculator for correlations between securities and portfolios.
 
     The calculator fetches historical price or return data from the
