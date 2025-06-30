@@ -12,11 +12,13 @@ if TYPE_CHECKING:
     from ..core.security.base import BaseSecurity
     from ..core.security.composite import Composite
     from ..core.security.registry import CurrencyCross, Equity, ETF, Fund
+    from ..core.portfolio import Portfolio
 
 class TestDataSource(BaseDataSource):
     """Very small data source used for tests only."""
 
     name: ClassVar[str] = "test"
+    __test__ = False  # avoid pytest treating this as a test class
 
     def _get_currency_cross_price_history_from_remote(
         self,
@@ -90,4 +92,21 @@ class TestDataSource(BaseDataSource):
         di = self.load_security(composite.security)
         di["currency"] = composite.currency_cross.currency
         return di
+
+    # placeholder loaders so BaseMappingEntity initialisation succeeds
+    def load_portfolio(self, portfolio: "Portfolio") -> dict[str, Any]:
+        """Return dummy portfolio attributes."""
+        return {}
+
+    def load_generic_security(self, **kwargs) -> "BaseSecurity":
+        """Return a generic BaseSecurity instance for tests."""
+        from ..core.security.base import BaseSecurity
+
+        class DummySecurity(BaseSecurity):
+            entity_type: str = "dummy"
+
+            def get_price_history(self, *args, **kwargs) -> pd.DataFrame:
+                return pd.DataFrame()
+
+        return DummySecurity(**kwargs)  # type: ignore[arg-type]
 
