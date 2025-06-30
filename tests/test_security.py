@@ -1,5 +1,7 @@
 import os
-from unittest import TestCase, mock
+from unittest import TestCase
+from unittest import mock
+
 import pandas as pd
 
 # ensure required env vars for config before importing project modules
@@ -7,9 +9,8 @@ os.environ.setdefault("BASE_PATH", "/tmp")
 os.environ.setdefault("TRANSACTION_PATH", "/tmp")
 os.environ.setdefault("DEFAULT_NAME", "TEST")
 
-from investment.datasource.test import TestDataSource
-
 from investment import config
+from investment.datasource.test import TestDataSource
 
 config.TIMESERIES_DATA_PATH = "/tmp/data"
 
