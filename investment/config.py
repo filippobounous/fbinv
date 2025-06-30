@@ -2,11 +2,7 @@
 
 import os
 
-try:
-    from dotenv import load_dotenv
-except ModuleNotFoundError:  # pragma: no cover - optional dependency
-    def load_dotenv(*args, **kwargs):
-        return None
+from dotenv import load_dotenv
 
 load_dotenv()
 
