@@ -1,4 +1,4 @@
-"""BaseDataSource class and its subclasses to load, read and write various data types"""
+"""Investment BaseDataSource class and its subclasses to load, read and write various data types"""
 
 from .alpha_vantage import AlphaVantageDataSource
 from .base import BaseDataSource

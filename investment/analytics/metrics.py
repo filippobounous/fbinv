@@ -9,15 +9,18 @@ derive cumulative and annualised performance statistics, drawdown measures and
 risk‑adjusted ratios such as Sharpe and Sortino.
 """
 
-from typing import Optional, Callable, Any, Dict
+from typing import Callable, Any
 
 import numpy as np
 import pandas as pd
 
 from .base import _BaseAnalytics
-from ..utils.consts import TRADING_DAYS
+from ..utils.consts import (
+    TRADING_DAYS,
+    DEFAULT_METRIC_WIN_SIZE,
+    DEFAULT_RISK_FREE_RATE,
+)
 
-# TODO: rolling window with win_size instead of setting as single value
 # TODO: implement correlation for portfolio
 # TODO: rethink how this is used in the context of portfolio etc, perhaps should be done similarly
 # to correlation page
@@ -34,7 +37,7 @@ class PerformanceMetrics(_BaseAnalytics):
     """
 
     @staticmethod
-    def registry() -> Dict[str, Callable[[Any], Any]]:
+    def registry() -> dict[str, Callable[..., pd.DataFrame]]:
         """Return mapping of metric names to calculation methods."""
         return {
             "cumulative_return": PerformanceMetrics.cumulative_return,
@@ -49,9 +52,43 @@ class PerformanceMetrics(_BaseAnalytics):
             "hit_ratio": PerformanceMetrics.hit_ratio,
         }
 
+    @staticmethod
+    def _apply_window(
+        series: pd.Series,
+        func: Callable[[pd.Series], float],
+        metric_win_size: int,
+    ) -> pd.Series:
+        """Apply ``func`` over a mandatory rolling ``metric_win_size``."""
+
+        result = series.rolling(metric_win_size).apply(func, raw=False)
+        return result.dropna()
+
+    @staticmethod
+    def _to_dataframe(
+        series: pd.Series,
+        metric: str,
+        metric_win_size: int,
+        **metric_kwargs: Any,
+    ) -> pd.DataFrame:
+        """Format ``series`` into a DataFrame with parameter info."""
+
+        df_dict = {
+            "as_of_date": series.index,
+            "metric": metric,
+            "metric_win_size": metric_win_size,
+            "value": series,
+        }
+        for key, value in metric_kwargs.items():
+            df_dict[key] = value
+        return pd.DataFrame(df_dict)
+
     @classmethod
-    def cumulative_return(cls, df: pd.DataFrame) -> float:
-        """Cumulative simple return over the entire series.
+    def cumulative_return(
+        cls,
+        df: pd.DataFrame,
+        metric_win_size: int = DEFAULT_METRIC_WIN_SIZE,
+    ) -> pd.DataFrame:
+        """Cumulative simple return.
 
         Parameters
         ----------
@@ -60,16 +97,25 @@ class PerformanceMetrics(_BaseAnalytics):
 
         Returns
         -------
-        float
-            Total simple return expressed as a decimal value.
+        pandas.DataFrame
+            Columns ``as_of_date`` and ``value`` containing the cumulative
+            return for each rolling window.
         """
         returns = cls._validate(df)
-        return float((1 + returns).prod() - 1)
+
+        def func(x: pd.Series) -> float:
+            return float((1 + x).prod() - 1)
+
+        result = cls._apply_window(returns, func, metric_win_size)
+        return cls._to_dataframe(result, "cumulative_return", metric_win_size)
 
     @classmethod
     def annualised_return(
-        cls, df: pd.DataFrame, periods_per_year: int = TRADING_DAYS
-    ) -> float:
+        cls,
+        df: pd.DataFrame,
+        metric_win_size: int = DEFAULT_METRIC_WIN_SIZE,
+        periods_per_year: int = TRADING_DAYS,
+    ) -> pd.DataFrame:
         """Annualised return of the series.
 
         The calculation assumes that returns are evenly spaced and scales the
@@ -85,15 +131,25 @@ class PerformanceMetrics(_BaseAnalytics):
 
         Returns
         -------
-        float
-            Annualised simple return as a decimal value.
+        pandas.DataFrame
+            Rolling annualised return with ``as_of_date`` and ``value`` columns.
         """
         returns = cls._validate(df)
-        n_periods = len(returns)
-        if n_periods == 0:
-            return 0.0
-        cumulative = (1 + returns).prod()
-        return float(cumulative ** (periods_per_year / n_periods) - 1)
+
+        def func(x: pd.Series) -> float:
+            n_periods = len(x)
+            if n_periods == 0:
+                return 0.0
+            cumulative = (1 + x).prod()
+            return float(cumulative ** (periods_per_year / n_periods) - 1)
+
+        result = cls._apply_window(returns, func, metric_win_size)
+        return cls._to_dataframe(
+            result,
+            "annualised_return",
+            metric_win_size,
+            periods_per_year=periods_per_year,
+        )
 
     @classmethod
     def drawdown_series(cls, df: pd.DataFrame) -> pd.DataFrame:
@@ -117,7 +173,11 @@ class PerformanceMetrics(_BaseAnalytics):
         return pd.DataFrame({"as_of_date": drawdown.index, "drawdown": drawdown})
 
     @classmethod
-    def max_drawdown(cls, df: pd.DataFrame) -> float:
+    def max_drawdown(
+        cls,
+        df: pd.DataFrame,
+        metric_win_size: int = DEFAULT_METRIC_WIN_SIZE,
+    ) -> pd.DataFrame:
         """Maximum drawdown observed in the series.
 
         Parameters
@@ -127,19 +187,28 @@ class PerformanceMetrics(_BaseAnalytics):
 
         Returns
         -------
-        float
-            Largest percentage drop from a prior peak.
+        pandas.DataFrame
+            ``as_of_date`` and ``value`` of the maximum drawdown for each
+            rolling window.
         """
-        dd = cls.drawdown_series(df)
-        return float(dd["drawdown"].min())
+        def func(x: pd.Series) -> float:
+            cum_returns = (1 + x).cumprod()
+            running_max = cum_returns.cummax()
+            drawdown = (cum_returns - running_max) / running_max
+            return float(drawdown.min())
+
+        returns = cls._validate(df)
+        result = cls._apply_window(returns, func, metric_win_size)
+        return cls._to_dataframe(result, "max_drawdown", metric_win_size)
 
     @classmethod
     def sharpe_ratio(
         cls,
         df: pd.DataFrame,
-        risk_free_rate: float = 0.0,
+        metric_win_size: int = DEFAULT_METRIC_WIN_SIZE,
+        risk_free_rate: float = DEFAULT_RISK_FREE_RATE,
         periods_per_year: int = TRADING_DAYS,
-    ) -> Optional[float]:
+    ) -> pd.DataFrame:
         """Annualised Sharpe ratio of the returns series.
 
         Parameters
@@ -153,23 +222,35 @@ class PerformanceMetrics(_BaseAnalytics):
 
         Returns
         -------
-        Optional[float]
-            Sharpe ratio or ``None`` if the return variance is zero.
+        pandas.DataFrame
+            Sharpe ratio for each ``as_of_date`` with the supplied parameters.
         """
         returns = cls._validate(df)
         excess = returns - risk_free_rate / periods_per_year
-        std = returns.std()
-        if std == 0:
-            return None
-        return float(excess.mean() / std * np.sqrt(periods_per_year))
+
+        def func(x: pd.Series) -> float:
+            std = x.std()
+            if std == 0:
+                return np.nan
+            return float(x.mean() / std * np.sqrt(periods_per_year))
+
+        result = cls._apply_window(excess, func, metric_win_size)
+        return cls._to_dataframe(
+            result,
+            "sharpe_ratio",
+            metric_win_size,
+            risk_free_rate=risk_free_rate,
+            periods_per_year=periods_per_year,
+        )
 
     @classmethod
     def sortino_ratio(
         cls,
         df: pd.DataFrame,
-        risk_free_rate: float = 0.0,
+        metric_win_size: int = DEFAULT_METRIC_WIN_SIZE,
+        risk_free_rate: float = DEFAULT_RISK_FREE_RATE,
         periods_per_year: int = TRADING_DAYS,
-    ) -> Optional[float]:
+    ) -> pd.DataFrame:
         """Annualised Sortino ratio using downside deviation.
 
         Parameters
@@ -183,20 +264,34 @@ class PerformanceMetrics(_BaseAnalytics):
 
         Returns
         -------
-        Optional[float]
-            Sortino ratio or ``None`` if downside deviation is zero.
+        pandas.DataFrame
+            Sortino ratio for each ``as_of_date`` with the supplied parameters.
         """
         returns = cls._validate(df)
         excess = returns - risk_free_rate / periods_per_year
-        downside_std = excess[excess < 0].std()
-        if downside_std == 0:
-            return None
-        return float(excess.mean() / downside_std * np.sqrt(periods_per_year))
+
+        def func(x: pd.Series) -> float:
+            downside_std = x[x < 0].std()
+            if downside_std == 0:
+                return np.nan
+            return float(x.mean() / downside_std * np.sqrt(periods_per_year))
+
+        result = cls._apply_window(excess, func, metric_win_size)
+        return cls._to_dataframe(
+            result,
+            "sortino_ratio",
+            metric_win_size,
+            risk_free_rate=risk_free_rate,
+            periods_per_year=periods_per_year,
+        )
 
     @classmethod
     def downside_volatility(
-        cls, df: pd.DataFrame, periods_per_year: int = TRADING_DAYS
-    ) -> float:
+        cls,
+        df: pd.DataFrame,
+        metric_win_size: int = DEFAULT_METRIC_WIN_SIZE,
+        periods_per_year: int = TRADING_DAYS,
+    ) -> pd.DataFrame:
         """Annualised deviation of negative returns only.
 
         Parameters
@@ -208,19 +303,33 @@ class PerformanceMetrics(_BaseAnalytics):
 
         Returns
         -------
-        float
-            Downside volatility calculated from negative returns only.
+        pandas.DataFrame
+            Downside volatility per ``as_of_date`` computed from negative
+            returns only.
         """
         returns = cls._validate(df)
-        downside = returns[returns < 0]
-        if downside.empty:
-            return 0.0
-        return float(downside.std() * np.sqrt(periods_per_year))
+
+        def func(x: pd.Series) -> float:
+            downside = x[x < 0]
+            if downside.empty:
+                return np.nan
+            return float(downside.std() * np.sqrt(periods_per_year))
+
+        result = cls._apply_window(returns, func, metric_win_size)
+        return cls._to_dataframe(
+            result,
+            "downside_volatility",
+            metric_win_size,
+            periods_per_year=periods_per_year,
+        )
 
     @classmethod
     def calmar_ratio(
-        cls, df: pd.DataFrame, periods_per_year: int = TRADING_DAYS
-    ) -> Optional[float]:
+        cls,
+        df: pd.DataFrame,
+        metric_win_size: int = DEFAULT_METRIC_WIN_SIZE,
+        periods_per_year: int = TRADING_DAYS,
+    ) -> pd.DataFrame:
         """Ratio of annualised return to maximum drawdown.
 
         Parameters
@@ -232,22 +341,34 @@ class PerformanceMetrics(_BaseAnalytics):
 
         Returns
         -------
-        Optional[float]
-            Calmar ratio or ``None`` if there is no drawdown.
+        pandas.DataFrame
+            Calmar ratio for each ``as_of_date`` with the supplied parameters.
         """
-        ann_ret = cls.annualised_return(df, periods_per_year)
-        max_dd = cls.max_drawdown(df)
-        if max_dd == 0:
-            return None
-        return float(ann_ret / abs(max_dd))
+        ann_ret = cls.annualised_return(
+            df,
+            periods_per_year=periods_per_year,
+            metric_win_size=metric_win_size,
+        )["value"]
+        max_dd = cls.max_drawdown(
+            df,
+            metric_win_size=metric_win_size,
+        )["value"]
+        result = ann_ret / abs(max_dd)
+        return cls._to_dataframe(
+            result,
+            "calmar_ratio",
+            metric_win_size,
+            periods_per_year=periods_per_year,
+        )
 
     @classmethod
     def omega_ratio(
         cls,
         df: pd.DataFrame,
-        target_return: float = 0.0,
+        metric_win_size: int = DEFAULT_METRIC_WIN_SIZE,
+        target_return: float = DEFAULT_RISK_FREE_RATE,
         periods_per_year: int = TRADING_DAYS,
-    ) -> Optional[float]:
+    ) -> pd.DataFrame:
         """Omega ratio relative to ``target_return`` per year.
 
         Parameters
@@ -261,20 +382,35 @@ class PerformanceMetrics(_BaseAnalytics):
 
         Returns
         -------
-        Optional[float]
-            Omega ratio or ``None`` if no negative excess returns are present.
+        pandas.DataFrame
+            Omega ratio for each ``as_of_date`` with the supplied parameters.
         """
         returns = cls._validate(df)
         target_period_return = target_return / periods_per_year
         excess = returns - target_period_return
-        positive = excess[excess > 0].sum()
-        negative = (-excess[excess < 0]).sum()
-        if negative == 0:
-            return None
-        return float(positive / negative)
+
+        def func(x: pd.Series) -> float:
+            positive = x[x > 0].sum()
+            negative = (-x[x < 0]).sum()
+            if negative == 0:
+                return np.nan
+            return float(positive / negative)
+
+        result = cls._apply_window(excess, func, metric_win_size)
+        return cls._to_dataframe(
+            result,
+            "omega_ratio",
+            metric_win_size,
+            target_return=target_return,
+            periods_per_year=periods_per_year,
+        )
 
     @classmethod
-    def hit_ratio(cls, df: pd.DataFrame) -> float:
+    def hit_ratio(
+        cls,
+        df: pd.DataFrame,
+        metric_win_size: int = DEFAULT_METRIC_WIN_SIZE,
+    ) -> pd.DataFrame:
         """Proportion of periods with a positive return.
 
         Parameters
@@ -284,8 +420,14 @@ class PerformanceMetrics(_BaseAnalytics):
 
         Returns
         -------
-        float
-            Fraction of observations where returns are strictly positive.
+        pandas.DataFrame
+            Fraction of observations where returns are strictly positive
+            for each ``as_of_date``.
         """
         returns = cls._validate(df)
-        return float((returns > 0).sum() / len(returns))
+
+        def func(x: pd.Series) -> float:
+            return float((x > 0).sum() / len(x))
+
+        result = cls._apply_window(returns, func, metric_win_size)
+        return cls._to_dataframe(result, "hit_ratio", metric_win_size)

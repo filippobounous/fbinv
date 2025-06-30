@@ -1,6 +1,6 @@
 """Realised Volatility Calculator for timeseries"""
 
-from typing import List, Union, Dict, Callable
+from typing import Callable
 
 import numpy as np
 import pandas as pd
@@ -13,14 +13,14 @@ class RealisedVolatilityCalculator(_BaseAnalytics):
     Realised Volatility Calculator
     
     Calculator for realised volatility with various methods. Initialised with:
-    rv_win_size (List[int]) -> the realised volatility windows
-    rv_model (Lis[str]) -> the realised volatility models to calculate for
+    rv_win_size (list[int]) -> the realised volatility windows
+    rv_model (list[str]) -> the realised volatility models to calculate for
     dt [int] -> The normalisation constant to use
     """
     def __init__(
         self,
-        rv_win_size: Union[int, List[int]] = DEFAULT_RV_WIN_SIZE,
-        rv_model: Union[str, List[str]] = DEFAULT_RV_MODEL,
+        rv_win_size: int | list[int] = DEFAULT_RV_WIN_SIZE,
+        rv_model: str | list[str] = DEFAULT_RV_MODEL,
         dt: int = TRADING_DAYS,
     ) -> None:
         """Store parameters and normalisation constant."""
@@ -37,9 +37,9 @@ class RealisedVolatilityCalculator(_BaseAnalytics):
             self.rv_model = rv_model
 
     @staticmethod
-    def registry() -> Dict[
+    def registry() -> dict[
         str,
-        Dict[str, Union[Callable[[pd.DataFrame, int], pd.Series], List[str]]]
+        dict[str, Callable[[pd.DataFrame, int], pd.Series] | list[str]]
     ]:
         """Registry of realised volatility methods and their required columns"""
         return {
