@@ -5,6 +5,7 @@ from fastapi import APIRouter
 
 from investment.analytics.correlation import CorrelationCalculator
 from investment.core.portfolio import Portfolio
+from investment.core.security import BaseSecurity
 from investment.core.security.generic import Generic
 from investment.utils.consts import (
     DEFAULT_RET_WIN_SIZE,
@@ -79,7 +80,8 @@ async def calculate_returns(
 
     for code in security_codes:
         try:
-            df = Generic(code).get_returns(
+            security: "BaseSecurity" = Generic(code)
+            df = security.get_returns(
                 use_ln_ret=use_ln_ret,
                 ret_win_size=win_size,
                 local_only=local_only,
@@ -117,7 +119,8 @@ async def get_prices(
 
     for code in security_codes:
         try:
-            df = Generic(code).get_price_history(
+            security: "BaseSecurity" = Generic(code)
+            df = security.get_price_history(
                 local_only=local_only,
                 intraday=intraday,
                 currency=currency,
@@ -152,7 +155,8 @@ async def calculate_realised_volatility(
 
     for code in security_codes or []:
         try:
-            df = Generic(code).get_realised_volatility(
+            security: "BaseSecurity" = Generic(code)
+            df = security.get_realised_volatility(
                 rv_model=rv_model,
                 rv_win_size=rv_win_size,
                 local_only=local_only,
@@ -189,7 +193,8 @@ async def get_metrics(
 
     for code in security_codes or []:
         try:
-            metrics = Generic(code).get_performance_metrics(
+            security: "BaseSecurity" = Generic(code)
+            metrics = security.get_performance_metrics(
                 metric_win_size=metric_win_size,
                 risk_free_rate=risk_free_rate,
                 periods_per_year=periods_per_year,
@@ -227,7 +232,8 @@ async def get_value_at_risk(
 
     for code in security_codes or []:
         try:
-            var_value = Generic(code).get_value_at_risk(
+            security: "BaseSecurity" = Generic(code)
+            var_value = security.get_value_at_risk(
                 var_win_size=var_win_size,
                 confidence_level=confidence_level,
                 method=method,

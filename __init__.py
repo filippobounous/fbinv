@@ -7,4 +7,3 @@ modules::
     uvicorn api.investment.main:app --reload
     uvicorn api.inventory.main:app --reload
 """
-
