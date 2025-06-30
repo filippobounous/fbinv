@@ -49,6 +49,7 @@ class BaseMappingEntity(BaseModel):
         load_methods = {
             "composite": lds.load_composite_security,
             "currency_cross": lds.load_security,
+            "equity": lds.load_security,
             "etf": lds.load_security,
             "fund": lds.load_security,
             "portfolio": lds.load_portfolio,

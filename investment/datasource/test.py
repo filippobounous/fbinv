@@ -9,10 +9,10 @@ from .base import BaseDataSource
 from ..utils.exceptions import DataSourceMethodException
 
 if TYPE_CHECKING:
+    from ..core.portfolio import Portfolio
     from ..core.security.base import BaseSecurity
     from ..core.security.composite import Composite
-    from ..core.security.registry import CurrencyCross, Equity, ETF, Fund
-    from ..core.portfolio import Portfolio
+    from ..core.security.registry import CurrencyCross, ETF, Equity, Fund
 
 class TestDataSource(BaseDataSource):
     """Very small data source used for tests only."""
