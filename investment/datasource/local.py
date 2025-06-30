@@ -1,7 +1,7 @@
 """Data source for reading local CSV files."""
 
 import datetime
-from typing import Any, TYPE_CHECKING, ClassVar
+from typing import Any, TYPE_CHECKING, ClassVar, Optional
 
 import pandas as pd
 
@@ -117,7 +117,7 @@ class LocalDataSource(BaseDataSource):
         return entity(**kwargs)
 
     @staticmethod
-    def _load(df: pd.DataFrame, entity: "BaseMappingEntity" | None = None) -> dict[str, Any]:
+    def _load(df: pd.DataFrame, entity: Optional["BaseMappingEntity"] = None) -> dict[str, Any]:
         """Convert a single CSV row to a dictionary."""
         if len(df) > 1:
             raise SecurityMappingError(
