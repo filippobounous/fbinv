@@ -7,6 +7,8 @@ models, optional rolling windows, time lags and more specialised
 measures such as partial and semi correlations.
 """
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Callable, Any
 
 import numpy as np
