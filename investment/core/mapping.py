@@ -143,7 +143,7 @@ class BaseMappingEntity(BaseModel):
         ]
         return pd.concat(metrics).reset_index(drop=True)
 
-    def get_value_at_risk(
+    def get_var(
         self,
         var_win_size: int = DEFAULT_VAR_WIN_SIZE,
         confidence_level: float = DEFAULT_CONFIDENCE_LEVEL,
