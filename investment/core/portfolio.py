@@ -1,5 +1,7 @@
 """Defines Portfolio class to manipulate multiple transactions together"""
 
+from __future__ import annotations
+
 from typing import ClassVar
 import warnings
 

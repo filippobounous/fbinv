@@ -1,5 +1,7 @@
 """Data source for reading local CSV files."""
 
+from __future__ import annotations
+
 import datetime
 from typing import Any, TYPE_CHECKING, ClassVar
 
