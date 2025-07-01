@@ -3,13 +3,12 @@ from pathlib import Path
 import sys
 from os import path
 
-sys.path.insert(0, path.abspath(path.join(path.dirname(__file__), "..")))
-
 import pytest
 
 import investment
 import inventory
 
+sys.path.insert(0, path.abspath(path.join(path.dirname(__file__), "..")))
 
 def _package_modules(package) -> list[str]:
     root = Path(package.__path__[0])
@@ -18,8 +17,6 @@ def _package_modules(package) -> list[str]:
         for path in root.rglob("*.py")
         if path.name != "__init__.py"
     ]
-
-
 
 modules = _package_modules(investment) + _package_modules(inventory)
 
@@ -33,4 +30,3 @@ def test_module_import(module_name):
         pytest.fail(f"TypeError raised: {exc}")
     except Exception as exc:
         pytest.skip(f"Import failed: {exc}")
-
