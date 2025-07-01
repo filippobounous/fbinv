@@ -10,7 +10,7 @@ __all__ = [
     "VolatilityEngine",
 ]
 
-# Ideas for further extensions:
+# TODO: Ideas for further extensions:
 #  - More exotic stochastic volatility models: incorporate jump volatility or
 #    rough volatility frameworks.
 #  - Path recycling and GPU acceleration: re-use generated shocks and leverage

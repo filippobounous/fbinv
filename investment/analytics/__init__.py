@@ -28,3 +28,9 @@ __all__ = [
     "VolatilityEngine",
     "RandomGenerator",
 ]
+# TODO: add analytics such as:
+#   realised volatility forecasting
+#   portfolio rebalancing
+#   portfolio optimisation
+#   suggest portfolio trades
+#   .....sugest more

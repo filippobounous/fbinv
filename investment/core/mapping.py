@@ -1,5 +1,7 @@
 """Base class for initialisations from the mapping csv files available"""
 
+from __future__ import annotations
+
 from abc import abstractmethod
 from typing import Any, TYPE_CHECKING
 
@@ -49,6 +51,7 @@ class BaseMappingEntity(BaseModel):
         load_methods = {
             "composite": lds.load_composite_security,
             "currency_cross": lds.load_security,
+            "equity": lds.load_security,
             "etf": lds.load_security,
             "fund": lds.load_security,
             "portfolio": lds.load_portfolio,
@@ -142,7 +145,7 @@ class BaseMappingEntity(BaseModel):
         ]
         return pd.concat(metrics).reset_index(drop=True)
 
-    def get_value_at_risk(
+    def get_var(
         self,
         var_win_size: int = DEFAULT_VAR_WIN_SIZE,
         confidence_level: float = DEFAULT_CONFIDENCE_LEVEL,
