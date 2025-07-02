@@ -11,6 +11,10 @@ TWELVE_DATA_API_KEY = os.getenv("TWELVE_DATA_API_KEY")
 ALPHA_VANTAGE_API_KEY = os.getenv("ALPHA_VANTAGE_API_KEY")
 OPEN_FIGI_API_KEY = os.getenv("OPEN_FIGI_API_KEY")
 QUANDL_API_KEY = os.getenv("QUANDL_API_KEY")
+# Optional API keys used to secure FastAPI endpoints
+# If any of these are ``None`` the corresponding app will reject all requests.
+FASTAPI_INVESTMENT_API_KEY = os.getenv("FASTAPI_INVESTMENT_API_KEY")
+FASTAPI_INVENTORY_API_KEY = os.getenv("FASTAPI_INVENTORY_API_KEY")
 
 # file paths
 TRANSACTION_PATH = os.getenv("TRANSACTION_PATH")
