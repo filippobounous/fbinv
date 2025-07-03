@@ -35,4 +35,3 @@ if missing_vars:
 
 TIMESERIES_DATA_PATH = BASE_PATH + "/timeseries_data"
 PORTFOLIO_PATH = BASE_PATH + "/portfolio"
-
