@@ -5,10 +5,10 @@ from typing import Callable
 import numpy as np
 import pandas as pd
 
-from .base import _BaseAnalytics
+from .base import BaseAnalytics
 from ..utils.consts import DEFAULT_RV_WIN_SIZE, DEFAULT_RV_MODEL, TRADING_DAYS, HL, OHLC
 
-class RealisedVolatilityCalculator(_BaseAnalytics):
+class RealisedVolatilityCalculator(BaseAnalytics):
     """
     Realised Volatility Calculator
     

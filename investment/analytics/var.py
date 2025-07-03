@@ -11,15 +11,10 @@ from typing import Callable
 
 import pandas as pd
 
-from .base import _BaseAnalytics
+from .base import BaseAnalytics
 from ..utils.consts import DEFAULT_CONFIDENCE_LEVEL, DEFAULT_VAR_WIN_SIZE
 
-# TODO: rolling window with win_size instead of setting as single value
-# TODO: implement correlation for portfolio
-# TODO: rethink how this is used in the context of portfolio etc, perhaps should be done similarly
-# to correlation page
-
-class VaRCalculator(_BaseAnalytics):
+class VaRCalculator(BaseAnalytics):
     """Value-at-Risk related calculations."""
 
     @staticmethod
@@ -53,13 +48,12 @@ class VaRCalculator(_BaseAnalytics):
 
         return pd.DataFrame(
             {
-                "as_of_date": series.index,
                 "var_method": var_method,
                 "var_win_size": var_win_size,
                 "confidence_level": confidence_level,
                 "var": series,
             }
-        )
+        ).reset_index()
 
     @classmethod
     def historical_var(

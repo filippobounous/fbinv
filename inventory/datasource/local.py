@@ -1,3 +1,4 @@
 from .base import BaseDataSource
 
-class LocalDataSource(BaseDataSource)
+class LocalDataSource(BaseDataSource):
+    pass

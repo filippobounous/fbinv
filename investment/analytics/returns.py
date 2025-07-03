@@ -5,10 +5,10 @@ from typing import Callable, Any
 import pandas as pd
 import numpy as np
 
-from .base import _BaseAnalytics
+from .base import BaseAnalytics
 from ..utils.consts import DEFAULT_RET_WIN_SIZE
 
-class ReturnsCalculator(_BaseAnalytics):
+class ReturnsCalculator(BaseAnalytics):
     """
     Returns Calculator
     

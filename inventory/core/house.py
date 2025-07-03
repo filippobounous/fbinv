@@ -1,3 +1,4 @@
 from .mapping import BaseMappingEntity
 
-class House(BaseMappingEntity)
+class House(BaseMappingEntity):
+    pass

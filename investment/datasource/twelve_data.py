@@ -293,17 +293,15 @@ class TwelveDataDataSource(BaseDataSource):
 
     def _default_start_and_end_date(
         self,
-        df: pd.DataFrame,
-        symbol: str,
-        intraday: bool,
-        **kwargs,
+        df: pd.DataFrame, symbol: str,
+        intraday: bool, **kwargs,
     ) -> tuple[datetime.datetime, datetime.datetime]:
         """Determine sensible date bounds for data retrieval."""
         start_date = kwargs.get(
             "start_date",
             self._check_start_date_for_security(symbol=symbol, intraday=intraday)
         )
-        end_date = kwargs.get("end_date", today_midnight())
+        end_date = kwargs.get("end_date", today_midnight() + datetime.timedelta(days=-1))
 
         if start_date is None:
             raise TwelveDataException(f"Missing start_date mapping for {symbol}.")

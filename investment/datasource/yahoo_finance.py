@@ -111,10 +111,8 @@ class YahooFinanceDataSource(BaseDataSource):
 
     def _default_start_and_end_date(
         self,
-        df: pd.DataFrame,
-        symbol: str,
-        intraday: bool,
-        **kwargs,
+        df: pd.DataFrame, symbol: str,
+        intraday: bool, **kwargs,
     ) -> tuple[datetime.datetime, datetime.datetime]:
         """Return start/end dates bounded by existing data."""
         if df.empty:
@@ -122,7 +120,7 @@ class YahooFinanceDataSource(BaseDataSource):
                 df=df, symbol=symbol, intraday=intraday, **kwargs
             )
         start_date = df["as_of_date"].min()
-        end_date = today_midnight()
+        end_date = today_midnight() + datetime.timedelta(days=-1)
         return start_date, end_date
 
     def _update_security_mapping(self, df: pd.DataFrame) -> pd.DataFrame:

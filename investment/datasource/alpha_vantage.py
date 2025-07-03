@@ -146,7 +146,7 @@ class AlphaVantageDataSource(BaseDataSource):
                 df=df, symbol=symbol, intraday=intraday, **kwargs
             )
         start_date = df["as_of_date"].min()
-        end_date = today_midnight()
+        end_date = today_midnight() + datetime.timedelta(days=-1)
         return start_date, end_date
 
     def _update_security_mapping(self, df: pd.DataFrame) -> pd.DataFrame:
