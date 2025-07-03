@@ -69,7 +69,10 @@ class Composite(BaseSecurity):
         ph_currency_cross = self.currency_cross.get_price_history(**kwargs)
 
         # exit early if required columns are not present
-        if not set(OC).issubset(ph_security.columns) or not set(OC).issubset(ph_currency_cross.columns):
+        if (
+            not set(OC).issubset(ph_security.columns)
+            or not set(OC).issubset(ph_currency_cross.columns)
+        ):
             return pd.DataFrame()
 
         ph_security = ph_security[OC]
