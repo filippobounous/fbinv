@@ -1,10 +1,11 @@
-FROM python:3.11-slim-bullseye
+# Use the newer bookworm-based image which receives regular security updates
+FROM python:3.11-slim-bookworm
 
 # Install security updates and Python dependencies
 WORKDIR /app
 
 RUN apt-get update \
-    && apt-get upgrade -y --no-install-recommends \
+    && apt-get dist-upgrade -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY . /app
