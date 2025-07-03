@@ -5,14 +5,20 @@ Run with::
     uvicorn api.investment.main:app --reload
 """
 
-from fastapi import APIRouter, FastAPI
+from fastapi import APIRouter, Depends, FastAPI
+
+from investment.config import FASTAPI_INVESTMENT_API_KEY
 
 from .core import router as core_router
 from .analytics import router as analytics_router
+from ..security import create_api_key_dependency
 
 ROUTERS: list[APIRouter] = [core_router, analytics_router]
 
-app = FastAPI(title="Investment API")
+app = FastAPI(
+    title="Investment API",
+    dependencies=[Depends(create_api_key_dependency(FASTAPI_INVESTMENT_API_KEY))],
+)
 
 @app.get("/")
 async def read_root() -> dict[str, str]:
