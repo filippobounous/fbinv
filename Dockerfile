@@ -1,10 +1,15 @@
-FROM python:3.11-slim
+FROM python:3.11-slim-bullseye
 
+# Install security updates and Python dependencies
 WORKDIR /app
+
+RUN apt-get update \
+    && apt-get upgrade -y --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY . /app
 
-RUN pip install --no-cache-dir pip --upgrade \
+RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir -e .
 
 ENV PYTHONUNBUFFERED=1
