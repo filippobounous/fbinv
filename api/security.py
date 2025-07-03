@@ -1,11 +1,10 @@
 """Reusable API key security dependency for FastAPI apps."""
 
 import secrets
+from typing import Callable, Optional
 
 from fastapi import HTTPException, Security, status
 from fastapi.security.api_key import APIKeyHeader
-
-from typing import Callable, Optional
 
 _API_KEY_HEADER = APIKeyHeader(name="X-API-Key", auto_error=False)
 
@@ -20,4 +19,3 @@ def create_api_key_dependency(expected_key: Optional[str]) -> Callable[[str], No
             )
 
     return verify_api_key
-

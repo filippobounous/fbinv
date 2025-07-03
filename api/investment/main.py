@@ -7,10 +7,11 @@ Run with::
 
 from fastapi import APIRouter, Depends, FastAPI
 
-from ..security import create_api_key_dependency
 from investment.config import FASTAPI_INVESTMENT_API_KEY
+
 from .core import router as core_router
 from .analytics import router as analytics_router
+from ..security import create_api_key_dependency
 
 ROUTERS: list[APIRouter] = [core_router, analytics_router]
 
