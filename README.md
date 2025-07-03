@@ -25,3 +25,20 @@ This project contains a collection of modules for managing investments and house
    ```
 
 The FastAPI apps are protected by optional API keys. See `api/README.md` for details on how to generate and use them.
+
+## Docker
+
+You can also run the APIs using Docker. First copy `.env.example` to `.env` and fill
+in the required values. Then build and start the services with docker-compose:
+
+```bash
+docker compose up --build
+```
+
+This launches two containers:
+
+- **investment** – exposes the investment API on port `8000`
+- **inventory** – exposes the inventory API on port `8001`
+
+Any changes to the local source will be picked up the next time you rebuild the
+containers.
