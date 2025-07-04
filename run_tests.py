@@ -1,9 +1,9 @@
 "Expose a utility to run all relevant tests"
 
 from pathlib import Path
+
 import pytest
 from dotenv import load_dotenv
-
 
 def run_tests(args=None):
     """Run all unit tests using pytest.
