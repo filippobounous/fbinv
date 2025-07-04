@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import ClassVar, TYPE_CHECKING, Any
 
 import pandas as pd
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from tqdm import tqdm
 
 import requests
@@ -27,6 +27,13 @@ class BaseDataSource(BaseModel):
 
     name: ClassVar[str] = "base"
     data_start_date: datetime.datetime = DATA_START_DATE
+    model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        try:
+            super().__setattr__(name, value)
+        except ValueError:
+            object.__setattr__(self, name, value)
 
     @property
     def internal_mapping_code(self) -> str:

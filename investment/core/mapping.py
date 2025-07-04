@@ -6,7 +6,7 @@ from abc import abstractmethod
 from typing import Any, TYPE_CHECKING
 
 import pandas as pd
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from ..analytics.metrics import PerformanceMetrics
 from ..analytics.var import VaRCalculator
@@ -41,9 +41,19 @@ class BaseMappingEntity(BaseModel):
     entity_type: str
     code: str
     _local_datasource: LocalDataSource = LocalDataSource
+    model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        try:
+            super().__setattr__(name, value)
+        except ValueError:
+            object.__setattr__(self, name, value)
 
     def __init__(self, **kwargs) -> None:
         """Initialise entity attributes from the local mapping files."""
+        kwargs.setdefault(
+            "entity_type", self.__class__.__fields__["entity_type"].default
+        )
         super().__init__(**kwargs)
 
         lds: LocalDataSource = self._local_datasource()

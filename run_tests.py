@@ -2,6 +2,8 @@
 
 from pathlib import Path
 import pytest
+from dotenv import load_dotenv
+
 
 def run_tests(args=None):
     """Run all unit tests using pytest.
@@ -17,9 +19,14 @@ def run_tests(args=None):
     int
         The pytest exit code.
     """
+    load_dotenv()
     if args is None:
         args = ["-q", str(Path(__file__).parent / "tests")]
     return pytest.main(args)
+
+
+if __name__ == "__main__":  # pragma: no cover - manual execution
+    raise SystemExit(run_tests())
 
 
 
