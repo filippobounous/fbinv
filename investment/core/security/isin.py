@@ -10,5 +10,5 @@ class ISINSecurity(BaseSecurity):
     
     Intermediate class to require isin_code across subclasses.
     """
-    entity_type: ClassVar[str] = "isin"
+    entity_type: str = "isin"
     isin_code: str | None = None
