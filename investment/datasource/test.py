@@ -94,6 +94,7 @@ class TestDataSource(BaseDataSource):
         return di
 
     def load_composite_security(self, composite: "Composite") -> dict[str, Any]:
+        """Load attributes for a composite security."""
         di = self.load_security(composite.security)
         di["currency"] = composite.currency_cross.currency
         return di
@@ -108,6 +109,7 @@ class TestDataSource(BaseDataSource):
         from ..core.security.base import BaseSecurity
 
         class DummySecurity(BaseSecurity):
+            """Dummy security class for testing purposes."""
             entity_type: str = "dummy"
 
             def get_price_history(self, *args, **kwargs) -> pd.DataFrame:

@@ -1,4 +1,4 @@
-"Expose a utility to run all relevant tests"
+"""Expose a utility to run all relevant tests"""
 
 from pathlib import Path
 import pytest
@@ -20,6 +20,3 @@ def run_tests(args=None):
     if args is None:
         args = ["-q", str(Path(__file__).parent / "tests")]
     return pytest.main(args)
-
-
-
