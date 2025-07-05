@@ -5,7 +5,7 @@ from unittest import mock
 import pandas as pd
 
 from investment import config
-from investment.core.portfolio import Portfolio, Generic
+from investment.core.portfolio import Portfolio
 from investment.datasource.test import TestDataSource
 from investment.utils import consts
 
@@ -54,7 +54,10 @@ class PortfolioTestCase(unittest.TestCase):
         mapping_df = pd.DataFrame({"figi_code": ["AAA"], "code": ["AAA"]})
         pf = self._make_portfolio()
         with mock.patch("pandas.read_csv", return_value=tr_df), \
-             mock.patch("investment.core.portfolio.LocalDataSource.get_security_mapping", return_value=mapping_df):
+             mock.patch(
+                 "investment.core.portfolio.LocalDataSource.get_security_mapping",
+                 return_value=mapping_df
+                ):
             pf._get_holdings()
         expected = tr_df.copy()
         expected["cum_quantity"] = expected.groupby("figi_code")["quantity"].cumsum()
@@ -64,7 +67,10 @@ class PortfolioTestCase(unittest.TestCase):
         expected = expected.rename(columns={"cum_quantity": "quantity"})
         expected["entry_value"] = expected["quantity"] * expected["average"]
         expected = expected.merge(mapping_df, on="figi_code", how="left")
-        pd.testing.assert_frame_equal(pf.holdings.reset_index(drop=True), expected.reset_index(drop=True))
+        pd.testing.assert_frame_equal(
+            pf.holdings.reset_index(drop=True),
+            expected.reset_index(drop=True)
+        )
 
     def test_get_cash_filters(self):
         """Cash loading respects account and currency filters."""
@@ -93,7 +99,9 @@ class PortfolioTestCase(unittest.TestCase):
         })
         pf = self._make_portfolio()
         pf.holdings = holdings
-        with mock.patch("investment.core.portfolio.today_midnight", return_value=pd.Timestamp("2020-01-02")):
+        with mock.patch(
+            "investment.core.portfolio.today_midnight", return_value=pd.Timestamp("2020-01-02")
+        ):
             result = pf._prepare_holdings_timeseries()
         self.assertEqual(len(result), 2)
         self.assertIn("quantity", result.columns)
@@ -111,8 +119,12 @@ class PortfolioTestCase(unittest.TestCase):
             "average": [100.0],
             "entry_value": [1000.0],
         })
-        with mock.patch.object(Portfolio, "_prepare_holdings_timeseries", return_value=base_df), \
-             mock.patch.object(Portfolio, "_combine_with_security_price_history", return_value=base_df):
+        with mock.patch.object(
+            Portfolio, "_prepare_holdings_timeseries", return_value=base_df
+        ), \
+             mock.patch.object(
+                 Portfolio, "_combine_with_security_price_history", return_value=base_df
+             ):
             result = pf.get_holdings_price_history()
         pd.testing.assert_frame_equal(result, base_df)
 
@@ -133,8 +145,12 @@ class PortfolioTestCase(unittest.TestCase):
             "low": [99.0],
         })
         base_no_price = base.drop(columns=consts.OHLC)
-        with mock.patch.object(Portfolio, "_prepare_holdings_timeseries", return_value=base_no_price), \
-             mock.patch.object(Portfolio, "_combine_with_security_price_history", return_value=base):
+        with mock.patch.object(
+            Portfolio, "_prepare_holdings_timeseries", return_value=base_no_price
+        ), \
+             mock.patch.object(
+                 Portfolio, "_combine_with_security_price_history", return_value=base
+             ):
             result = pf.get_holdings_price_history()
         self.assertIn("open_value", result.columns)
         self.assertEqual(result.loc[0, "open_value"], 1010.0)
@@ -152,7 +168,9 @@ class PortfolioTestCase(unittest.TestCase):
         })
         with mock.patch.object(Portfolio, "get_holdings_price_history", return_value=ph):
             result = pf.get_price_history()
-        expected = ph.groupby("as_of_date")[[f"{i}_value" for i in consts.OC + ["net", "entry"]]].sum().rename(columns={
+        expected = ph.groupby("as_of_date")[
+            [f"{i}_value" for i in consts.OC + ["net", "entry"]]
+        ].sum().rename(columns={
             "open_value": "open",
             "close_value": "close",
             "net_value": "net",
@@ -164,7 +182,9 @@ class PortfolioTestCase(unittest.TestCase):
         """all_securities returns Generic instances for holdings."""
         pf = self._make_portfolio()
         pf.holdings = pd.DataFrame({"code": ["AAA", "BBB"]})
-        with mock.patch("investment.core.portfolio.Generic", side_effect=lambda code: f"SEC-{code}") as mg:
+        with mock.patch(
+            "investment.core.portfolio.Generic", side_effect=lambda code: f"SEC-{code}"
+        ) as mg:
             result = pf.all_securities
         self.assertEqual(result, ["SEC-AAA", "SEC-BBB"])
         mg.assert_any_call("AAA")
@@ -236,7 +256,9 @@ class PortfolioTestCase(unittest.TestCase):
         sec = mock.Mock()
         sec.code = "AAA"
         sec.get_price_history.return_value = ph
-        with mock.patch.object(Portfolio, "all_securities", new_callable=mock.PropertyMock, return_value=[sec]):
+        with mock.patch.object(
+            Portfolio, "all_securities", new_callable=mock.PropertyMock, return_value=[sec]
+        ):
             result = pf._combine_with_security_price_history(df, currency="GBP")
 
         expected = df.merge(
@@ -245,8 +267,12 @@ class PortfolioTestCase(unittest.TestCase):
             how="left",
         )
         expected = expected.sort_values(by=["code", "figi_code", "as_of_date"])
-        expected = expected.set_index(["code", "figi_code"]).groupby(level=0, group_keys=False).ffill()
+        expected = expected.set_index(
+            ["code", "figi_code"]
+        ).groupby(level=0, group_keys=False).ffill()
         expected = expected.set_index("as_of_date", append=True)
 
         pd.testing.assert_frame_equal(result, expected)
-        sec.get_price_history.assert_called_once_with(datasource=None, local_only=True, currency="GBP")
+        sec.get_price_history.assert_called_once_with(
+            datasource=None, local_only=True, currency="GBP"
+        )
