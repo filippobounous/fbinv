@@ -1,7 +1,5 @@
 """Equity class for single stock securities"""
 
-from typing import ClassVar
-
 from .isin import ISINSecurity
 
 class Equity(ISINSecurity):
