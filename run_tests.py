@@ -2,8 +2,8 @@
 
 from pathlib import Path
 
-import pytest
 from dotenv import load_dotenv
+import pytest
 
 def run_tests(args=None):
     """Run all unit tests using pytest.

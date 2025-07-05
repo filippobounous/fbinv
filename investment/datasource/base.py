@@ -8,9 +8,8 @@ from typing import ClassVar, TYPE_CHECKING, Any
 
 import pandas as pd
 from pydantic import BaseModel, ConfigDict
-from tqdm import tqdm
-
 import requests
+from tqdm import tqdm
 
 from ..config import TIMESERIES_DATA_PATH, BASE_PATH
 from ..utils.consts import DATA_START_DATE, DEFAULT_TIMEOUT
@@ -30,6 +29,7 @@ class BaseDataSource(BaseModel):
     model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
 
     def __setattr__(self, name: str, value: Any) -> None:
+        """Set an attribute, allowing for ValueError exceptions."""
         try:
             super().__setattr__(name, value)
         except ValueError:

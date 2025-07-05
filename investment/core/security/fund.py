@@ -1,7 +1,5 @@
 """Fund class for mutual fund securities"""
 
-from typing import ClassVar
-
 from .isin import ISINSecurity
 
 class Fund(ISINSecurity):

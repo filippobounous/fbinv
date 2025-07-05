@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import ClassVar, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 import pandas as pd
 
