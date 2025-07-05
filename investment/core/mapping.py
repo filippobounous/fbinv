@@ -1,5 +1,7 @@
 """Base class for initialisations from the mapping csv files available"""
 
+from __future__ import annotations
+
 from abc import abstractmethod
 from typing import Any, TYPE_CHECKING
 

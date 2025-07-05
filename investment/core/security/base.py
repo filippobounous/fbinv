@@ -1,5 +1,7 @@
 """Base Security class as a generic abstraction for all others"""
 
+from __future__ import annotations
+
 from typing import ClassVar, TYPE_CHECKING
 
 import pandas as pd
