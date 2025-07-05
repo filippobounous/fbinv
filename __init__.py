@@ -1,1 +1,1 @@
-"""Top-level package for the personal project.
+"""Top-level package for the personal project."""
