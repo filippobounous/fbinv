@@ -1,3 +1,5 @@
+"""Unit tests for the :mod:`investment.core.portfolio` module."""
+
 import unittest
 from unittest import mock
 import pandas as pd
@@ -8,6 +10,7 @@ from investment.datasource.test import TestDataSource
 from investment.utils import consts
 
 class PortfolioTestCase(unittest.TestCase):
+    """Test cases for :class:`~investment.core.portfolio.Portfolio`."""
     def setUp(self):
         patcher = mock.patch(
             "investment.core.mapping.BaseMappingEntity._local_datasource",
@@ -17,25 +20,29 @@ class PortfolioTestCase(unittest.TestCase):
         patcher.start()
 
     def _make_portfolio(self, **kwargs):
-        """Create a Portfolio instance without running validation."""
+        """Return a ``Portfolio`` instance bypassing validation."""
+        code = kwargs.pop("code", "TEST")
         with mock.patch(
             "investment.core.mapping.BaseMappingEntity._local_datasource",
             TestDataSource,
         ):
-            return Portfolio.construct(code="TEST", entity_type="portfolio", **kwargs)
+            return Portfolio.construct(code=code, entity_type="portfolio", **kwargs)
 
     def test_get_path(self):
+        """Verify transaction path construction."""
         pf = self._make_portfolio()
         expected = f"{config.PORTFOLIO_PATH}/TEST-transactions.csv"
         self.assertEqual(pf._get_path("transactions"), expected)
 
     def test_transactions_missing_file(self):
+        """Accessing transactions raises when file missing."""
         pf = self._make_portfolio()
         with mock.patch("pandas.read_csv", side_effect=FileNotFoundError):
             with self.assertRaises(Exception):
                 _ = pf.transactions
 
     def test_get_holdings(self):
+        """Holdings are correctly derived from transactions."""
         tr_df = pd.DataFrame({
             "as_of_date": pd.to_datetime(["2020-01-01", "2020-01-02"]),
             "figi_code": ["AAA", "AAA"],
@@ -60,6 +67,7 @@ class PortfolioTestCase(unittest.TestCase):
         pd.testing.assert_frame_equal(pf.holdings.reset_index(drop=True), expected.reset_index(drop=True))
 
     def test_get_cash_filters(self):
+        """Cash loading respects account and currency filters."""
         cash_df = pd.DataFrame({
             "as_of_date": pd.to_datetime(["2020-01-01", "2020-01-02"]),
             "account": ["ACC1", "ACC2"],
@@ -73,6 +81,7 @@ class PortfolioTestCase(unittest.TestCase):
         pd.testing.assert_frame_equal(pf.cash.reset_index(drop=True), expected)
 
     def test_prepare_holdings_timeseries(self):
+        """Prepared holdings return expected columns."""
         holdings = pd.DataFrame({
             "as_of_date": pd.to_datetime(["2020-01-01", "2020-01-02"]),
             "figi_code": ["AAA", "AAA"],
@@ -91,6 +100,7 @@ class PortfolioTestCase(unittest.TestCase):
         self.assertIn("entry_value", result.columns)
 
     def test_get_holdings_price_history_no_prices(self):
+        """Holdings price history returns holdings when no prices."""
         pf = self._make_portfolio()
         base_df = pd.DataFrame({
             "as_of_date": [pd.Timestamp("2020-01-01")],
@@ -107,6 +117,7 @@ class PortfolioTestCase(unittest.TestCase):
         pd.testing.assert_frame_equal(result, base_df)
 
     def test_get_holdings_price_history_with_prices(self):
+        """Holdings price history merges security prices."""
         pf = self._make_portfolio()
         base = pd.DataFrame({
             "as_of_date": [pd.Timestamp("2020-01-01")],
@@ -130,6 +141,7 @@ class PortfolioTestCase(unittest.TestCase):
         self.assertEqual(result.loc[0, "net_value"], 20.0)
 
     def test_get_price_history(self):
+        """Aggregated price history sums underlying holdings."""
         pf = self._make_portfolio()
         ph = pd.DataFrame({
             "as_of_date": pd.to_datetime(["2020-01-01", "2020-01-02"]),
@@ -149,6 +161,7 @@ class PortfolioTestCase(unittest.TestCase):
         pd.testing.assert_frame_equal(result, expected)
 
     def test_all_securities(self):
+        """all_securities returns Generic instances for holdings."""
         pf = self._make_portfolio()
         pf.holdings = pd.DataFrame({"code": ["AAA", "BBB"]})
         with mock.patch("investment.core.portfolio.Generic", side_effect=lambda code: f"SEC-{code}") as mg:
@@ -158,12 +171,19 @@ class PortfolioTestCase(unittest.TestCase):
         mg.assert_any_call("BBB")
 
     def test_init_triggers_loading(self):
-        with mock.patch.object(Portfolio, "_load_cash_and_holdings") as mch:
+        """Ensure ``__init__`` loads holdings and cash."""
+        with mock.patch.object(Portfolio, "_load_cash_and_holdings") as mch, \
+             mock.patch.dict(
+                 Portfolio.__fields__,
+                 {"entity_type": mock.Mock(default="portfolio")},
+                 clear=False,
+             ):
             pf = Portfolio("TEST")
         mch.assert_called_once()
         self.assertEqual(pf.code, "TEST")
 
     def test_load_cash_and_holdings_calls(self):
+        """_load_cash_and_holdings delegates to cash and holdings helpers."""
         pf = self._make_portfolio(has_cash=True)
         with mock.patch.object(pf, "_get_holdings") as gh, \
              mock.patch.object(pf, "_get_cash") as gc:
@@ -179,6 +199,7 @@ class PortfolioTestCase(unittest.TestCase):
         gc.assert_not_called()
 
     def test_update_calls_transactions_update(self):
+        """update refreshes transactions and reloads data."""
         pf = self._make_portfolio()
         with mock.patch("investment.core.portfolio.Transactions.update") as tu, \
              mock.patch.object(pf, "_load_cash_and_holdings") as lch:
@@ -187,6 +208,7 @@ class PortfolioTestCase(unittest.TestCase):
         lch.assert_called_once()
 
     def test_update_invalid_code(self):
+        """update raises when Portfolio code mismatches."""
         pf = self._make_portfolio(code="OTHER")
         with mock.patch("investment.core.portfolio.Transactions.update") as tu, \
              mock.patch.object(pf, "_load_cash_and_holdings") as lch:
@@ -196,6 +218,7 @@ class PortfolioTestCase(unittest.TestCase):
         lch.assert_not_called()
 
     def test_combine_with_security_price_history(self):
+        """Security price history is merged and forward filled."""
         pf = self._make_portfolio()
         df = pd.DataFrame({
             "as_of_date": pd.to_datetime(["2020-01-01", "2020-01-02"]),
