@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import ClassVar, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 import pandas as pd
 
@@ -23,7 +23,7 @@ class BaseSecurity(BaseMappingEntity):
     Generic input is code, all other attributes are initialised using LocalDataSource
     through BaseMappingEntity __init__.
     """
-    entity_type: ClassVar[str] = "base_security"
+    entity_type: str = "base_security"
     name: str | None = None
     figi_code: str | None = None
     reporting_currency: str | None = None

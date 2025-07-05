@@ -7,10 +7,9 @@ from pathlib import Path
 from typing import ClassVar, TYPE_CHECKING, Any
 
 import pandas as pd
-from pydantic import BaseModel
-from tqdm import tqdm
-
+from pydantic import BaseModel, ConfigDict
 import requests
+from tqdm import tqdm
 
 from ..config import TIMESERIES_DATA_PATH, BASE_PATH
 from ..utils.consts import DATA_START_DATE, DEFAULT_TIMEOUT
@@ -27,6 +26,14 @@ class BaseDataSource(BaseModel):
 
     name: ClassVar[str] = "base"
     data_start_date: datetime.datetime = DATA_START_DATE
+    model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        """Set an attribute, allowing for ValueError exceptions."""
+        try:
+            super().__setattr__(name, value)
+        except ValueError:
+            object.__setattr__(self, name, value)
 
     @property
     def internal_mapping_code(self) -> str:
