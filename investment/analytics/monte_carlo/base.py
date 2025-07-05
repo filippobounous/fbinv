@@ -5,10 +5,10 @@ from typing import Callable
 
 import numpy as np
 
-from ..base import _BaseAnalytics
+from ..base import BaseAnalytics
 from ..random_generators import RandomGenerator
 
-class BaseMonteCarloEngine(_BaseAnalytics):
+class BaseMonteCarloEngine(BaseAnalytics):
     """Base class providing common Monte Carlo helpers.
 
     Parameters

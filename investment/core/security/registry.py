@@ -20,6 +20,6 @@ all_securities: list['BaseSecurity']= [
 ]
 
 security_registry: dict[str, 'BaseSecurity'] = {
-    i.entity_type: i
+    i.model_fields["entity_type"].default: i
     for i in all_securities
 }

@@ -12,14 +12,14 @@ from typing import TYPE_CHECKING, Callable, Any
 import numpy as np
 import pandas as pd
 
-from .base import _BaseAnalytics
+from .base import BaseAnalytics
 from ..utils.consts import DEFAULT_RET_WIN_SIZE, DEFAULT_CORR_MODEL
 
 if TYPE_CHECKING:
     from ..core.portfolio import Portfolio
     from ..core.security import BaseSecurity
 
-class CorrelationCalculator(_BaseAnalytics):
+class CorrelationCalculator(BaseAnalytics):
     """Calculator for correlations between securities and portfolios.
 
     The calculator fetches historical price or return data from the
@@ -96,10 +96,10 @@ class CorrelationCalculator(_BaseAnalytics):
                 s = df.set_index("as_of_date")["return"].rename(obj.code)
             else:
                 df = obj.get_price_history()
-                s = df.set_index("as_of_date")["close"].rename(obj.code)
+                s = df["close"].rename(obj.code)
             series_list.append(s)
+            df_all = pd.concat(series_list, axis=1)
 
-        df_all = pd.concat(series_list, axis=1)
         return df_all.dropna(how="any").sort_index()
 
     def _pairwise_correlation(
