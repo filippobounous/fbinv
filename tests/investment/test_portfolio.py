@@ -156,3 +156,74 @@ class PortfolioTestCase(unittest.TestCase):
         self.assertEqual(result, ["SEC-AAA", "SEC-BBB"])
         mg.assert_any_call("AAA")
         mg.assert_any_call("BBB")
+
+    def test_init_triggers_loading(self):
+        with mock.patch.object(Portfolio, "_load_cash_and_holdings") as mch:
+            pf = Portfolio("TEST")
+        mch.assert_called_once()
+        self.assertEqual(pf.code, "TEST")
+
+    def test_load_cash_and_holdings_calls(self):
+        pf = self._make_portfolio(has_cash=True)
+        with mock.patch.object(pf, "_get_holdings") as gh, \
+             mock.patch.object(pf, "_get_cash") as gc:
+            pf._load_cash_and_holdings()
+        gh.assert_called_once()
+        gc.assert_called_once()
+
+        pf = self._make_portfolio(has_cash=True, ignore_cash=True)
+        with mock.patch.object(pf, "_get_holdings") as gh, \
+             mock.patch.object(pf, "_get_cash") as gc:
+            pf._load_cash_and_holdings()
+        gh.assert_called_once()
+        gc.assert_not_called()
+
+    def test_update_calls_transactions_update(self):
+        pf = self._make_portfolio()
+        with mock.patch("investment.core.portfolio.Transactions.update") as tu, \
+             mock.patch.object(pf, "_load_cash_and_holdings") as lch:
+            pf.update()
+        tu.assert_called_once()
+        lch.assert_called_once()
+
+    def test_update_invalid_code(self):
+        pf = self._make_portfolio(code="OTHER")
+        with mock.patch("investment.core.portfolio.Transactions.update") as tu, \
+             mock.patch.object(pf, "_load_cash_and_holdings") as lch:
+            with self.assertRaises(Exception):
+                pf.update()
+        tu.assert_not_called()
+        lch.assert_not_called()
+
+    def test_combine_with_security_price_history(self):
+        pf = self._make_portfolio()
+        df = pd.DataFrame({
+            "as_of_date": pd.to_datetime(["2020-01-01", "2020-01-02"]),
+            "currency": ["GBP", "GBP"],
+            "figi_code": ["AAA", "AAA"],
+            "code": ["AAA", "AAA"],
+            "quantity": [1.0, 1.0],
+            "average": [100.0, 100.0],
+            "entry_value": [100.0, 100.0],
+        })
+        ph = pd.DataFrame({
+            "as_of_date": pd.to_datetime(["2020-01-01", "2020-01-02"]),
+            "close": [10.0, 20.0],
+        }).set_index("as_of_date")
+        sec = mock.Mock()
+        sec.code = "AAA"
+        sec.get_price_history.return_value = ph
+        with mock.patch.object(Portfolio, "all_securities", new_callable=mock.PropertyMock, return_value=[sec]):
+            result = pf._combine_with_security_price_history(df, currency="GBP")
+
+        expected = df.merge(
+            ph.reset_index().assign(code="AAA"),
+            on=["as_of_date", "code"],
+            how="left",
+        )
+        expected = expected.sort_values(by=["code", "figi_code", "as_of_date"])
+        expected = expected.set_index(["code", "figi_code"]).groupby(level=0, group_keys=False).ffill()
+        expected = expected.set_index("as_of_date", append=True)
+
+        pd.testing.assert_frame_equal(result, expected)
+        sec.get_price_history.assert_called_once_with(datasource=None, local_only=True, currency="GBP")
