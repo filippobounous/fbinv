@@ -30,8 +30,8 @@ The FastAPI apps are protected by optional API keys. See `api/README.md` for det
 
 You can also run the APIs using Docker. First copy `.env.example` to `.env` and fill
 in the required values. The `.env` file is ignored during Docker builds so your
-credentials stay local. The Dockerfile is based on `python:3.11-slim` and
-installs the latest security patches. Build and start the services with
+credentials stay local. The Dockerfile is based on `python:3.11.4-slim` and
+installs the latest security patches to minimize vulnerabilities. Build and start the services with
 docker-compose:
 
 ```bash
