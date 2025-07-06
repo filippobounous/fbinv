@@ -2,6 +2,7 @@
 
 import unittest
 from unittest import mock
+
 import pandas as pd
 
 from investment import config
@@ -347,5 +348,6 @@ class PortfolioTestCase(unittest.TestCase):
             "entry_value": [50.0],
             "code": ["AAA"],
         })
-        pd.testing.assert_frame_equal(pf.holdings.reset_index(drop=True), expected, check_dtype=False)
-
+        pd.testing.assert_frame_equal(
+            pf.holdings.reset_index(drop=True), expected, check_dtype=False
+        )

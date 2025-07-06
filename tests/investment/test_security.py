@@ -147,7 +147,7 @@ class SecurityTestCase(TestCase):
         self.assertIs(security_registry["fund"], Fund)
         self.assertIs(security_registry["currency_cross"], CurrencyCross)
         self.assertIs(security_registry["composite"], Composite)
-    
+
     def test_missing_attributes_raises(self):
         """Initialisation fails if datasource data lacks required fields."""
         with mock.patch.object(TestDataSource, "load_security", return_value={}):
@@ -190,4 +190,3 @@ class SecurityTestCase(TestCase):
         )
         result = comp.get_price_history()
         self.assertTrue(result.empty)
-

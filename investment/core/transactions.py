@@ -48,8 +48,8 @@ class Transactions(BaseModel):
         if dropped:
             samples = transactions.loc[~mask, "Description"].head().tolist()
             warnings.warn(
-                "Dropping %d transaction rows with unmatched description pattern. "
-                "Examples: %s" % (dropped, "; ".join(samples))
+                f"Dropping {dropped} transaction rows with unmatched description pattern. "
+                f"Examples: {'; '.join(samples)}"
             )
         df = df[mask]
         transactions = transactions.loc[mask]

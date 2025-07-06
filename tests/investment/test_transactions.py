@@ -247,4 +247,3 @@ class TransactionsTestCase(unittest.TestCase):
             result = tr._load_transactions()
         re.assert_called_once_with("/tmp/sample.xlsx", sheet_name="SheetA")
         self.assertIs(result, df)
-
