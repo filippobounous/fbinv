@@ -4,9 +4,9 @@ from typing import Callable, Any
 
 import numpy as np
 
-from .base import _BaseAnalytics
+from .base import BaseAnalytics
 
-class RandomGenerator(_BaseAnalytics):
+class RandomGenerator(BaseAnalytics):
     """Wrapper around ``numpy.random.Generator`` with helper methods."""
 
     @staticmethod

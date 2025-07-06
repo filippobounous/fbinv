@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING
 
 import pandas as pd
 
@@ -24,7 +24,7 @@ class Composite(BaseSecurity):
         currency_cross (opt, str): The currency to convert to
         composite_currency (opt, CurrencyCross): The conversion security 
     """
-    entity_type: ClassVar[str] = "composite"
+    entity_type: str = "composite"
     security: BaseSecurity
     currency_cross: CurrencyCross
 

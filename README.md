@@ -1,14 +1,14 @@
-# Personal Finance Toolkit
+# Investment Package
 
-This project contains a collection of modules for managing investments and household inventory. It also exposes FastAPI services for both domains.
+This repository contains tools for handling investment data.
 
-## Features
+## Installation
 
-- **Investment module** – tools for retrieving market data, portfolio management and analytics
-- **Inventory module** – utilities for tracking items, rooms and houses
-- **FastAPI apps** – REST interfaces located under `api/`
+Use `pip` to install the required dependencies:
 
-## Setup
+```bash
+pip install -r requirements.txt
+```
 
 1. Create a Python virtual environment and install the package:
    ```bash
@@ -46,3 +46,18 @@ This launches two containers:
 
 Any changes to the local source will be picked up the next time you rebuild the
 containers.
+
+## Running Tests
+
+Automated tests can be executed with:
+
+```bash
+python run_tests.py
+```
+
+This command uses the `python-dotenv` (>=1.0) package to load environment
+variables from a `.env` file if present. Ensure the dependencies are
+installed before running the tests.
+
+All dependencies specify minimum versions in both `setup.py` and
+`requirements.txt` to ensure consistent installation across environments.
