@@ -15,7 +15,6 @@ class Transactions(BaseModel):
     sheet_name: str = TRANSACTION_SHEET_NAME
     portfolio_path: str = PORTFOLIO_PATH
 
-
     def __setattr__(self, name: str, value) -> None:
         """Allow setting of arbitrary attributes for easier testing."""
         try:
