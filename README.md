@@ -19,10 +19,11 @@ This project contains a collection of modules for managing investments and house
 2. Copy `.env.example` to `.env` and fill in the required variables.
 3. Start the desired API with `uvicorn`:
    ```bash
-   uvicorn api.investment.main:app --reload
+   uvicorn api.investment.main:app
    # or
-   uvicorn api.inventory.main:app --reload
+   uvicorn api.inventory.main:app
    ```
+   Add `--reload` if you want automatic code reloading during development.
 
 The FastAPI apps are protected by optional API keys. See `api/README.md` for details on how to generate and use them.
 
