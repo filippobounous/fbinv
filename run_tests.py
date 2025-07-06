@@ -1,9 +1,9 @@
-"Expose a utility to run all relevant tests"
+"""Expose a utility to run all relevant tests"""
 
 from pathlib import Path
 
-import pytest
 from dotenv import load_dotenv
+import pytest
 
 def run_tests(args=None):
     """Run all unit tests using pytest.
@@ -24,9 +24,5 @@ def run_tests(args=None):
         args = ["-q", str(Path(__file__).parent / "tests")]
     return pytest.main(args)
 
-
 if __name__ == "__main__":  # pragma: no cover - manual execution
     raise SystemExit(run_tests())
-
-
-

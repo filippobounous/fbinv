@@ -1,8 +1,8 @@
 """Test suite configuration and environment variables."""
 
 import os
-import sys
 from pathlib import Path
+import sys
 
 # Setup environment variables required for tests before importing config
 os.environ.setdefault("BASE_PATH", "/tmp")

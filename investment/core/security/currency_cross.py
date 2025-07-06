@@ -1,7 +1,5 @@
 """CurrencyCross class for exchange rates"""
 
-from typing import ClassVar
-
 from .base import BaseSecurity
 
 class CurrencyCross(BaseSecurity):

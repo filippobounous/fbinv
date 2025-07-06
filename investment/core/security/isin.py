@@ -1,7 +1,5 @@
 """Intermediate ISIN class for ISIN-required securities"""
 
-from typing import ClassVar
-
 from .base import BaseSecurity
 
 class ISINSecurity(BaseSecurity):

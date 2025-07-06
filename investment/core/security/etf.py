@@ -1,7 +1,5 @@
 """ETF class for exchange-traded funds"""
 
-from typing import ClassVar
-
 from .isin import ISINSecurity
 
 class ETF(ISINSecurity):
