@@ -9,4 +9,3 @@ __pycache__/
 .env
 
 notebooks_scratch/
-.DS_Store
