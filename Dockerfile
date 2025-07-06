@@ -1,5 +1,5 @@
-# Use the newer bookworm-based image which receives regular security updates
-FROM python:3.11-slim-bookworm
+# Use a patch-specific Python image which receives regular security updates
+FROM python:3.11.4-slim
 
 # Install security updates and Python dependencies
 WORKDIR /app
