@@ -1,3 +1,5 @@
+"""Test cases for :class:`~investment.core.transactions.Transactions`."""
+
 import unittest
 from unittest import mock
 import warnings
