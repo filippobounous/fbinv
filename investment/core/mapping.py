@@ -44,6 +44,7 @@ class BaseMappingEntity(BaseModel):
     model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
 
     def __setattr__(self, name: str, value: Any) -> None:
+        """Set attributes, allowing for ValueError exceptions."""
         try:
             super().__setattr__(name, value)
         except ValueError:
