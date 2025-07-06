@@ -3,6 +3,7 @@ __pycache__/
 *.pyo
 *.pyd
 .venv/
+.env
 .git/
 .gitignore
 __MACOSX/
