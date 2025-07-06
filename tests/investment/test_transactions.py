@@ -6,7 +6,6 @@ import pandas as pd
 
 from investment.core.transactions import Transactions
 
-
 class TransactionsTestCase(unittest.TestCase):
     """Unit tests for :class:`Transactions`."""
 
