@@ -1,6 +1,6 @@
 """Returns Calculator for timeseries"""
 
-from typing import Callable, Any
+from typing import Callable
 
 import pandas as pd
 import numpy as np
@@ -65,3 +65,7 @@ class ReturnsCalculator(BaseAnalytics):
             df_list.append(temp_df)
 
         return pd.concat(df_list).dropna().reset_index(drop=True)
+
+__all__ = [
+    "ReturnsCalculator",
+]

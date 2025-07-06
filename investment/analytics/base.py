@@ -16,7 +16,7 @@ class BaseAnalytics:
     @staticmethod
     def _validate(df: DataFrame) -> Series:
         """Validate input DataFrame and return simple returns series."""
-        from .returns import ReturnsCalculator
+        from . import ReturnsCalculator
 
         if df.empty:
             raise ValueError("Input DataFrame is empty.")
@@ -27,3 +27,7 @@ class BaseAnalytics:
 
         ret_df = ReturnsCalculator(use_ln_ret=False, ret_win_size=1).calculate(df)
         return ret_df.set_index("as_of_date")["return"]
+
+__all__ = [
+    "BaseAnalytics",
+]

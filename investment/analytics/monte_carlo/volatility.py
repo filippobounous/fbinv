@@ -4,7 +4,7 @@ from typing import Callable
 
 import numpy as np
 
-from .base import BaseMonteCarloEngine
+from . import BaseMonteCarloEngine
 
 class VolatilityEngine(BaseMonteCarloEngine):
     """Engine for generating stochastic volatility paths."""
@@ -134,3 +134,7 @@ class VolatilityEngine(BaseMonteCarloEngine):
             vols[t] = vols[t - 1] * np.exp(-0.5 * nu ** 2 * self.dt + nu * sqrt_dt * z)
 
         return vols
+
+__all__ = [
+    "VolatilityEngine",
+]

@@ -369,3 +369,7 @@ class CorrelationCalculator(BaseAnalytics):
             np.fill_diagonal(result.values, 1.0)
             return result
         return result
+
+__all__ = [
+    "CorrelationCalculator",
+]

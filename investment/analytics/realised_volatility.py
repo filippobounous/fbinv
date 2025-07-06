@@ -152,3 +152,7 @@ class RealisedVolatilityCalculator(BaseAnalytics):
 
         k = 0.34 / (1.34 + (rv_win_size + 1) / (rv_win_size - 1))
         return np.sqrt(var_on + k * var_day + (1 - k) * rs2)
+
+__all__ = [
+    "RealisedVolatilityCalculator",
+]
