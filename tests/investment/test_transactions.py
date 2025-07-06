@@ -230,3 +230,20 @@ class TransactionsTestCase(unittest.TestCase):
             tr.update()
         eit.assert_called_once_with(tr)
         lsc.assert_called_once_with(tr)
+
+    def test_arbitrary_attribute_assignment(self):
+        """Transactions allows setting extra attributes for tests."""
+        tr = Transactions()
+        tr.some_attr = 123
+        self.assertEqual(tr.some_attr, 123)
+
+    def test_load_transactions_defaults(self):
+        """_load_transactions uses the instance file_path and sheet_name."""
+        tr = Transactions()
+        tr.file_path = "/tmp/sample.xlsx"
+        tr.sheet_name = "SheetA"
+        df = pd.DataFrame()
+        with mock.patch("pandas.read_excel", return_value=df) as re:
+            result = tr._load_transactions()
+        re.assert_called_once_with("/tmp/sample.xlsx", sheet_name="SheetA")
+        self.assertIs(result, df)

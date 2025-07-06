@@ -2,6 +2,7 @@
 
 import unittest
 from unittest import mock
+
 import pandas as pd
 
 from investment import config
@@ -275,4 +276,78 @@ class PortfolioTestCase(unittest.TestCase):
         pd.testing.assert_frame_equal(result, expected)
         sec.get_price_history.assert_called_once_with(
             datasource=None, local_only=True, currency="GBP"
+        )
+
+    def test_get_price_history_intraday_warns(self):
+        """Passing intraday=True emits a warning and aggregates correctly."""
+        pf = self._make_portfolio()
+        df = pd.DataFrame({
+            "as_of_date": pd.to_datetime(["2020-01-01", "2020-01-01"]),
+            "open_value": [1.0, 2.0],
+            "close_value": [1.5, 2.5],
+            "net_value": [0.5, 0.5],
+            "entry_value": [1.0, 2.0],
+        })
+        with mock.patch.object(
+            Portfolio,
+            "get_holdings_price_history",
+            return_value=df
+        ) as gh:
+            with self.assertWarns(UserWarning):
+                result = pf.get_price_history(intraday=True)
+        gh.assert_called_once()
+        expected = df.groupby("as_of_date")[[
+            "open_value",
+            "close_value",
+            "net_value",
+            "entry_value",
+        ]].sum().rename(columns={
+            "open_value": "open",
+            "close_value": "close",
+            "net_value": "net",
+            "entry_value": "entry",
+        })
+        pd.testing.assert_frame_equal(result, expected)
+
+    def test_transactions_reads_csv(self):
+        """transactions property loads CSV with date parsing."""
+        pf = self._make_portfolio()
+        df = pd.DataFrame()
+        with mock.patch("pandas.read_csv", return_value=df) as rc:
+            result = pf.transactions
+        rc.assert_called_once_with(
+            f"{config.PORTFOLIO_PATH}/TEST-transactions.csv",
+            parse_dates=['as_of_date'],
+        )
+        self.assertIs(result, df)
+
+    def test_get_holdings_filters_account_currency(self):
+        """_get_holdings applies account and currency filters."""
+        tr_df = pd.DataFrame({
+            "as_of_date": pd.to_datetime(["2020-01-01", "2020-01-02", "2020-01-03"]),
+            "figi_code": ["AAA", "AAA", "AAA"],
+            "quantity": [5, 5, 5],
+            "value": [50, 60, 70],
+            "account": ["ACC1", "ACC2", "ACC1"],
+            "currency": ["USD", "USD", "EUR"],
+        })
+        mapping_df = pd.DataFrame({"figi_code": ["AAA"], "code": ["AAA"]})
+        pf = self._make_portfolio(account="ACC1", currency="USD")
+        with mock.patch("pandas.read_csv", return_value=tr_df), \
+             mock.patch(
+                 "investment.core.portfolio.LocalDataSource.get_security_mapping",
+                 return_value=mapping_df,
+             ):
+            pf._get_holdings()
+        expected = pd.DataFrame({
+            "as_of_date": pd.to_datetime(["2020-01-01"]),
+            "figi_code": ["AAA"],
+            "quantity": [5.0],
+            "average": [10.0],
+            "currency": ["USD"],
+            "entry_value": [50.0],
+            "code": ["AAA"],
+        })
+        pd.testing.assert_frame_equal(
+            pf.holdings.reset_index(drop=True), expected, check_dtype=False
         )
