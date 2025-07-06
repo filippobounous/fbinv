@@ -147,3 +147,47 @@ class SecurityTestCase(TestCase):
         self.assertIs(security_registry["fund"], Fund)
         self.assertIs(security_registry["currency_cross"], CurrencyCross)
         self.assertIs(security_registry["composite"], Composite)
+    
+    def test_missing_attributes_raises(self):
+        """Initialisation fails if datasource data lacks required fields."""
+        with mock.patch.object(TestDataSource, "load_security", return_value={}):
+            with self.assertRaises(ValueError):
+                Equity("MISSING")
+
+    def test_composite_repr(self):
+        """Composite __repr__ includes underlying codes."""
+        sec = Equity("AAA")
+        cc = CurrencyCross("EURUSD")
+        comp = Composite(security=sec, currency_cross=cc)
+        self.assertEqual(
+            repr(comp),
+            "Composite(entity_type=composite, security=AAA, currency_cross=EURUSD)"
+        )
+
+    def test_get_file_path_open_figi(self):
+        """OpenFIGI path uses figi_code and supports intraday."""
+        sec = Equity("TEST")
+        path = sec.get_file_path(
+            datasource_name="open_figi", intraday=True, series_type="price_history"
+        )
+        expected = (
+            f"{config.TIMESERIES_DATA_PATH}/price_history/open_figi/"
+            f"equity/figi_code-intraday-price_history.csv"
+        )
+        self.assertEqual(path, expected)
+
+    def test_composite_price_history_missing_columns(self):
+        """Composite returns empty DataFrame if inputs lack OHLC columns."""
+        sec = Equity("AAA")
+        cc = CurrencyCross("EURUSD")
+        sec.get_price_history = mock.Mock(return_value=pd.DataFrame({"open": [1.0]}))
+        cc.get_price_history = mock.Mock(return_value=pd.DataFrame({"open": [1.0]}))
+        comp = Composite.construct(
+            security=sec,
+            currency_cross=cc,
+            entity_type="composite",
+            code="AAA_EUR",
+        )
+        result = comp.get_price_history()
+        self.assertTrue(result.empty)
+

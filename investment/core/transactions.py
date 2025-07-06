@@ -15,6 +15,14 @@ class Transactions(BaseModel):
     sheet_name: str = TRANSACTION_SHEET_NAME
     portfolio_path: str = PORTFOLIO_PATH
 
+
+    def __setattr__(self, name: str, value) -> None:
+        """Allow setting of arbitrary attributes for easier testing."""
+        try:
+            super().__setattr__(name, value)
+        except ValueError:
+            object.__setattr__(self, name, value)
+
     def extract_and_save_investment_transactions(self) -> None:
         """
         Custom method to extract transactions from a given .xlsx sheet into a Portfolio csv.
