@@ -90,3 +90,7 @@ class Composite(BaseSecurity):
         df["close"] = df["close_sec"] * df["close_ccy"]
 
         return df[["open", "close"]]
+
+__all__ = [
+    "Composite",
+]

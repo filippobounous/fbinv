@@ -254,3 +254,7 @@ class Portfolio(BaseMappingEntity):
         df = df.set_index(["code", "figi_code"]).groupby(level=0, group_keys=False).ffill()
 
         return df.set_index("as_of_date", append=True)
+
+__all__ = [
+    "Portfolio",
+]

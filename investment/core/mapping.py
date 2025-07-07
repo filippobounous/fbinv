@@ -178,3 +178,7 @@ class BaseMappingEntity(BaseModel):
             confidence_level=confidence_level,
             var_win_size=var_win_size,
         )
+
+__all__ = [
+    "BaseMappingEntity",
+]

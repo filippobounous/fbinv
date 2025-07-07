@@ -99,3 +99,7 @@ class Transactions(BaseModel):
         """Run both extraction helpers to refresh portfolio files."""
         self.extract_and_save_investment_transactions()
         self.load_and_save_cash_positions()
+
+__all__ = [
+    "Transactions",
+]

@@ -26,3 +26,7 @@ class Generic:
             kwargs["code"] = code
 
         return LocalDataSource().load_generic_security(**kwargs)
+
+__all__ = [
+    "Generic",
+]
