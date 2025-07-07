@@ -116,3 +116,7 @@ class TestDataSource(BaseDataSource):
                 return pd.DataFrame()
 
         return DummySecurity(**kwargs)  # type: ignore[arg-type]
+
+__all__ = [
+    "TestDataSource",
+]

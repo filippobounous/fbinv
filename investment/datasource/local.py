@@ -184,3 +184,7 @@ class LocalDataSource(BaseDataSource):
     def _update_security_mapping(self, df: pd.DataFrame) -> pd.DataFrame:
         """Local source has no remote mapping update."""
         raise DataSourceMethodException(f"No remote security mapping for {self.name} datasource.")
+
+__all__ = [
+    "LocalDataSource",
+]

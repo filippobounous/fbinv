@@ -137,3 +137,7 @@ class YahooFinanceDataSource(BaseDataSource):
                 continue
 
         return pd.DataFrame(results)
+
+__all__ = [
+    "YahooFinanceDataSource",
+]

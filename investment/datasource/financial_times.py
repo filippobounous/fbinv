@@ -66,3 +66,7 @@ class FinancialTimesDataSource(BaseDataSource):
         raise DataSourceMethodException(
             f"No remote security mapping for {self.name} datasource."
         )
+
+__all__ = [
+    "FinancialTimesDataSource",
+]
