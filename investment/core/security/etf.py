@@ -10,3 +10,7 @@ class ETF(ISINSecurity):
         code (str): The Bloomberg ticker for the etf (ticker and exchange)
     """
     entity_type: str = "etf"
+
+__all__ = [
+    "ETF",
+]

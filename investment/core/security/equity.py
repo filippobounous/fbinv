@@ -10,3 +10,7 @@ class Equity(ISINSecurity):
         code (str): The Bloomberg ticker for the equity
     """
     entity_type: str = "equity"
+
+__all__ = [
+    "Equity",
+]

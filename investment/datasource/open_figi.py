@@ -109,3 +109,7 @@ class OpenFigiDataSource(BaseDataSource):
         df = pd.DataFrame(results)
 
         return df
+
+__all__ = [
+    "OpenFigiDataSource",
+]

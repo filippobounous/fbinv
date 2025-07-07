@@ -342,3 +342,7 @@ class BaseDataSource(BaseModel):
             di["security_mapping"] = False
 
         return di
+
+__all__ = [
+    "BaseDataSource",
+]

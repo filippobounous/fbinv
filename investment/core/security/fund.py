@@ -10,3 +10,7 @@ class Fund(ISINSecurity):
         code (str): The Bloomberg ticker for the mutual fund (ticker and exchange)
     """
     entity_type: str = "fund"
+
+__all__ = [
+    "Fund",
+]

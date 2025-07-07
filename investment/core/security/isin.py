@@ -10,3 +10,7 @@ class ISINSecurity(BaseSecurity):
     """
     entity_type: str = "isin"
     isin_code: str | None = None
+
+__all__ = [
+    "ISINSecurity",
+]

@@ -427,3 +427,7 @@ class PerformanceMetrics(BaseAnalytics):
 
         result = cls._apply_window(returns, func, metric_win_size)
         return cls._to_dataframe(result, "hit_ratio", metric_win_size)
+
+__all__ = [
+    "PerformanceMetrics",
+]

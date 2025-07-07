@@ -229,3 +229,7 @@ class BaseMonteCarloEngine(BaseAnalytics):
             return sample.mean()
         beta = cov / var
         return sample.mean() - beta * (control.mean() - control_expectation)
+
+__all__ = [
+    "BaseMonteCarloEngine",
+]

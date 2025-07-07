@@ -11,3 +11,7 @@ def get_currency_cross(origin_currency: str, result_currency: str) -> "CurrencyC
 
     ccy = CurrencyCross(code=f"{origin_currency}{result_currency}")
     return ccy
+
+__all__ = [
+    "get_currency_cross",
+]

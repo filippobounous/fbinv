@@ -107,3 +107,7 @@ class BaseSecurity(BaseMappingEntity):
             if currency ==  self.currency
             else Composite(security=self, composite_currency=currency)
         )
+
+__all__ = [
+    "BaseSecurity",
+]

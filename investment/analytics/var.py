@@ -119,3 +119,7 @@ class VaRCalculator(BaseAnalytics):
 
         result = cls._apply_window(returns, func, var_win_size)
         return cls._to_dataframe(result, "conditional", var_win_size, confidence_level)
+
+__all__ = [
+    "VaRCalculator",
+]

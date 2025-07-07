@@ -11,3 +11,7 @@ class CurrencyCross(BaseSecurity):
     """
     entity_type: str = "currency_cross"
     currency_vs: str | None = None
+
+__all__ = [
+    "CurrencyCross",
+]

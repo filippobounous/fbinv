@@ -4,7 +4,7 @@ from typing import Callable
 
 import numpy as np
 
-from .base import BaseMonteCarloEngine
+from . import BaseMonteCarloEngine
 
 class PricePathEngine(BaseMonteCarloEngine):
     """Engine for generating correlated price or returns paths."""
@@ -108,3 +108,7 @@ class PricePathEngine(BaseMonteCarloEngine):
                 paths[t] *= jump_factor
 
         return paths
+
+__all__ = [
+    "PricePathEngine",
+]
