@@ -17,6 +17,7 @@ setup(
         "tqdm>=4.66.0",
         "python-dotenv>=1.0.0",
         "fastapi>=0.110",
+        "uvicorn>=0.27",
     ],
     python_requires=">=3.9",
 )
