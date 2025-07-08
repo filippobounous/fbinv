@@ -1,6 +1,7 @@
 """Unit tests for Monte Carlo engines in :mod:`investment.analytics.monte_carlo`."""
 
 import unittest
+
 import numpy as np
 
 from investment.analytics import (
@@ -20,7 +21,9 @@ class MonteCarloTests(unittest.TestCase):
         self.assertEqual(paths.shape, (2, 2, 1))
         self.assertTrue(np.all(paths[0] == spots))
 
-        jump_paths = engine.generate_jump_diffusion_paths(spots, np.array([0.0]), np.array([0.0]), 0.0, 0.0, 0.0)
+        jump_paths = engine.generate_jump_diffusion_paths(
+            spots, np.array([0.0]), np.array([0.0]), 0.0, 0.0, 0.0
+        )
         np.testing.assert_allclose(paths, jump_paths)
 
     def test_apply_control_variate(self):

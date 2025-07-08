@@ -1,6 +1,7 @@
 """Unit tests for the :mod:`investment.analytics.random_generators` module."""
 
 import unittest
+
 import numpy as np
 
 from investment.analytics import RandomGenerator

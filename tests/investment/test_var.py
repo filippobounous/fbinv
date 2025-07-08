@@ -1,7 +1,7 @@
 """Unit tests for the :mod:`investment.analytics.var` module."""
 
-import unittest
 from statistics import NormalDist
+import unittest
 
 import numpy as np
 import pandas as pd
@@ -42,10 +42,11 @@ class VaRCalculatorTests(unittest.TestCase):
 
     def test_conditional_var_no_losses(self):
         """Conditional VaR handles periods with no losses."""
-        df_up = pd.DataFrame({"close": [1, 2, 3, 4, 5]}, index=pd.date_range("2020-01-01", periods=5))
+        df_up = pd.DataFrame(
+            {"close": [1, 2, 3, 4, 5]}, index=pd.date_range("2020-01-01", periods=5)
+        )
         result = VaRCalculator.conditional_var(df_up, var_win_size=2, confidence_level=0.95)
         returns = df_up["close"].pct_change().dropna()
 
         expected = returns.rolling(2).apply(_cond_var)
         np.testing.assert_allclose(result["var"], expected.dropna())
-

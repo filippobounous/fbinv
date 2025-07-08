@@ -14,6 +14,7 @@ from investment.datasource import (
     OpenFigiDataSource,
     TwelveDataDataSource,
     YahooFinanceDataSource,
+    BaseDataSource
 )
 from investment.core.security import CurrencyCross, Equity
 from investment.datasource.test import TestDataSource
@@ -51,7 +52,10 @@ class AlphaVantageTests(BaseDataSourceTestCase):
         """Check the fallback start and end date calculation logic."""
         ds = AlphaVantageDataSource()
         df = pd.DataFrame({"as_of_date": pd.to_datetime(["2020-01-01", "2020-01-02"])})
-        with mock.patch("investment.datasource.alpha_vantage.today_midnight", return_value=datetime.datetime(2020, 1, 10)):
+        with mock.patch(
+            "investment.datasource.alpha_vantage.today_midnight",
+            return_value=datetime.datetime(2020, 1, 10)
+        ):
             start, end = ds._default_start_and_end_date(df=df, symbol="AAA", intraday=False)
         self.assertEqual(start, pd.Timestamp("2020-01-01"))
         self.assertEqual(end, datetime.datetime(2020, 1, 9))
@@ -66,7 +70,8 @@ class PlaceholderDataSourceTests(BaseDataSourceTestCase):
         self.start = datetime.datetime(2020, 1, 1)
         self.end = datetime.datetime(2020, 1, 2)
 
-    def assert_all_methods_raise(self, ds, include_update=True):
+    def assert_all_methods_raise(self, ds: "BaseDataSource", include_update: bool = True):
+        """Check that all methods raise DataSourceMethodException."""
         methods = [
             ds._get_currency_cross_price_history_from_remote,
             ds._get_equity_price_history_from_remote,
@@ -125,10 +130,14 @@ class LocalDataSourceTests(BaseDataSourceTestCase):
     def test_get_all_portfolios_and_securities(self):
         """Ensure helper methods return portfolio names and security codes."""
         ds = LocalDataSource()
-        with mock.patch.object(ds, "_get_file_names_in_path", return_value={"AAA": datetime.datetime(2020,1,1)}):
+        with mock.patch.object(
+            ds, "_get_file_names_in_path", return_value={"AAA": datetime.datetime(2020,1,1)}
+        ):
             result = ds.get_all_portfolios()
         self.assertIn("AAA", result)
-        with mock.patch.object(ds, "get_security_mapping", return_value=pd.DataFrame({"code": ["AAA"]})):
+        with mock.patch.object(
+            ds, "get_security_mapping", return_value=pd.DataFrame({"code": ["AAA"]})
+        ):
             result2 = ds.get_all_securities()
         self.assertEqual(result2, ["AAA"])
 
@@ -151,7 +160,10 @@ class YahooFinanceDataSourceTests(BaseDataSourceTestCase):
     def test_format_price_history_from_remote(self):
         """Formatting converts the multi-indexed DataFrame to standard columns."""
         ds = YahooFinanceDataSource()
-        df = pd.DataFrame({("Open", ""): [1], ("Close", ""): [2]}, index=pd.DatetimeIndex(["2020-01-01"], name="Date"))
+        df = pd.DataFrame(
+            {("Open", ""): [1], ("Close", ""): [2]},
+            index=pd.DatetimeIndex(["2020-01-01"], name="Date")
+        )
         result = ds._format_price_history_from_remote(df)
         self.assertEqual(list(result.columns), ["as_of_date", "open", "close"])
 
@@ -171,7 +183,10 @@ class YahooFinanceDataSourceTests(BaseDataSourceTestCase):
         """Date calculation should return previous day's end when data exists."""
         ds = YahooFinanceDataSource()
         df = pd.DataFrame({"as_of_date": pd.to_datetime(["2020-01-05", "2020-01-06"])})
-        with mock.patch("investment.datasource.yahoo_finance.today_midnight", return_value=datetime.datetime(2020,1,10)):
+        with mock.patch(
+            "investment.datasource.yahoo_finance.today_midnight",
+            return_value=datetime.datetime(2020,1,10)
+        ):
             start, end = ds._default_start_and_end_date(df=df, symbol="AAA", intraday=False)
         self.assertEqual(start, pd.Timestamp("2020-01-05"))
         self.assertEqual(end, datetime.datetime(2020,1,9))
@@ -218,9 +233,16 @@ class TwelveDataDataSourceTests(BaseDataSourceTestCase):
         """Valid start date results in expected date range calculation."""
         ds = TwelveDataDataSource()
         df = pd.DataFrame()
-        with mock.patch.object(ds, "_check_start_date_for_security", return_value=datetime.datetime(2020,1,1)), \
-             mock.patch("investment.datasource.twelve_data.today_midnight", return_value=datetime.datetime(2020,1,10)):
+        with (
+            mock.patch.object(
+                ds, "_check_start_date_for_security",
+                return_value=datetime.datetime(2020,1,1)
+            ),
+            mock.patch(
+                "investment.datasource.twelve_data.today_midnight",
+                return_value=datetime.datetime(2020,1,10)
+            )
+        ):
             start, end = ds._default_start_and_end_date(df=df, symbol="AAA", intraday=False)
         self.assertEqual(start, datetime.datetime(2020,1,1))
         self.assertEqual(end, datetime.datetime(2020,1,9))
-

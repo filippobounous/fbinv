@@ -97,7 +97,9 @@ class PerformanceMetricsTests(unittest.TestCase):
         running_max = cum.cummax()
         drawdown = (cum - running_max) / running_max
         drawdown.index.name = "as_of_date"
-        pd.testing.assert_series_equal(dd_series["drawdown"], drawdown, check_freq=False, check_names=False)
+        pd.testing.assert_series_equal(
+            dd_series["drawdown"], drawdown, check_freq=False, check_names=False
+        )
 
         sortino = PerformanceMetrics.sortino_ratio(prices, metric_win_size=win)
         excess = returns - 0 / TRADING_DAYS
@@ -121,4 +123,3 @@ class PerformanceMetricsTests(unittest.TestCase):
         omega = PerformanceMetrics.omega_ratio(prices, metric_win_size=win)
         expected_omega = (returns - 0 / TRADING_DAYS).rolling(win).apply(omega_func)
         np.testing.assert_allclose(omega["value"], expected_omega.dropna())
-

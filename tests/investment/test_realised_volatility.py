@@ -1,6 +1,7 @@
 """Unit tests for the :mod:`investment.analytics.realised_volatility` module."""
 
 import unittest
+
 import numpy as np
 import pandas as pd
 
@@ -40,14 +41,18 @@ class RealisedVolatilityTests(unittest.TestCase):
         pk = (1 / (4 * np.log(2))) * (np.log(prices["high"] / prices["low"]) ** 2)
         expected_pk = np.sqrt(pk.rolling(2).mean()) * np.sqrt(TRADING_DAYS)
         res_pk = result[result["rv_model"] == "parkinson"]["volatility"]
-        np.testing.assert_allclose(res_pk.reset_index(drop=True), expected_pk.dropna().reset_index(drop=True))
+        np.testing.assert_allclose(
+            res_pk.reset_index(drop=True), expected_pk.dropna().reset_index(drop=True)
+        )
 
         term1 = 0.5 * (np.log(prices["high"] / prices["low"]) ** 2)
         term2 = (2 * np.log(2) - 1) * (np.log(prices["close"] / prices["open"]) ** 2)
         gk = term1 - term2
         expected_gk = np.sqrt(gk.rolling(2).mean()) * np.sqrt(TRADING_DAYS)
         res_gk = result[result["rv_model"] == "garman_klass"]["volatility"]
-        np.testing.assert_allclose(res_gk.reset_index(drop=True), expected_gk.dropna().reset_index(drop=True))
+        np.testing.assert_allclose(
+            res_gk.reset_index(drop=True), expected_gk.dropna().reset_index(drop=True)
+        )
 
     def test_additional_models(self):
         """Verify Rogers–Satchell and Yang–Zhang variants."""
@@ -73,7 +78,9 @@ class RealisedVolatilityTests(unittest.TestCase):
         rs = ho * (ho - co) + lo * (lo - co)
         exp_rs = np.sqrt(rs.rolling(2).mean()) * np.sqrt(TRADING_DAYS)
         res_rs = result[result["rv_model"] == "rogers_satchell"]["volatility"]
-        np.testing.assert_allclose(res_rs.reset_index(drop=True), exp_rs.dropna().reset_index(drop=True))
+        np.testing.assert_allclose(
+            res_rs.reset_index(drop=True), exp_rs.dropna().reset_index(drop=True)
+        )
 
         gk_term1 = 0.5 * (np.log(prices["high"] / prices["low"]) ** 2)
         gk_term2 = (2 * np.log(2) - 1) * (np.log(prices["close"] / prices["open"]) ** 2)
@@ -82,7 +89,9 @@ class RealisedVolatilityTests(unittest.TestCase):
         gk_yz = yz + gk_init
         exp_gkyz = np.sqrt(gk_yz.rolling(2).mean()) * np.sqrt(TRADING_DAYS)
         res_gkyz = result[result["rv_model"] == "gk_yang_zhang"]["volatility"]
-        np.testing.assert_allclose(res_gkyz.reset_index(drop=True), exp_gkyz.dropna().reset_index(drop=True))
+        np.testing.assert_allclose(
+            res_gkyz.reset_index(drop=True), exp_gkyz.dropna().reset_index(drop=True)
+        )
 
         log_open = np.log(prices["open"])
         log_close = np.log(prices["close"])
@@ -94,4 +103,6 @@ class RealisedVolatilityTests(unittest.TestCase):
         k = 0.34 / (1.34 + (2 + 1) / (2 - 1))
         exp_yz = np.sqrt(var_on + k * var_day + (1 - k) * rs2)
         res_yz = result[result["rv_model"] == "yang_zhang"]["volatility"]
-        np.testing.assert_allclose(res_yz.reset_index(drop=True), exp_yz.dropna().reset_index(drop=True))
+        np.testing.assert_allclose(
+            res_yz.reset_index(drop=True), exp_yz.dropna().reset_index(drop=True)
+        )
