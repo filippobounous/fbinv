@@ -1,7 +1,11 @@
 from pydantic import BaseModel
 
 class BaseMappingEntity(BaseModel):
-    pass
+    entity_type: str
+    code: str
+    name: str
+    description: str = ""
+    notes: str = ""
 
 __all__ = [
     "BaseMappingEntity",
