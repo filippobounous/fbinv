@@ -69,10 +69,12 @@ layer.
 ## Verifying the Key
 
 Start one of the apps with the environment variable set and make a request with
-`curl`:
+`curl`. The port defaults to `8000` but can be changed using the
+`INVESTMENT_API_PORT` variable:
 
 ```bash
-curl -H "X-API-Key: $FASTAPI_INVESTMENT_API_KEY" http://localhost:8000/health
+curl -H "X-API-Key: $FASTAPI_INVESTMENT_API_KEY" \
+     http://localhost:${INVESTMENT_API_PORT:-8000}/health
 ```
 
 A successful response should include `{"status": "ok"}`. If the key is missing
