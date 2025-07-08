@@ -17,11 +17,12 @@ pip install -r requirements.txt
    pip install -e .
    ```
 2. Copy `.env.example` to `.env` and fill in the required variables.
-3. Start the desired API with `uvicorn`:
+3. Start the desired API with `uvicorn` (the port can be set via
+   `INVESTMENT_API_PORT` or `INVENTORY_API_PORT` in your `.env` file):
    ```bash
-   uvicorn api.investment.main:app
+   uvicorn api.investment.main:app --port ${INVESTMENT_API_PORT:-8000}
    # or
-   uvicorn api.inventory.main:app
+   uvicorn api.inventory.main:app --port ${INVENTORY_API_PORT:-8001}
    ```
    Add `--reload` if you want automatic code reloading during development.
 
@@ -39,10 +40,12 @@ docker-compose:
 docker compose up --build
 ```
 
-This launches two containers:
+This launches two containers. The exposed ports can be customized via the
+`INVESTMENT_API_PORT` and `INVENTORY_API_PORT` variables in your `.env` file.
+Defaults are `8000` and `8001` respectively:
 
-- **investment** – exposes the investment API on port `8000`
-- **inventory** – exposes the inventory API on port `8001`
+- **investment** – exposes the investment API on the configured port
+- **inventory** – exposes the inventory API on the configured port
 
 Any changes to the local source will be picked up the next time you rebuild the
 containers.
