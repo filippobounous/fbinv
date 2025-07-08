@@ -1,6 +1,9 @@
 from .mapping import BaseMappingEntity
 
+
 class House(BaseMappingEntity):
+    """A physical property that can contain rooms."""
+
     entity_type: str = "house"
     address: str
     city: str
