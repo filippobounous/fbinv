@@ -1,3 +1,5 @@
+"""Unit tests for :mod:`investment.core.mapping` base entities."""
+
 import unittest
 from unittest import mock
 
@@ -10,6 +12,7 @@ class BaseMappingEntityTestCase(unittest.TestCase):
     """Tests for :class:`investment.core.mapping.BaseMappingEntity`."""
 
     def setUp(self):
+        """Patch the data source and create a sample entity."""
         patcher = mock.patch(
             "investment.core.mapping.BaseMappingEntity._local_datasource",
             TestDataSource,
@@ -19,12 +22,15 @@ class BaseMappingEntityTestCase(unittest.TestCase):
         self.entity = Equity("AAA")
 
     def _price_df(self) -> pd.DataFrame:
+        """Return a simple price history DataFrame for testing."""
+
         return pd.DataFrame(
             {"close": [1.0, 2.0], "open": [1.0, 2.0], "high": [2.0, 3.0], "low": [0.5, 1.0]},
             index=pd.to_datetime(["2020-01-01", "2020-01-02"]),
         )
 
     def test_get_returns_uses_calculator(self):
+        """``get_returns`` delegates calculation to ``ReturnsCalculator``."""
         df_price = self._price_df()
         df_ret = pd.DataFrame()
         self.entity.get_price_history = mock.Mock(return_value=df_price)
@@ -36,6 +42,7 @@ class BaseMappingEntityTestCase(unittest.TestCase):
         self.assertIs(result, df_ret)
 
     def test_get_realised_volatility_uses_calculator(self):
+        """``get_realised_volatility`` uses ``RealisedVolatilityCalculator``."""
         df_price = self._price_df()
         df_vol = pd.DataFrame()
         self.entity.get_price_history = mock.Mock(return_value=df_price)
@@ -47,6 +54,7 @@ class BaseMappingEntityTestCase(unittest.TestCase):
         self.assertIs(result, df_vol)
 
     def test_get_performance_metrics_concatenates_results(self):
+        """``get_performance_metrics`` concatenates individual metrics."""
         df_price = self._price_df()
         self.entity.get_price_history = mock.Mock(return_value=df_price)
         dfs = [pd.DataFrame({"metric": [i]}) for i in range(5)]
@@ -65,6 +73,7 @@ class BaseMappingEntityTestCase(unittest.TestCase):
         pd.testing.assert_frame_equal(result, expected)
 
     def test_get_var_uses_registry_method(self):
+        """``get_var`` retrieves the calculator from the registry and executes it."""
         df_price = self._price_df()
         df_var = pd.DataFrame()
         self.entity.get_price_history = mock.Mock(return_value=df_price)
@@ -80,6 +89,7 @@ class BaseMappingEntityTestCase(unittest.TestCase):
         self.assertIs(result, df_var)
 
     def test_get_var_bad_method_raises(self):
+        """``get_var`` raises ``KeyError`` when the method is unknown."""
         df_price = self._price_df()
         self.entity.get_price_history = mock.Mock(return_value=df_price)
         with mock.patch("investment.core.mapping.VaRCalculator.registry", return_value={}):
