@@ -19,5 +19,5 @@ setup(
         "fastapi>=0.110",
         "uvicorn>=0.27",
     ],
-    python_requires=">=3.9",
+    python_requires=">=3.11",
 )
