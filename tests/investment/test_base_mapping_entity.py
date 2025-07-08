@@ -75,12 +75,18 @@ class BaseMappingEntityTestCase(unittest.TestCase):
                 "investment.core.mapping.PerformanceMetrics.sortino_ratio", return_value=dfs[4]
             ) as m5,
         ):
-            result = self.entity.get_performance_metrics(metric_win_size=7, risk_free_rate=0.01, periods_per_year=252)
+            result = self.entity.get_performance_metrics(
+                metric_win_size=7, risk_free_rate=0.01, periods_per_year=252
+            )
         m1.assert_called_once_with(df_price, metric_win_size=7)
         m2.assert_called_once_with(df_price, periods_per_year=252, metric_win_size=7)
         m3.assert_called_once_with(df_price, metric_win_size=7)
-        m4.assert_called_once_with(df_price, risk_free_rate=0.01, periods_per_year=252, metric_win_size=7)
-        m5.assert_called_once_with(df_price, risk_free_rate=0.01, periods_per_year=252, metric_win_size=7)
+        m4.assert_called_once_with(
+            df_price, risk_free_rate=0.01, periods_per_year=252, metric_win_size=7
+        )
+        m5.assert_called_once_with(
+            df_price, risk_free_rate=0.01, periods_per_year=252, metric_win_size=7
+        )
         expected = pd.concat(dfs).reset_index(drop=True)
         pd.testing.assert_frame_equal(result, expected)
 
@@ -90,7 +96,9 @@ class BaseMappingEntityTestCase(unittest.TestCase):
         df_var = pd.DataFrame()
         self.entity.get_price_history = mock.Mock(return_value=df_price)
         mock_calc = mock.Mock(return_value=df_var)
-        with mock.patch("investment.core.mapping.VaRCalculator.registry", return_value={"hist": mock_calc}) as reg:
+        with mock.patch(
+            "investment.core.mapping.VaRCalculator.registry", return_value={"hist": mock_calc}
+        ) as reg:
             result = self.entity.get_var(method="hist", var_win_size=3, confidence_level=0.95)
         reg.assert_called_once()
         mock_calc.assert_called_once_with(
