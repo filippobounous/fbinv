@@ -3,9 +3,8 @@ from unittest import mock
 
 import pandas as pd
 
-from investment.datasource.test import TestDataSource
 from investment.core.security import Equity
-
+from investment.datasource.test import TestDataSource
 
 class BaseMappingEntityTestCase(unittest.TestCase):
     """Tests for :class:`investment.core.mapping.BaseMappingEntity`."""
