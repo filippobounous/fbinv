@@ -3,8 +3,8 @@
 import unittest
 from unittest import mock
 
-from investment.datasource.test import TestDataSource
 from investment.core.security import CurrencyCross, Equity, ETF, Fund, ISINSecurity
+from investment.datasource.test import TestDataSource
 
 class SecurityModulesTestCase(unittest.TestCase):
     """Test cases for security module initialisation."""
