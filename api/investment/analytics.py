@@ -5,7 +5,7 @@ from fastapi import APIRouter
 
 from investment.analytics.correlation import CorrelationCalculator
 from investment.core.portfolio import Portfolio
-from investment.core.security import BaseSecurity
+from investment.core.security.base import BaseSecurity
 from investment.core.security.generic import Generic
 from investment.utils.consts import (
     DEFAULT_RET_WIN_SIZE,
