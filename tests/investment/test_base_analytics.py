@@ -1,6 +1,7 @@
 """Tests for BaseAnalytics input validation."""
 
 import unittest
+
 import pandas as pd
 
 from investment.analytics.base import BaseAnalytics
@@ -34,4 +35,3 @@ class BaseAnalyticsValidateTests(unittest.TestCase):
             DummyAnalytics._validate(pd.DataFrame())
         with self.assertRaises(ValueError):
             DummyAnalytics._validate(pd.DataFrame({"open": [1, 2, 3]}, index=dates))
-

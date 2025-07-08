@@ -17,7 +17,9 @@ from investment.datasource import (
 )
 from investment.core.security import CurrencyCross, Equity
 from investment.datasource.test import TestDataSource
-from investment.utils.exceptions import DataSourceMethodException, AlphaVantageException, TwelveDataException
+from investment.utils.exceptions import (
+    DataSourceMethodException, AlphaVantageException, TwelveDataException,
+)
 
 class BaseDataSourceTestCase(TestCase):
     """Base class that patches the local datasource used by security objects."""

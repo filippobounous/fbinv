@@ -58,11 +58,23 @@ class BaseMappingEntityTestCase(unittest.TestCase):
         df_price = self._price_df()
         self.entity.get_price_history = mock.Mock(return_value=df_price)
         dfs = [pd.DataFrame({"metric": [i]}) for i in range(5)]
-        with mock.patch("investment.core.mapping.PerformanceMetrics.cumulative_return", return_value=dfs[0]) as m1, \
-             mock.patch("investment.core.mapping.PerformanceMetrics.annualised_return", return_value=dfs[1]) as m2, \
-             mock.patch("investment.core.mapping.PerformanceMetrics.max_drawdown", return_value=dfs[2]) as m3, \
-             mock.patch("investment.core.mapping.PerformanceMetrics.sharpe_ratio", return_value=dfs[3]) as m4, \
-             mock.patch("investment.core.mapping.PerformanceMetrics.sortino_ratio", return_value=dfs[4]) as m5:
+        with (
+            mock.patch(
+                "investment.core.mapping.PerformanceMetrics.cumulative_return", return_value=dfs[0]
+            ) as m1,
+            mock.patch(
+                "investment.core.mapping.PerformanceMetrics.annualised_return", return_value=dfs[1]
+            ) as m2,
+            mock.patch(
+                "investment.core.mapping.PerformanceMetrics.max_drawdown", return_value=dfs[2]
+            ) as m3,
+            mock.patch(
+                "investment.core.mapping.PerformanceMetrics.sharpe_ratio", return_value=dfs[3]
+            ) as m4,
+            mock.patch(
+                "investment.core.mapping.PerformanceMetrics.sortino_ratio", return_value=dfs[4]
+            ) as m5,
+        ):
             result = self.entity.get_performance_metrics(metric_win_size=7, risk_free_rate=0.01, periods_per_year=252)
         m1.assert_called_once_with(df_price, metric_win_size=7)
         m2.assert_called_once_with(df_price, periods_per_year=252, metric_win_size=7)
