@@ -5,9 +5,9 @@ from pathlib import Path
 import sys
 
 # Setup environment variables required for tests before importing config
-os.environ.setdefault("BASE_PATH", "/tmp")
-os.environ.setdefault("TRANSACTION_PATH", "/tmp")
-os.environ.setdefault("DEFAULT_NAME", "TEST")
+os.environ.setdefault("INVESTMENT_BASE_PATH", "/tmp")
+os.environ.setdefault("INVESTMENT_TRANSACTION_PATH", "/tmp")
+os.environ.setdefault("INVESTMENT_DEFAULT_NAME", "TEST")
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
