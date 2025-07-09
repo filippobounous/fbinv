@@ -8,6 +8,7 @@ class BaseMappingEntity(BaseModel):
     """Base object populated from local mapping data."""
 
     entity_type: str
+    id: int
     code: str
     name: str
     description: str = ""

@@ -1,9 +1,9 @@
-"""Setup script for the investment package."""
+"""Setup script for the fball package."""
 
 from setuptools import setup, find_packages
 
 setup(
-    name="investment",
+    name="fball",
     version="0.1.0",
     packages=find_packages(exclude=("notebooks", "tests*")),
     install_requires=[
@@ -17,6 +17,7 @@ setup(
         "tqdm>=4.66.0",
         "python-dotenv>=1.0.0",
         "fastapi>=0.110",
+        "uvicorn>=0.27",
     ],
-    python_requires=">=3.9",
+    python_requires=">=3.11",
 )

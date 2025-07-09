@@ -8,6 +8,8 @@ services:
     env_file: .env
     ports:
       - "${INVESTMENT_API_PORT:-8000}:${INVESTMENT_API_PORT:-8000}"
+    volumes:
+      - ${INVESTMENT_BASE_PATH}:${INVESTMENT_BASE_PATH}
   inventory:
     build: .
     command: >-
@@ -16,3 +18,5 @@ services:
     env_file: .env
     ports:
       - "${INVENTORY_API_PORT:-8001}:${INVENTORY_API_PORT:-8001}"
+    volumes:
+      - ${INVENTORY_BASE_PATH}:${INVENTORY_BASE_PATH}
