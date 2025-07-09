@@ -2,17 +2,27 @@ version: '3.8'
 services:
   investment:
     build: .
+    # To enable automatic code reloading during development, mount the project
+    # directory and uncomment the --reload flag in the command below.
+    # volumes:
+    #   - .:/app
     command: >-
       uvicorn api.investment.main:app --host 0.0.0.0
       --port ${INVESTMENT_API_PORT:-8000}
+      # --reload  # enable for development auto-reload
     env_file: .env
     ports:
       - "${INVESTMENT_API_PORT:-8000}:${INVESTMENT_API_PORT:-8000}"
   inventory:
     build: .
+    # To enable automatic code reloading during development, mount the project
+    # directory and uncomment the --reload flag in the command below.
+    # volumes:
+    #   - .:/app
     command: >-
       uvicorn api.inventory.main:app --host 0.0.0.0
       --port ${INVENTORY_API_PORT:-8001}
+      # --reload  # enable for development auto-reload
     env_file: .env
     ports:
       - "${INVENTORY_API_PORT:-8001}:${INVENTORY_API_PORT:-8001}"
