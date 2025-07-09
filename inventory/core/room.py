@@ -1,6 +1,11 @@
+"""Model representing rooms inside houses."""
+
 from .mapping import BaseMappingEntity
 
+
 class Room(BaseMappingEntity):
+    """A room within a house that can contain items."""
+
     entity_type: str = "room"
     house_code: str
     room_type: str

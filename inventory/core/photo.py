@@ -1,3 +1,5 @@
+"""Models for photos linked to inventory entities."""
+
 import datetime
 
 from .mapping import BaseMappingEntity
