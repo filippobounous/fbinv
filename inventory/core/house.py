@@ -1,3 +1,5 @@
+"""Mapping model for houses within the inventory."""
+
 from .mapping import BaseMappingEntity
 
 

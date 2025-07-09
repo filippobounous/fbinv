@@ -1,3 +1,5 @@
+"""Model representing rooms inside houses."""
+
 from .mapping import BaseMappingEntity
 
 

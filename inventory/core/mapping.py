@@ -1,4 +1,4 @@
-"""Base classes for inventory mapping objects."""
+"""Base classes for mapping entities used in the inventory module."""
 
 from pydantic import BaseModel, ConfigDict
 

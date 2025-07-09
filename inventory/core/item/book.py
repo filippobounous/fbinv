@@ -1,3 +1,5 @@
+"""Inventory item model representing books."""
+
 from .base import BaseItem
 
 

@@ -1,3 +1,5 @@
+"""Base class definitions for inventory data sources."""
+
 from typing import ClassVar
 
 from pydantic import BaseModel, ConfigDict

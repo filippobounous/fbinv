@@ -1,3 +1,5 @@
+"""Model for decorative items in the inventory."""
+
 import datetime
 
 from .base import BaseItem

@@ -1,3 +1,5 @@
+"""Base item model used by all inventory items."""
+
 from ..mapping import BaseMappingEntity
 
 

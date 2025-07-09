@@ -1,3 +1,5 @@
+"""Inventory item model for music media."""
+
 from .base import BaseItem
 
 
