@@ -68,16 +68,43 @@ layer.
 
 ## Verifying the Key
 
-Start one of the apps with the environment variable set and make a request with
-`curl`. The port defaults to `8000` but can be changed using the
-`INVESTMENT_API_PORT` variable:
+Follow these steps to confirm your API key is configured correctly:
+
+1. Set `FASTAPI_INVESTMENT_API_KEY` (or `FASTAPI_INVENTORY_API_KEY`) in your
+   environment or `.env` file.
+2. Start the API using `uvicorn`. The port defaults to `8000` but can be
+   customised with the `INVESTMENT_API_PORT` variable.
+3. Call the `/health` endpoint with the same value in the `X-API-Key` header:
 
 ```bash
 curl -H "X-API-Key: $FASTAPI_INVESTMENT_API_KEY" \
      http://localhost:${INVESTMENT_API_PORT:-8000}/health
 ```
 
-A successful response should include `{"status": "ok"}`. If the key is missing
-or incorrect, the API returns `401 Unauthorized`.
+You should receive `{"status": "ok"}` if the key matches. A response of
+`{"detail": "Invalid or missing API key"}` indicates the header does not match
+the value used when starting the server.
 
 See `.env.example` for all available environment variables.
+
+## Using the Endpoints
+
+Most routes follow a simple pattern: **GET** endpoints accept a single code via the URL path, while **POST** endpoints accept a JSON array of codes. Always include the API key in the `X-API-Key` header.
+
+### Single entity (GET)
+
+```bash
+curl -H "X-API-Key: $FASTAPI_INVESTMENT_API_KEY" \
+     http://localhost:${INVESTMENT_API_PORT:-8000}/core/security/SPY%20US
+```
+
+### Multiple entities (POST)
+
+```bash
+curl -X POST http://localhost:${INVESTMENT_API_PORT:-8000}/core/security \
+     -H "Content-Type: application/json" \
+     -H "X-API-Key: $FASTAPI_INVESTMENT_API_KEY" \
+     -d '["SPY US", "AAPL US"]'
+```
+
+Replace the codes with your desired tickers or portfolio identifiers. The response will be a JSON object keyed by code.
