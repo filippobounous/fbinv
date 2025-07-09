@@ -50,6 +50,11 @@ Defaults are `8000` and `8001` respectively:
 Any changes to the local source will be picked up the next time you rebuild the
 containers.
 
+For easier development you can mount the project directory and enable auto-
+reloading inside the containers. Uncomment the `volumes` lines and the
+`--reload` flags in `docker-compose.yml` to watch for changes without bringing
+the services down.
+
 ## Running Tests
 
 Automated tests can be executed with:
