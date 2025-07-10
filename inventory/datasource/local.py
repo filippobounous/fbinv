@@ -8,7 +8,7 @@ from .base import BaseDataSource
 
 if TYPE_CHECKING:
     from ..core import (
-        House, Photo, Room, BookItem, DecorItem, MusicItem
+        House, Photo, Room, Book, Decor, Music
     )
 
 class LocalDataSource(BaseDataSource):
@@ -25,13 +25,13 @@ class LocalDataSource(BaseDataSource):
     def load_room(self, room: "Room") -> dict[str, Any]:
         pass
 
-    def load_book(self, book_item: "BookItem") -> dict[str, Any]:
+    def load_book(self, book_item: "Book") -> dict[str, Any]:
         pass
 
-    def load_decor(self, deco_item: "DecorItem") -> dict[str, Any]:
+    def load_decor(self, deco_item: "Decor") -> dict[str, Any]:
         pass
 
-    def load_music(self, music_item: "MusicItem") -> dict[str, Any]:
+    def load_music(self, music_item: "Music") -> dict[str, Any]:
         pass
 
 __all__ = [

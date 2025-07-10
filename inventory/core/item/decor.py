@@ -4,7 +4,7 @@ import datetime
 
 from .base import BaseItem
 
-class DecorItem(BaseItem):
+class Decor(BaseItem):
     """Decorative inventory item with value and provenance."""
 
     entity_type: str = "decor"
@@ -26,5 +26,5 @@ class DecorItem(BaseItem):
     appraisal_entity: str
 
 __all__ = [
-    "DecorItem",
+    "Decor",
 ]

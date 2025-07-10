@@ -2,17 +2,17 @@
 
 from typing import TYPE_CHECKING
 
-from .book import BookItem
-from .decor import DecorItem
-from .music import MusicItem
+from .book import Book
+from .decor import Decor
+from .music import Music
 
 if TYPE_CHECKING:
     from .base import BaseItem
 
 all_securities: list['BaseItem']= [
-    BookItem,
-    DecorItem,
-    MusicItem,
+    Book,
+    Decor,
+    Music,
 ]
 
 security_registry: dict[str, 'BaseItem'] = {
