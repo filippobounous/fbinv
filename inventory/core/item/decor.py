@@ -14,9 +14,8 @@ class DecorItem(BaseItem):
     material: str
     height_cm: float
     width_cm: float
-    length_cm: float
-    weight_kg: float
-    condition: str
+    depth_cm: float
+    mass_kg: float
     provenance: str
     quantity: int
     acquisition_date: datetime.datetime
