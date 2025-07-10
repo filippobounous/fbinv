@@ -1,8 +1,13 @@
+"""Model for decorative items in the inventory."""
+
 import datetime
 
 from .base import BaseItem
 
+
 class DecorItem(BaseItem):
+    """Decorative inventory item with value and provenance."""
+
     entity_type: str = "decor"
     origin_region: str
     date_period: str
