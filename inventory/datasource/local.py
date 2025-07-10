@@ -18,19 +18,19 @@ class LocalDataSource(BaseDataSource):
 
     def load_house(self, house: "House") -> dict[str, Any]:
         pass
-    
+
     def load_photo(self, photo: "Photo") -> dict[str, Any]:
         pass
-    
+
     def load_room(self, room: "Room") -> dict[str, Any]:
         pass
-    
+
     def load_book(self, book_item: "BookItem") -> dict[str, Any]:
         pass
-    
+
     def load_decor(self, deco_item: "DecorItem") -> dict[str, Any]:
         pass
-    
+
     def load_music(self, music_item: "MusicItem") -> dict[str, Any]:
         pass
 
