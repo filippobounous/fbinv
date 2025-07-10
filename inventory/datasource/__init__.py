@@ -4,8 +4,8 @@ from .base import BaseDataSource
 from .local import LocalDataSource
 from .registry import (
     all_datasource,
-    datasource_registry,
     datasource_codes,
+    datasource_registry,
     default_datasource,
 )
 from .utils import get_datasource

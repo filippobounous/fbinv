@@ -2,41 +2,37 @@
 
 from __future__ import annotations
 
-from typing import Any, ClassVar
+from typing import Any, ClassVar, TYPE_CHECKING
 
-import pandas as pd
-
-from ..config import INVENTORY_DATA_PATH
 from .base import BaseDataSource
 
-if False:  # pragma: no cover - for type checkers
-    from ..core.mapping import BaseMappingEntity
-
+if TYPE_CHECKING:
+    from ..core import (
+        House, Photo, Room, Book, Decor, Music
+    )
 
 class LocalDataSource(BaseDataSource):
     """Data source that reads from local CSV files."""
 
     name: ClassVar[str] = "local"
 
-    def mapping_path(self, entity_type: str) -> str:
-        """Return CSV path for ``entity_type`` mapping."""
-        return f"{INVENTORY_DATA_PATH}/{entity_type}.csv"
+    def load_house(self, house: "House") -> dict[str, Any]:
+        pass
 
-    def load_entity(self, entity: "BaseMappingEntity") -> dict[str, Any]:
-        """Load attributes for ``entity`` from disk if possible."""
-        path = self.mapping_path(entity.entity_type)
-        try:
-            df = pd.read_csv(path)
-        except FileNotFoundError:
-            return {}
+    def load_photo(self, photo: "Photo") -> dict[str, Any]:
+        pass
 
-        row = df.loc[df.code == entity.code]
-        if len(row) != 1:
-            return {}
+    def load_room(self, room: "Room") -> dict[str, Any]:
+        pass
 
-        di = row.iloc[0].to_dict()
-        return {k: v for k, v in di.items() if pd.notna(v)}
+    def load_book(self, book_item: "Book") -> dict[str, Any]:
+        pass
 
+    def load_decor(self, deco_item: "Decor") -> dict[str, Any]:
+        pass
+
+    def load_music(self, music_item: "Music") -> dict[str, Any]:
+        pass
 
 __all__ = [
     "LocalDataSource",

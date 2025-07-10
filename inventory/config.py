@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 FASTAPI_INVENTORY_API_KEY = os.getenv("FASTAPI_INVENTORY_API_KEY")
-BASE_PATH = os.getenv("BASE_PATH")
+BASE_PATH = os.getenv("INVENTORY_BASE_PATH")
 
 REQUIRED_ENV_VARS = {
     "BASE_PATH": BASE_PATH,

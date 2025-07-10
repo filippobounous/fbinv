@@ -2,8 +2,7 @@
 
 from .base import BaseItem
 
-
-class BookItem(BaseItem):
+class Book(BaseItem):
     """A book item with language and format information."""
 
     entity_type: str = "book"
@@ -11,5 +10,5 @@ class BookItem(BaseItem):
     type_format: str
 
 __all__ = [
-    "BookItem",
+    "Book",
 ]

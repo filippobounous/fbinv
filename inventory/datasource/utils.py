@@ -9,7 +9,6 @@ from .registry import default_datasource
 if TYPE_CHECKING:
     from .base import BaseDataSource
 
-
 def get_datasource(datasource: "BaseDataSource" | None = None) -> "BaseDataSource":
     """Return the provided data source or the default one."""
     if datasource is None:

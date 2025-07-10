@@ -2,7 +2,6 @@
 
 from .mapping import BaseMappingEntity
 
-
 class Room(BaseMappingEntity):
     """A room within a house that can contain items."""
 
