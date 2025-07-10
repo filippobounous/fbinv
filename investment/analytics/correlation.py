@@ -17,7 +17,7 @@ from ..utils.consts import DEFAULT_RET_WIN_SIZE, DEFAULT_CORR_MODEL
 
 if TYPE_CHECKING:
     from ..core.portfolio import Portfolio
-    from ..core.security import BaseSecurity
+    from ..core.security.base import BaseSecurity
 
 class CorrelationCalculator(BaseAnalytics):
     """Calculator for correlations between securities and portfolios.

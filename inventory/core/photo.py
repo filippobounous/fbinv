@@ -1,0 +1,19 @@
+"""Models for photos linked to inventory entities."""
+
+import datetime
+
+from .mapping import BaseMappingEntity
+
+class Photo(BaseMappingEntity):
+    """Model representing a photo linked to a mapping entity."""
+    
+    entity_type: str = "photo"
+    related_entity_type: str
+    related_code: str
+    date_take: datetime.datetime
+    photographer: str
+    angle: str
+
+__all__ = [
+    "Photo",
+]

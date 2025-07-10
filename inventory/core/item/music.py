@@ -1,0 +1,14 @@
+"""Inventory item model for music media."""
+
+from .base import BaseItem
+
+class Music(BaseItem):
+    """A music recording stored in the inventory."""
+
+    entity_type: str = "music"
+    language: str
+    type_format: str
+
+__all__ = [
+    "Music",
+]

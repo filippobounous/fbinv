@@ -7,7 +7,7 @@ Run with::
 
 from fastapi import APIRouter, Depends, FastAPI
 
-from investment.config import FASTAPI_INVENTORY_API_KEY
+from inventory.config import FASTAPI_INVENTORY_API_KEY
 
 from ..security import create_api_key_dependency
 

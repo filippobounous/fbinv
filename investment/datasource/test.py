@@ -11,7 +11,8 @@ from ..utils.exceptions import DataSourceMethodException
 
 if TYPE_CHECKING:
     from ..core.portfolio import Portfolio
-    from ..core.security import ETF, Equity, Fund, Composite, BaseSecurity
+    from ..core.security import ETF, Equity, Fund, Composite
+    from ..core.security.base import BaseSecurity
 
 class TestDataSource(BaseDataSource):
     """Very small data source used for tests only."""
