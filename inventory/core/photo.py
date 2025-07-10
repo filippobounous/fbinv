@@ -5,6 +5,8 @@ import datetime
 from .mapping import BaseMappingEntity
 
 class Photo(BaseMappingEntity):
+    """Model representing a photo linked to a mapping entity."""
+    
     entity_type: str = "photo"
     related_entity_type: str
     related_code: str

@@ -4,7 +4,6 @@ import datetime
 
 from .base import BaseItem
 
-
 class DecorItem(BaseItem):
     """Decorative inventory item with value and provenance."""
 

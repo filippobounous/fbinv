@@ -2,7 +2,6 @@
 
 from .base import BaseItem
 
-
 class BookItem(BaseItem):
     """A book item with language and format information."""
 
