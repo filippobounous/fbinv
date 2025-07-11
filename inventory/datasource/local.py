@@ -7,7 +7,7 @@ from typing import Any, ClassVar, TYPE_CHECKING
 import pandas as pd
 
 from .base import BaseDataSource
-from investment.utils.exceptions import SecurityMappingError
+from ..utils.exceptions import SecurityMappingError
 
 if TYPE_CHECKING:
     from ..core import (
