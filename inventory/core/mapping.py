@@ -46,21 +46,7 @@ class BaseMappingEntity(BaseModel):
 
         lds: LocalDataSource = self._local_datasource()
 
-        load_methods = {
-            "household": lds.load_house,
-            "photo": lds.load_photo,
-            "room": lds.load_room,
-            "book": lds.load_book,
-            "decor": lds.load_decor,
-            "item": lds.load_item,
-        }
-
-        init_method = load_methods.get(self.entity_type)
-
-        if init_method is None:
-            raise KeyError(f"Entity type '{self.entity_type}' has not been configured.")
-
-        di: dict[str, Any] = init_method(self)
+        di: dict[str, Any] = lds.load_entity(self)
         for key, el in di.items():
             if hasattr(self, key):
                 setattr(self, key, el)
