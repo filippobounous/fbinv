@@ -7,6 +7,7 @@ import sys
 # Setup environment variables required for tests before importing config
 os.environ.setdefault("INVESTMENT_BASE_PATH", "/tmp")
 os.environ.setdefault("INVESTMENT_TRANSACTION_PATH", "/tmp")
+os.environ.setdefault("INVESTMENT_TRANSACTION_SHEET_NAME", "TEST")
 os.environ.setdefault("INVESTMENT_DEFAULT_NAME", "TEST")
 os.environ.setdefault("INVENTORY_BASE_PATH", "/tmp")
 
