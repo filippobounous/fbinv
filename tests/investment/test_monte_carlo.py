@@ -4,11 +4,8 @@ import unittest
 
 import numpy as np
 
-from investment.analytics import (
-    BaseMonteCarloEngine,
-    PricePathEngine,
-    VolatilityEngine,
-)
+from investment.analytics import BaseMonteCarloEngine, PricePathEngine, VolatilityEngine
+
 
 class MonteCarloTests(unittest.TestCase):
     """Test cases for Monte Carlo path generation."""
@@ -17,7 +14,9 @@ class MonteCarloTests(unittest.TestCase):
         """Generate GBM and jump-diffusion paths consistently."""
         engine = PricePathEngine(n_steps=1, n_paths=2, random_state=0)
         spots = np.array([1.0])
-        paths = engine.generate_paths(spots=spots, drift=np.array([0.0]), vol=np.array([0.0]))
+        paths = engine.generate_paths(
+            spots=spots, drift=np.array([0.0]), vol=np.array([0.0])
+        )
         self.assertEqual(paths.shape, (2, 2, 1))
         self.assertTrue(np.all(paths[0] == spots))
 

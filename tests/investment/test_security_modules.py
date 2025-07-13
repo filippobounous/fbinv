@@ -3,11 +3,13 @@
 import unittest
 from unittest import mock
 
-from investment.core.security import CurrencyCross, Equity, ETF, Fund, ISINSecurity
+from investment.core.security import ETF, CurrencyCross, Equity, Fund, ISINSecurity
 from investment.datasource.test import TestDataSource
+
 
 class SecurityModulesTestCase(unittest.TestCase):
     """Test cases for security module initialisation."""
+
     def setUp(self):
         """Set up the test case environment."""
         # Mock the local datasource to use the test data source

@@ -8,6 +8,7 @@ import pandas as pd
 from investment.analytics import PerformanceMetrics
 from investment.utils.consts import TRADING_DAYS
 
+
 def sharpe_func(x: pd.Series) -> float:
     """Return the Sharpe ratio for an array of returns."""
     std = x.std()
@@ -15,9 +16,11 @@ def sharpe_func(x: pd.Series) -> float:
         return np.nan
     return x.mean() / std * np.sqrt(TRADING_DAYS)
 
+
 def hit_func(x: pd.Series) -> float:
     """Return the hit ratio for a window of returns."""
     return float((x > 0).sum() / len(x))
+
 
 def md_func(x: pd.Series) -> float:
     """Return the maximum drawdown for a window."""
@@ -26,12 +29,14 @@ def md_func(x: pd.Series) -> float:
     drawdown = (cum - running_max) / running_max
     return float(drawdown.min())
 
+
 def sortino_func(x: pd.Series) -> float:
     """Return the Sortino ratio for the returns."""
     downside = x[x < 0].std()
     if downside == 0:
         return np.nan
     return x.mean() / downside * np.sqrt(TRADING_DAYS)
+
 
 def dvol_func(x: pd.Series) -> float:
     """Return downside volatility for the returns."""
@@ -40,6 +45,7 @@ def dvol_func(x: pd.Series) -> float:
         return np.nan
     return d.std() * np.sqrt(TRADING_DAYS)
 
+
 def omega_func(x: pd.Series) -> float:
     """Return the Omega ratio for the returns."""
     pos = x[x > 0].sum()
@@ -47,6 +53,7 @@ def omega_func(x: pd.Series) -> float:
     if neg == 0:
         return np.nan
     return pos / neg
+
 
 class PerformanceMetricsTests(unittest.TestCase):
     """Test cases for :class:`PerformanceMetrics`."""

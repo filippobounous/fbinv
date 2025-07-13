@@ -8,6 +8,7 @@ import pandas as pd
 from investment.analytics import RealisedVolatilityCalculator
 from investment.utils.consts import TRADING_DAYS
 
+
 class RealisedVolatilityTests(unittest.TestCase):
     """Test cases for :class:`RealisedVolatilityCalculator`."""
 
@@ -99,7 +100,7 @@ class RealisedVolatilityTests(unittest.TestCase):
         log_co = log_close - log_open
         var_on = log_oc.rolling(2).var()
         var_day = log_co.rolling(2).var()
-        rs2 = exp_rs ** 2  # rogers-satchell already annualised
+        rs2 = exp_rs**2  # rogers-satchell already annualised
         k = 0.34 / (1.34 + (2 + 1) / (2 - 1))
         exp_yz = np.sqrt(var_on + k * var_day + (1 - k) * rs2)
         res_yz = result[result["rv_model"] == "yang_zhang"]["volatility"]

@@ -9,3 +9,9 @@ __pycache__/
 .env
 
 notebooks_scratch/
+
+# virtual environment
+.venv/
+
+# build artifacts
+investment.egg-info/
