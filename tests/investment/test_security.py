@@ -1,24 +1,25 @@
 """Unit tests for the security module and related classes."""
 
-from unittest import TestCase
-from unittest import mock
+from unittest import TestCase, mock
 
 import pandas as pd
 
 from investment import config
 from investment.core.security import (
+    ETF,
     Composite,
     CurrencyCross,
     Equity,
-    ETF,
     Fund,
     Generic,
     security_registry,
 )
 from investment.datasource.test import TestDataSource
 
+
 class SecurityTestCase(TestCase):
     """Test cases for security classes and their methods."""
+
     def setUp(self):
         """Set up the test case environment."""
         # Mock the local datasource to use the test data source
@@ -57,21 +58,27 @@ class SecurityTestCase(TestCase):
         ) as MockComposite:
             comp_instance = MockComposite.return_value
             result = sec.convert_to_currency("EUR")
-            MockComposite.assert_called_once_with(security=sec, composite_currency="EUR")
+            MockComposite.assert_called_once_with(
+                security=sec, composite_currency="EUR"
+            )
             self.assertIs(result, comp_instance)
 
     def test_get_price_history_self_currency(self):
         """Test getting price history in the security's own currency."""
         sec = Equity("TEST")
-        df = pd.DataFrame({
-            "as_of_date": [pd.Timestamp("2020-01-01")],
-            "open": [1],
-            "close": [2],
-        })
+        df = pd.DataFrame(
+            {
+                "as_of_date": [pd.Timestamp("2020-01-01")],
+                "open": [1],
+                "close": [2],
+            }
+        )
         ds = TestDataSource()
         with mock.patch(
             "investment.core.security.base.get_datasource", return_value=ds
-        ) as mock_gds, mock.patch.object(ds, "get_price_history", return_value=df) as gp:
+        ) as mock_gds, mock.patch.object(
+            ds, "get_price_history", return_value=df
+        ) as gp:
             result = sec.get_price_history(datasource=ds)
         mock_gds.assert_called_once_with(datasource=ds)
         gp.assert_called_once_with(security=sec, intraday=False, local_only=True)
@@ -126,8 +133,7 @@ class SecurityTestCase(TestCase):
             index=pd.to_datetime(["2020-01-01", "2020-01-02"]),
         )
         pd.testing.assert_frame_equal(
-            result.reset_index(drop=True),
-            expected.reset_index(drop=True)
+            result.reset_index(drop=True), expected.reset_index(drop=True)
         )
 
     def test_generic_factory(self):
@@ -161,7 +167,7 @@ class SecurityTestCase(TestCase):
         comp = Composite(security=sec, currency_cross=cc)
         self.assertEqual(
             repr(comp),
-            "Composite(entity_type=composite, security=AAA, currency_cross=EURUSD)"
+            "Composite(entity_type=composite, security=AAA, currency_cross=EURUSD)",
         )
 
     def test_get_file_path_open_figi(self):

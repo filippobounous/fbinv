@@ -3,18 +3,26 @@
 from __future__ import annotations
 
 import datetime
-from typing import Any, TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar
 
 import pandas as pd
 
-from .base import BaseDataSource
-from ..config import PORTFOLIO_PATH, BASE_PATH
+from ..config import BASE_PATH, PORTFOLIO_PATH
 from ..utils.exceptions import DataSourceMethodException, SecurityMappingError
+from .base import BaseDataSource
 
 if TYPE_CHECKING:
     from ..core.mapping import BaseMappingEntity
     from ..core.portfolio import Portfolio
-    from ..core.security.registry import Composite, CurrencyCross, Equity, ETF, Fund, BaseSecurity
+    from ..core.security.registry import (
+        ETF,
+        BaseSecurity,
+        Composite,
+        CurrencyCross,
+        Equity,
+        Fund,
+    )
+
 
 class LocalDataSource(BaseDataSource):
     """Data source that reads from local CSV files only."""
@@ -33,8 +41,10 @@ class LocalDataSource(BaseDataSource):
 
     def _get_currency_cross_price_history_from_remote(
         self,
-        security: 'CurrencyCross', intraday: bool,
-        start_date: datetime.datetime, end_date: datetime.datetime,
+        security: "CurrencyCross",
+        intraday: bool,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
     ) -> pd.DataFrame:
         """Local source has no remote FX data."""
         raise DataSourceMethodException(
@@ -43,8 +53,10 @@ class LocalDataSource(BaseDataSource):
 
     def _get_equity_price_history_from_remote(
         self,
-        security: 'Equity', intraday: bool,
-        start_date: datetime.datetime, end_date: datetime.datetime,
+        security: "Equity",
+        intraday: bool,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
     ) -> pd.DataFrame:
         """Local source has no remote equity data."""
         raise DataSourceMethodException(
@@ -53,8 +65,10 @@ class LocalDataSource(BaseDataSource):
 
     def _get_etf_price_history_from_remote(
         self,
-        security: 'ETF', intraday: bool,
-        start_date: datetime.datetime, end_date: datetime.datetime,
+        security: "ETF",
+        intraday: bool,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
     ) -> pd.DataFrame:
         """Local source has no remote ETF data."""
         raise DataSourceMethodException(
@@ -63,8 +77,10 @@ class LocalDataSource(BaseDataSource):
 
     def _get_fund_price_history_from_remote(
         self,
-        security: 'Fund', intraday: bool,
-        start_date: datetime.datetime, end_date: datetime.datetime,
+        security: "Fund",
+        intraday: bool,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
     ) -> pd.DataFrame:
         """Local source has no remote fund data."""
         raise DataSourceMethodException(
@@ -89,7 +105,9 @@ class LocalDataSource(BaseDataSource):
         df_reporting_ccy = self.reporting_currency
 
         # set multiplier
-        df = df.merge(df_reporting_ccy, how="left", on=["reporting_currency", "currency"])
+        df = df.merge(
+            df_reporting_ccy, how="left", on=["reporting_currency", "currency"]
+        )
         mask = (df["reporting_currency"] == df["currency"]) & (df["multiplier"].isna())
         df.loc[mask, "multiplier"] = 1.0
 
@@ -100,7 +118,7 @@ class LocalDataSource(BaseDataSource):
     def load_composite_security(self, composite: "Composite") -> dict[str, Any]:
         """Return attributes for a composite security."""
         di = composite.security.model_dump()
-        di.pop("code") # remove code as not needed
+        di.pop("code")  # remove code as not needed
 
         di["currency"] = composite.currency_cross.currency
 
@@ -119,7 +137,9 @@ class LocalDataSource(BaseDataSource):
         return entity(**kwargs)
 
     @staticmethod
-    def _load(df: pd.DataFrame, entity: "BaseMappingEntity" | None = None) -> dict[str, Any]:
+    def _load(
+        df: pd.DataFrame, entity: "BaseMappingEntity" | None = None
+    ) -> dict[str, Any]:
         """Convert a single CSV row to a dictionary."""
         if len(df) > 1:
             raise SecurityMappingError(
@@ -142,7 +162,7 @@ class LocalDataSource(BaseDataSource):
     ) -> dict[str, datetime.datetime] | list["Portfolio"]:
         """
         Get all available portfolios with last modified date.
-        
+
         Args:
             as_instance (bool): If True then returns a list of Portfolio classes.
 
@@ -172,7 +192,7 @@ class LocalDataSource(BaseDataSource):
                 code = row.get(column)
                 entity_type = row.get("type")
 
-                obj  = security_registry.get(entity_type)
+                obj = security_registry.get(entity_type)
 
                 if obj:
                     li.append(obj(code))
@@ -183,7 +203,10 @@ class LocalDataSource(BaseDataSource):
 
     def _update_security_mapping(self, df: pd.DataFrame) -> pd.DataFrame:
         """Local source has no remote mapping update."""
-        raise DataSourceMethodException(f"No remote security mapping for {self.name} datasource.")
+        raise DataSourceMethodException(
+            f"No remote security mapping for {self.name} datasource."
+        )
+
 
 __all__ = [
     "LocalDataSource",

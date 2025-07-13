@@ -2,19 +2,20 @@
 
 import datetime
 import re
-from typing import TYPE_CHECKING, ClassVar
 import warnings
+from typing import TYPE_CHECKING, ClassVar
 
 import pandas as pd
 import yfinance as yf
 
-from .base import BaseDataSource
 from ..utils.date_utils import today_midnight
+from .base import BaseDataSource
 
 if TYPE_CHECKING:
-    from ..core.security.registry import CurrencyCross, Equity, ETF, Fund, BaseSecurity
+    from ..core.security.registry import ETF, BaseSecurity, CurrencyCross, Equity, Fund
 
 # https://ranaroussi.github.io/yfinance/
+
 
 class YahooFinanceDataSource(BaseDataSource):
     """Data source using the `yfinance` package."""
@@ -23,58 +24,78 @@ class YahooFinanceDataSource(BaseDataSource):
 
     def _get_currency_cross_price_history_from_remote(
         self,
-        security: 'CurrencyCross', intraday: bool,
-        start_date: datetime.datetime, end_date: datetime.datetime,
+        security: "CurrencyCross",
+        intraday: bool,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
     ) -> pd.DataFrame:
         """Retrieve FX prices from Yahoo Finance."""
         return self._get_security_ts_from_remote(
-            security=security, intraday=intraday,
-            start_date=start_date, end_date=end_date,
+            security=security,
+            intraday=intraday,
+            start_date=start_date,
+            end_date=end_date,
         )
 
     def _get_equity_price_history_from_remote(
         self,
-        security: 'Equity', intraday: bool,
-        start_date: datetime.datetime, end_date: datetime.datetime,
+        security: "Equity",
+        intraday: bool,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
     ) -> pd.DataFrame:
         """Retrieve equity prices from Yahoo Finance."""
         return self._get_security_ts_from_remote(
-            security=security, intraday=intraday,
-            start_date=start_date, end_date=end_date,
+            security=security,
+            intraday=intraday,
+            start_date=start_date,
+            end_date=end_date,
         )
 
     def _get_etf_price_history_from_remote(
         self,
-        security: 'ETF', intraday: bool,
-        start_date: datetime.datetime, end_date: datetime.datetime,
+        security: "ETF",
+        intraday: bool,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
     ) -> pd.DataFrame:
         """Retrieve ETF prices from Yahoo Finance."""
         return self._get_security_ts_from_remote(
-            security=security, intraday=intraday,
-            start_date=start_date, end_date=end_date,
+            security=security,
+            intraday=intraday,
+            start_date=start_date,
+            end_date=end_date,
         )
 
     def _get_fund_price_history_from_remote(
         self,
-        security: 'Fund', intraday: bool,
-        start_date: datetime.datetime, end_date: datetime.datetime,
+        security: "Fund",
+        intraday: bool,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
     ) -> pd.DataFrame:
         """Retrieve fund prices from Yahoo Finance."""
         return self._get_security_ts_from_remote(
-            security=security, intraday=intraday,
-            start_date=start_date, end_date=end_date,
+            security=security,
+            intraday=intraday,
+            start_date=start_date,
+            end_date=end_date,
         )
 
     def _get_security_ts_from_remote(
         self,
-        security: "BaseSecurity", intraday: bool,
-        start_date: datetime.datetime, end_date: datetime.datetime,
+        security: "BaseSecurity",
+        intraday: bool,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
     ) -> pd.DataFrame:
         """Download a security's time series using yfinance."""
         symbol = security.yahoo_finance_code
         return self._time_series(
-            symbol=symbol, intraday=intraday,
-            start_date=start_date, end_date=end_date,
+            symbol=symbol,
+            intraday=intraday,
+            start_date=start_date,
+            end_date=end_date,
         )
 
     @staticmethod
@@ -90,16 +111,18 @@ class YahooFinanceDataSource(BaseDataSource):
 
     def _time_series(
         self,
-        symbol: str, intraday: bool,
-        start_date: datetime.datetime, end_date: datetime.datetime,
+        symbol: str,
+        intraday: bool,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
     ) -> pd.DataFrame:
         """Download raw data from Yahoo Finance."""
         if symbol is None:
             return pd.DataFrame()
 
-        interval =  "1m" if intraday else "1d"
+        interval = "1m" if intraday else "1d"
 
-        end_date = end_date + datetime.timedelta(days=2) # required by API
+        end_date = end_date + datetime.timedelta(days=2)  # required by API
 
         return yf.download(
             symbol,
@@ -111,8 +134,10 @@ class YahooFinanceDataSource(BaseDataSource):
 
     def _default_start_and_end_date(
         self,
-        df: pd.DataFrame, symbol: str,
-        intraday: bool, **kwargs,
+        df: pd.DataFrame,
+        symbol: str,
+        intraday: bool,
+        **kwargs,
     ) -> tuple[datetime.datetime, datetime.datetime]:
         """Return start/end dates bounded by existing data."""
         if df.empty:
@@ -137,6 +162,7 @@ class YahooFinanceDataSource(BaseDataSource):
                 continue
 
         return pd.DataFrame(results)
+
 
 __all__ = [
     "YahooFinanceDataSource",

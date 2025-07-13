@@ -8,14 +8,14 @@ from investment.core.portfolio import Portfolio
 from investment.core.security.base import BaseSecurity
 from investment.core.security.generic import Generic
 from investment.utils.consts import (
-    DEFAULT_RET_WIN_SIZE,
+    DEFAULT_CONFIDENCE_LEVEL,
     DEFAULT_CORR_MODEL,
+    DEFAULT_METRIC_WIN_SIZE,
+    DEFAULT_RET_WIN_SIZE,
+    DEFAULT_RISK_FREE_RATE,
     DEFAULT_RV_MODEL,
     DEFAULT_RV_WIN_SIZE,
-    DEFAULT_RISK_FREE_RATE,
-    DEFAULT_CONFIDENCE_LEVEL,
     DEFAULT_VAR_MODEL,
-    DEFAULT_METRIC_WIN_SIZE,
     DEFAULT_VAR_WIN_SIZE,
     TRADING_DAYS,
 )
@@ -23,6 +23,7 @@ from investment.utils.consts import (
 from .utils import EXPECTED_EXCEPTIONS
 
 router = APIRouter(prefix="/analytics")
+
 
 @router.post("/correlations")
 async def calculate_correlations(
@@ -39,9 +40,7 @@ async def calculate_correlations(
     portfolios = [Portfolio(code) for code in (portfolio_codes or [])]
     securities = [Generic(code) for code in (security_codes or [])]
 
-    calculator = CorrelationCalculator(
-        securities=securities, portfolios=portfolios
-    )
+    calculator = CorrelationCalculator(securities=securities, portfolios=portfolios)
     result = calculator.calculate(
         use_returns=use_returns,
         log_returns=log_returns,
@@ -54,6 +53,7 @@ async def calculate_correlations(
     if isinstance(result, pd.DataFrame):
         return {"correlation_matrix": result.to_dict()}
     return {f"{k[0]}-{k[1]}": v.to_dict() for k, v in result.items()}
+
 
 @router.post("/returns")
 async def calculate_returns(
@@ -94,6 +94,7 @@ async def calculate_returns(
 
     return results
 
+
 @router.post("/prices")
 async def get_prices(
     portfolio_codes: list[str] | None = None,
@@ -133,6 +134,7 @@ async def get_prices(
 
     return results
 
+
 @router.post("/realised-volatility")
 async def calculate_realised_volatility(
     portfolio_codes: list[str] | None = None,
@@ -168,6 +170,7 @@ async def calculate_realised_volatility(
             results[code] = {"error": str(exc)}
 
     return results
+
 
 @router.post("/metrics")
 async def get_metrics(
@@ -207,6 +210,7 @@ async def get_metrics(
             results[code] = {"error": str(exc)}
 
     return results
+
 
 @router.post("/var")
 async def get_value_at_risk(

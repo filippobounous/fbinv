@@ -1,18 +1,19 @@
 """Simple local data source used for testing."""
 
 import datetime
-from typing import TYPE_CHECKING, ClassVar, Any
+from typing import TYPE_CHECKING, Any, ClassVar
 
 import pandas as pd
 
-from .base import BaseDataSource
 from ..core.security import CurrencyCross
 from ..utils.exceptions import DataSourceMethodException
+from .base import BaseDataSource
 
 if TYPE_CHECKING:
     from ..core.portfolio import Portfolio
-    from ..core.security import ETF, Equity, Fund, Composite
     from ..core.security.base import BaseSecurity
+    from ..core.security import ETF, Composite, Equity, Fund
+
 
 class TestDataSource(BaseDataSource):
     """Very small data source used for tests only."""
@@ -22,8 +23,10 @@ class TestDataSource(BaseDataSource):
 
     def _get_currency_cross_price_history_from_remote(
         self,
-        security: 'CurrencyCross', intraday: bool,
-        start_date: datetime.datetime, end_date: datetime.datetime,
+        security: "CurrencyCross",
+        intraday: bool,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
     ) -> pd.DataFrame:
         """Test source has no remote data."""
         raise DataSourceMethodException(
@@ -32,8 +35,10 @@ class TestDataSource(BaseDataSource):
 
     def _get_equity_price_history_from_remote(
         self,
-        security: 'Equity', intraday: bool,
-        start_date: datetime.datetime, end_date: datetime.datetime,
+        security: "Equity",
+        intraday: bool,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
     ) -> pd.DataFrame:
         """Test source has no remote data."""
         raise DataSourceMethodException(
@@ -42,8 +47,10 @@ class TestDataSource(BaseDataSource):
 
     def _get_etf_price_history_from_remote(
         self,
-        security: 'ETF', intraday: bool,
-        start_date: datetime.datetime, end_date: datetime.datetime,
+        security: "ETF",
+        intraday: bool,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
     ) -> pd.DataFrame:
         """Test source has no remote data."""
         raise DataSourceMethodException(
@@ -52,8 +59,10 @@ class TestDataSource(BaseDataSource):
 
     def _get_fund_price_history_from_remote(
         self,
-        security: 'Fund', intraday: bool,
-        start_date: datetime.datetime, end_date: datetime.datetime,
+        security: "Fund",
+        intraday: bool,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
     ) -> pd.DataFrame:
         """Test source has no remote data."""
         raise DataSourceMethodException(
@@ -111,12 +120,14 @@ class TestDataSource(BaseDataSource):
 
         class DummySecurity(BaseSecurity):
             """Dummy security class for testing purposes."""
+
             entity_type: str = "dummy"
 
             def get_price_history(self, *args, **kwargs) -> pd.DataFrame:
                 return pd.DataFrame()
 
         return DummySecurity(**kwargs)  # type: ignore[arg-type]
+
 
 __all__ = [
     "TestDataSource",

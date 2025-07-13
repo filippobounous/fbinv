@@ -7,15 +7,16 @@ from typing import TYPE_CHECKING, ClassVar
 import pandas as pd
 import requests
 
-from .base import BaseDataSource
 from ..config import OPEN_FIGI_API_KEY
 from ..utils.exceptions import DataSourceMethodException
+from .base import BaseDataSource
 
 if TYPE_CHECKING:
-    from ..core.security.registry import CurrencyCross, Equity, ETF, Fund
+    from ..core.security.registry import ETF, CurrencyCross, Equity, Fund
 
 # https://github.com/OpenFIGI/api-examples
 # https://www.openfigi.com/api/documentation
+
 
 class OpenFigiDataSource(BaseDataSource):
     """Data source for mapping codes via the OpenFIGI API."""
@@ -27,8 +28,10 @@ class OpenFigiDataSource(BaseDataSource):
 
     def _get_currency_cross_price_history_from_remote(
         self,
-        security: 'CurrencyCross', intraday: bool,
-        start_date: datetime.datetime, end_date: datetime.datetime,
+        security: "CurrencyCross",
+        intraday: bool,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
     ) -> pd.DataFrame:
         """OpenFIGI does not provide price history."""
         raise DataSourceMethodException(
@@ -37,8 +40,10 @@ class OpenFigiDataSource(BaseDataSource):
 
     def _get_equity_price_history_from_remote(
         self,
-        security: 'Equity', intraday: bool,
-        start_date: datetime.datetime, end_date: datetime.datetime,
+        security: "Equity",
+        intraday: bool,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
     ) -> pd.DataFrame:
         """OpenFIGI does not provide price history."""
         raise DataSourceMethodException(
@@ -47,8 +52,10 @@ class OpenFigiDataSource(BaseDataSource):
 
     def _get_etf_price_history_from_remote(
         self,
-        security: 'ETF', intraday: bool,
-        start_date: datetime.datetime, end_date: datetime.datetime,
+        security: "ETF",
+        intraday: bool,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
     ) -> pd.DataFrame:
         """OpenFIGI does not provide price history."""
         raise DataSourceMethodException(
@@ -57,8 +64,10 @@ class OpenFigiDataSource(BaseDataSource):
 
     def _get_fund_price_history_from_remote(
         self,
-        security: 'Fund', intraday: bool,
-        start_date: datetime.datetime, end_date: datetime.datetime,
+        security: "Fund",
+        intraday: bool,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
     ) -> pd.DataFrame:
         """OpenFIGI does not provide price history."""
         raise DataSourceMethodException(
@@ -76,13 +85,13 @@ class OpenFigiDataSource(BaseDataSource):
 
         headers = {
             "Content-Type": "application/json",
-            "X-OPENFIGI-APIKEY": OPEN_FIGI_API_KEY
+            "X-OPENFIGI-APIKEY": OPEN_FIGI_API_KEY,
         }
 
         results = []
 
         for idx in range(0, len(figis), self.batch_size):
-            batch = figis[idx:idx + self.batch_size]
+            batch = figis[idx : idx + self.batch_size]
             payload = [{"idType": "ID_BB_GLOBAL", "idValue": figi} for figi in batch]
 
             try:
@@ -109,6 +118,7 @@ class OpenFigiDataSource(BaseDataSource):
         df = pd.DataFrame(results)
 
         return df
+
 
 __all__ = [
     "OpenFigiDataSource",

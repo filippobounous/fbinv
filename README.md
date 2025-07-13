@@ -69,3 +69,14 @@ installed before running the tests.
 
 All dependencies specify minimum versions in both `setup.py` and
 `requirements.txt` to ensure consistent installation across environments.
+
+## Code Formatting
+
+This project uses [black](https://black.readthedocs.io/) and
+[isort](https://pycqa.github.io/isort/) for code style. Configuration is stored
+in `pyproject.toml`. Format the source before committing:
+
+```bash
+isort .
+black .
+```

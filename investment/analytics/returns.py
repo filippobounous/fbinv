@@ -2,16 +2,17 @@
 
 from typing import Callable
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
-from .base import BaseAnalytics
 from ..utils.consts import DEFAULT_RET_WIN_SIZE
+from .base import BaseAnalytics
+
 
 class ReturnsCalculator(BaseAnalytics):
     """
     Returns Calculator
-    
+
     Calculator for returns for various window sizes. Initialised with:
     use_ln_ret (bool) -> If to use ln(a/b) or just a/b
     ret_win_size (List[int]) -> the returns windows
@@ -23,10 +24,10 @@ class ReturnsCalculator(BaseAnalytics):
         return {"returns": ReturnsCalculator.calculate}
 
     def __init__(
-            self,
-            use_ln_ret: bool = True,
-            ret_win_size: int | list[int] = DEFAULT_RET_WIN_SIZE
-        ) -> None:
+        self,
+        use_ln_ret: bool = True,
+        ret_win_size: int | list[int] = DEFAULT_RET_WIN_SIZE,
+    ) -> None:
         """Initialise the calculator."""
         self.use_ln_ret = use_ln_ret
 
@@ -44,7 +45,7 @@ class ReturnsCalculator(BaseAnalytics):
 
         df = df.sort_index()
 
-        if 'close' not in df.columns:
+        if "close" not in df.columns:
             raise ValueError("DataFrame must contain a 'close' column.")
         if not isinstance(df.index, pd.DatetimeIndex):
             raise ValueError("DataFrame index must be a DatetimeIndex.")
@@ -52,19 +53,22 @@ class ReturnsCalculator(BaseAnalytics):
         df_list = []
         for n in self.ret_win_size:
             if self.use_ln_ret:
-                rets = np.log(df['close'] / df['close'].shift(n))
+                rets = np.log(df["close"] / df["close"].shift(n))
             else:
-                rets = df['close'].pct_change(n)
+                rets = df["close"].pct_change(n)
 
-            temp_df = pd.DataFrame({
-                'as_of_date': df.index,
-                'is_ln_ret': self.use_ln_ret,
-                'ret_win_size': n,
-                'return': rets,
-            })
+            temp_df = pd.DataFrame(
+                {
+                    "as_of_date": df.index,
+                    "is_ln_ret": self.use_ln_ret,
+                    "ret_win_size": n,
+                    "return": rets,
+                }
+            )
             df_list.append(temp_df)
 
         return pd.concat(df_list).dropna().reset_index(drop=True)
+
 
 __all__ = [
     "ReturnsCalculator",

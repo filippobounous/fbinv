@@ -1,7 +1,7 @@
 """Defines Transaction class to find transactions data"""
 
-from typing import Any
 import warnings
+from typing import Any
 
 import pandas as pd
 from pydantic import BaseModel

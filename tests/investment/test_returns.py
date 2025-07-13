@@ -7,6 +7,7 @@ import pandas as pd
 
 from investment.analytics import ReturnsCalculator
 
+
 class ReturnsCalculatorTests(unittest.TestCase):
     """Test cases for :class:`ReturnsCalculator`."""
 
@@ -31,9 +32,11 @@ class ReturnsCalculatorTests(unittest.TestCase):
             calc.calculate(bad_df)
 
         with self.assertRaises(ValueError):
-            calc.calculate(pd.DataFrame(
-                {"open": [1, 2, 3]}, index=pd.date_range("2020", periods=3)
-            ))
+            calc.calculate(
+                pd.DataFrame(
+                    {"open": [1, 2, 3]}, index=pd.date_range("2020", periods=3)
+                )
+            )
 
     def test_multiple_windows(self):
         """Support multiple rolling return windows."""
@@ -43,12 +46,28 @@ class ReturnsCalculatorTests(unittest.TestCase):
         result = calc.calculate(df)
         simple1 = df["close"].pct_change(1)
         simple2 = df["close"].pct_change(2)
-        expected = pd.concat([
-            pd.DataFrame(
-                {"as_of_date": dates, "is_ln_ret": False, "ret_win_size": 1, "return": simple1}
-            ),
-            pd.DataFrame(
-                {"as_of_date": dates, "is_ln_ret": False, "ret_win_size": 2, "return": simple2}
-            ),
-        ]).dropna().reset_index(drop=True)
+        expected = (
+            pd.concat(
+                [
+                    pd.DataFrame(
+                        {
+                            "as_of_date": dates,
+                            "is_ln_ret": False,
+                            "ret_win_size": 1,
+                            "return": simple1,
+                        }
+                    ),
+                    pd.DataFrame(
+                        {
+                            "as_of_date": dates,
+                            "is_ln_ret": False,
+                            "ret_win_size": 2,
+                            "return": simple2,
+                        }
+                    ),
+                ]
+            )
+            .dropna()
+            .reset_index(drop=True)
+        )
         pd.testing.assert_frame_equal(result, expected)

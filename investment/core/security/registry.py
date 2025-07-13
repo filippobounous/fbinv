@@ -12,7 +12,7 @@ from .isin import ISINSecurity
 if TYPE_CHECKING:
     from .base import BaseSecurity
 
-all_securities: list['BaseSecurity']= [
+all_securities: list["BaseSecurity"] = [
     Composite,
     CurrencyCross,
     Equity,
@@ -21,9 +21,8 @@ all_securities: list['BaseSecurity']= [
     ISINSecurity,
 ]
 
-security_registry: dict[str, 'BaseSecurity'] = {
-    i.model_fields["entity_type"].default: i
-    for i in all_securities
+security_registry: dict[str, "BaseSecurity"] = {
+    i.model_fields["entity_type"].default: i for i in all_securities
 }
 
 __all__ = [

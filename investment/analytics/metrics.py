@@ -14,8 +14,8 @@ from typing import Any, Callable, Self
 import numpy as np
 import pandas as pd
 
-from .base import BaseAnalytics
 from ..utils.consts import DEFAULT_METRIC_WIN_SIZE, DEFAULT_RISK_FREE_RATE, TRADING_DAYS
+from .base import BaseAnalytics
 
 
 class PerformanceMetrics(BaseAnalytics):

@@ -23,15 +23,11 @@ all_datasource: list["BaseDataSource"] = [
     YahooFinanceDataSource,
 ]
 
-datasource_registry: dict[str, "BaseDataSource"] = {
-    i.name: i
-    for i in all_datasource
-}
+datasource_registry: dict[str, "BaseDataSource"] = {i.name: i for i in all_datasource}
 
-datasource_codes: list[str] = [
-    f"{i.name}_code"
-    for i in  all_datasource
-] + [f"{FinancialTimesDataSource.name}_security_type"]
+datasource_codes: list[str] = [f"{i.name}_code" for i in all_datasource] + [
+    f"{FinancialTimesDataSource.name}_security_type"
+]
 
 default_timeseries_datasource = YahooFinanceDataSource()
 

@@ -1,21 +1,22 @@
 """Data source wrapper for the Alpha Vantage API."""
 
 import datetime
-from typing import TYPE_CHECKING, ClassVar, Any
+from typing import TYPE_CHECKING, Any, ClassVar
 
 import pandas as pd
 
-from .base import BaseDataSource
 from ..config import ALPHA_VANTAGE_API_KEY
 from ..utils.date_utils import today_midnight
-from ..utils.exceptions import DataSourceMethodException, AlphaVantageException
+from ..utils.exceptions import AlphaVantageException, DataSourceMethodException
+from .base import BaseDataSource
 
 if TYPE_CHECKING:
-    from ..core.security.registry import CurrencyCross, Equity, ETF, Fund
+    from ..core.security.registry import ETF, CurrencyCross, Equity, Fund
 
 # https://alpha-vantage.readthedocs.io/en/latest/
 # https://www.alphavantage.co/documentation/
 # https://pypi.org/project/alpha-vantage/
+
 
 class AlphaVantageDataSource(BaseDataSource):
     """Remote data source using the Alpha Vantage API."""
@@ -25,8 +26,10 @@ class AlphaVantageDataSource(BaseDataSource):
 
     def _get_currency_cross_price_history_from_remote(
         self,
-        security: 'CurrencyCross', intraday: bool,
-        start_date: datetime.datetime, end_date: datetime.datetime,
+        security: "CurrencyCross",
+        intraday: bool,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
     ) -> pd.DataFrame:
         """Retrieve FX prices from Alpha Vantage."""
         params = {}
@@ -36,45 +39,53 @@ class AlphaVantageDataSource(BaseDataSource):
         else:
             function_param = "FX_DAILY"
 
-        params.update({
-            "function": function_param,
-            "from_symbol": security.currency_vs,
-            "to_symbol": security.currency,
-            "output_size": "full",
-            "datatype": "json",
-            "apikey": ALPHA_VANTAGE_API_KEY,
-        })
+        params.update(
+            {
+                "function": function_param,
+                "from_symbol": security.currency_vs,
+                "to_symbol": security.currency,
+                "output_size": "full",
+                "datatype": "json",
+                "apikey": ALPHA_VANTAGE_API_KEY,
+            }
+        )
 
         response = self._get_response(self.base_url, params=params)
-        data = None if intraday else response.get('Time Series FX (Daily)')
+        data = None if intraday else response.get("Time Series FX (Daily)")
 
         return pd.DataFrame(data).T
 
     def _get_equity_price_history_from_remote(
         self,
-        security: 'Equity', intraday: bool,
-        start_date: datetime.datetime, end_date: datetime.datetime,
+        security: "Equity",
+        intraday: bool,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
     ) -> pd.DataFrame:
         """Retrieve equity prices from Alpha Vantage."""
         params = {}
         if intraday:
             function_param = "TIME_SERIES_INTRADAY"
-            params.update({
-                "interval": "1min",
-                "symbol": security.alpha_vantage_code,
-                "adjusted": True,
-                "extended_hours": True,
-            })
+            params.update(
+                {
+                    "interval": "1min",
+                    "symbol": security.alpha_vantage_code,
+                    "adjusted": True,
+                    "extended_hours": True,
+                }
+            )
         else:
-            function_param = "TIME_SERIES_DAILY" # "TIME_SERIES_DAILY_ADJUSTED"
+            function_param = "TIME_SERIES_DAILY"  # "TIME_SERIES_DAILY_ADJUSTED"
 
-        params.update({
-            "function": function_param,
-            "symbol": security.alpha_vantage_code,
-            "output_size": "full",
-            "datatype": "json",
-            "apikey": ALPHA_VANTAGE_API_KEY,
-        })
+        params.update(
+            {
+                "function": function_param,
+                "symbol": security.alpha_vantage_code,
+                "output_size": "full",
+                "datatype": "json",
+                "apikey": ALPHA_VANTAGE_API_KEY,
+            }
+        )
 
         # TODO: finish alphavantage source
         response = self._get_response(self.base_url, params=params)
@@ -84,39 +95,49 @@ class AlphaVantageDataSource(BaseDataSource):
 
     def _get_etf_price_history_from_remote(
         self,
-        security: 'ETF', intraday: bool,
-        start_date: datetime.datetime, end_date: datetime.datetime,
+        security: "ETF",
+        intraday: bool,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
     ) -> pd.DataFrame:
         """Retrieve ETF prices from Alpha Vantage."""
         # TODO: finish alphavantage source
         return self._get_equity_price_history_from_remote(
-            security=security, intraday=intraday,
-            start_date=start_date, end_date=end_date,
+            security=security,
+            intraday=intraday,
+            start_date=start_date,
+            end_date=end_date,
         )
 
     def _get_fund_price_history_from_remote(
         self,
-        security: 'Fund', intraday: bool,
-        start_date: datetime.datetime, end_date: datetime.datetime,
+        security: "Fund",
+        intraday: bool,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
     ) -> pd.DataFrame:
         """Retrieve mutual fund prices from Alpha Vantage."""
         # TODO: finish alphavantage source
         return self._get_equity_price_history_from_remote(
-            security=security, intraday=intraday,
-            start_date=start_date, end_date=end_date,
+            security=security,
+            intraday=intraday,
+            start_date=start_date,
+            end_date=end_date,
         )
 
     @staticmethod
     def _format_price_history_from_remote(df: pd.DataFrame) -> pd.DataFrame:
         """Normalise remote data to common column names."""
-        df = df.reset_index().rename(columns={
-            "index": "as_of_date",
-            "1. open": "open",
-            "2. high": "high",
-            "3. low": "low",
-            "4. close": "close",
-        })
-        df['as_of_date'] = pd.to_datetime(df['as_of_date'])
+        df = df.reset_index().rename(
+            columns={
+                "index": "as_of_date",
+                "1. open": "open",
+                "2. high": "high",
+                "3. low": "low",
+                "4. close": "close",
+            }
+        )
+        df["as_of_date"] = pd.to_datetime(df["as_of_date"])
         return df
 
     def _get_response(self, url: str, params: dict[str, Any]) -> dict[str, Any]:
@@ -137,8 +158,10 @@ class AlphaVantageDataSource(BaseDataSource):
 
     def _default_start_and_end_date(
         self,
-        df: pd.DataFrame, symbol: str,
-        intraday: bool, **kwargs,
+        df: pd.DataFrame,
+        symbol: str,
+        intraday: bool,
+        **kwargs,
     ) -> tuple[datetime.datetime, datetime.datetime]:
         """Return sensible start/end dates for an update call."""
         if df.empty:
@@ -154,6 +177,7 @@ class AlphaVantageDataSource(BaseDataSource):
         raise DataSourceMethodException(
             f"No remote security mapping for {self.name} datasource."
         )
+
 
 __all__ = [
     "AlphaVantageDataSource",

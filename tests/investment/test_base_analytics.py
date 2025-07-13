@@ -6,12 +6,14 @@ import pandas as pd
 
 from investment.analytics.base import BaseAnalytics
 
+
 class DummyAnalytics(BaseAnalytics):
     """Minimal subclass implementing registry for testing."""
 
     @staticmethod
     def registry() -> dict[str, callable]:
         return {}
+
 
 class BaseAnalyticsValidateTests(unittest.TestCase):
     """Test cases for :meth:`BaseAnalytics._validate`."""
@@ -23,7 +25,9 @@ class BaseAnalyticsValidateTests(unittest.TestCase):
         result = DummyAnalytics._validate(df)
         expected = df["close"].pct_change().dropna()
         expected.index.name = "as_of_date"
-        pd.testing.assert_series_equal(result, expected, check_freq=False, check_names=False)
+        pd.testing.assert_series_equal(
+            result, expected, check_freq=False, check_names=False
+        )
 
     def test_validate_errors(self):
         """Invalid input frames raise :class:`ValueError`."""

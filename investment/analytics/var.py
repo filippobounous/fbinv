@@ -11,8 +11,8 @@ from typing import Callable, Self
 
 import pandas as pd
 
-from .base import BaseAnalytics
 from ..utils.consts import DEFAULT_CONFIDENCE_LEVEL, DEFAULT_VAR_WIN_SIZE
+from .base import BaseAnalytics
 
 
 class VaRCalculator(BaseAnalytics):
