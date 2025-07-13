@@ -10,10 +10,6 @@ from .base import BaseDataSource
 from ..utils.exceptions import SecurityMappingError
 
 if TYPE_CHECKING:
-    from ..core import (
-        House, Photo, Room, Book, Decor, Music
-    )
-    from ..core.item import BaseItem
     from ..core.mapping import BaseMappingEntity
 
 class LocalDataSource(BaseDataSource):
@@ -34,11 +30,15 @@ class LocalDataSource(BaseDataSource):
         """Convert a single CSV row to a dictionary."""
         if len(df) > 1:
             raise SecurityMappingError(
-                f"Duplicate {entity.entity_type} for code '{entity.code}'" if entity else "Duplicate data."
+                f"Duplicate {entity.entity_type} for code '{entity.code}'"
+                if entity
+                else "Duplicate data."
             )
         if len(df) == 0:
             raise SecurityMappingError(
-                f"No {entity.entity_type} for code '{entity.code}'" if entity else "Missing data."
+                f"No {entity.entity_type} for code '{entity.code}'"
+                if entity
+                else "Missing data."
             )
 
         di = df.iloc[0].to_dict()

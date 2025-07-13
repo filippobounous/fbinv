@@ -1,12 +1,12 @@
 """Base class definitions for inventory data sources."""
 
-from typing import ClassVar, Any
 import datetime
 from pathlib import Path
-
-from ..config import BASE_PATH
+from typing import ClassVar, Any
 
 from pydantic import BaseModel, ConfigDict
+
+from ..config import BASE_PATH
 
 class BaseDataSource(BaseModel):
     """Minimal base class for inventory data sources."""
