@@ -2,6 +2,7 @@
 
 from .mapping import BaseMappingEntity
 
+
 class House(BaseMappingEntity):
     """A physical property that can contain rooms."""
 
@@ -24,6 +25,7 @@ class House(BaseMappingEntity):
             "postal_code",
             "beneficiary",
         ]
+
 
 __all__ = [
     "House",

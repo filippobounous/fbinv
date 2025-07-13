@@ -2,6 +2,7 @@
 
 from .base import BaseItem
 
+
 class Music(BaseItem):
     """A music recording stored in the inventory."""
 
@@ -16,6 +17,7 @@ class Music(BaseItem):
             "language",
             "type_format",
         ]
+
 
 __all__ = [
     "Music",

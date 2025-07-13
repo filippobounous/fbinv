@@ -4,6 +4,7 @@ import datetime
 
 from .base import BaseItem
 
+
 class Decor(BaseItem):
     """Decorative inventory item with value and provenance."""
 
@@ -36,6 +37,7 @@ class Decor(BaseItem):
             "appraisal_currency",
             "appraisal_entity",
         ]
+
 
 __all__ = [
     "Decor",
