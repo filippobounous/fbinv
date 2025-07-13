@@ -6,6 +6,7 @@ import numpy as np
 
 from . import BaseMonteCarloEngine
 
+
 class PricePathEngine(BaseMonteCarloEngine):
     """Engine for generating correlated price or returns paths."""
 
@@ -57,7 +58,7 @@ class PricePathEngine(BaseMonteCarloEngine):
             z = self._get_random_shocks((self.n_paths, n_assets))
             if chol is not None:
                 z = z @ chol.T
-            drift_term = (mu - 0.5 * sigma ** 2) * self.dt
+            drift_term = (mu - 0.5 * sigma**2) * self.dt
             diffusion = sigma * sqrt_dt * z
             paths[t] = paths[t - 1] * np.exp(drift_term + diffusion)
 
@@ -103,11 +104,14 @@ class PricePathEngine(BaseMonteCarloEngine):
                 jump_intensity * self.dt, (self.n_paths, paths.shape[2])
             )
             if np.any(num_jumps > 0):
-                jump_sizes = self._randn((self.n_paths, paths.shape[2])) * jump_std + jump_mean
+                jump_sizes = (
+                    self._randn((self.n_paths, paths.shape[2])) * jump_std + jump_mean
+                )
                 jump_factor = np.exp(jump_sizes * num_jumps)
                 paths[t] *= jump_factor
 
         return paths
+
 
 __all__ = [
     "PricePathEngine",

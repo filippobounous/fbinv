@@ -3,41 +3,43 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import pandas as pd
 from pydantic import BaseModel, ConfigDict
 
 from ..analytics.metrics import PerformanceMetrics
-from ..analytics.var import VaRCalculator
 from ..analytics.realised_volatility import RealisedVolatilityCalculator
 from ..analytics.returns import ReturnsCalculator
+from ..analytics.var import VaRCalculator
 from ..datasource import LocalDataSource
 from ..utils.consts import (
-    DEFAULT_RET_WIN_SIZE,
-    DEFAULT_RV_WIN_SIZE,
-    DEFAULT_RV_MODEL,
-    DEFAULT_RISK_FREE_RATE,
     DEFAULT_CONFIDENCE_LEVEL,
-    DEFAULT_VAR_MODEL,
+    DEFAULT_CURRENCY,
     DEFAULT_METRIC_WIN_SIZE,
+    DEFAULT_RET_WIN_SIZE,
+    DEFAULT_RISK_FREE_RATE,
+    DEFAULT_RV_MODEL,
+    DEFAULT_RV_WIN_SIZE,
+    DEFAULT_VAR_MODEL,
     DEFAULT_VAR_WIN_SIZE,
     TRADING_DAYS,
-    DEFAULT_CURRENCY
 )
 
 if TYPE_CHECKING:
     from ..datasource import BaseDataSource
 
+
 class BaseMappingEntity(BaseModel):
     """
     BaseMappingEntity.
-    
+
     Returns required attributes to a class from the base csv mapping files.
     Initialised with:
         entity_type (str): The entity type to select the correct load_method.
         code (str): The code for the entity to select the correct parameters.
     """
+
     entity_type: str
     code: str
     _local_datasource: LocalDataSource = LocalDataSource
@@ -130,7 +132,8 @@ class BaseMappingEntity(BaseModel):
     ) -> pd.DataFrame:
         """Return common performance and risk metrics."""
         df = self.get_price_history(
-            datasource=datasource, local_only=local_only,
+            datasource=datasource,
+            local_only=local_only,
         )
 
         metrics = [
@@ -166,7 +169,8 @@ class BaseMappingEntity(BaseModel):
     ) -> pd.DataFrame:
         """Return Value-at-Risk using the specified method."""
         df = self.get_price_history(
-            datasource=datasource, local_only=local_only,
+            datasource=datasource,
+            local_only=local_only,
         )
 
         calc = VaRCalculator.registry().get(method)
@@ -178,6 +182,7 @@ class BaseMappingEntity(BaseModel):
             confidence_level=confidence_level,
             var_win_size=var_win_size,
         )
+
 
 __all__ = [
     "BaseMappingEntity",

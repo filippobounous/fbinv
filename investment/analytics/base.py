@@ -1,9 +1,10 @@
 """Common validation helper for analytics classes."""
 
 from abc import abstractmethod
-from typing import Callable, Any
+from typing import Any, Callable
 
 from pandas import DataFrame, DatetimeIndex, Series
+
 
 class BaseAnalytics:
     """Shared input validation for analytics calculators."""
@@ -27,6 +28,7 @@ class BaseAnalytics:
 
         ret_df = ReturnsCalculator(use_ln_ret=False, ret_win_size=1).calculate(df)
         return ret_df.set_index("as_of_date")["return"]
+
 
 __all__ = [
     "BaseAnalytics",

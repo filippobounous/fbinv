@@ -8,6 +8,7 @@ import numpy as np
 from ..base import BaseAnalytics
 from ..random_generators import RandomGenerator
 
+
 class BaseMonteCarloEngine(BaseAnalytics):
     """Base class providing common Monte Carlo helpers.
 
@@ -140,7 +141,10 @@ class BaseMonteCarloEngine(BaseAnalytics):
         return sigma
 
     def _prepare_drift(
-        self, drift: float | np.ndarray | Callable[[int], np.ndarray], step: int, n_assets: int
+        self,
+        drift: float | np.ndarray | Callable[[int], np.ndarray],
+        step: int,
+        n_assets: int,
     ) -> np.ndarray:
         """Return the drift for a given simulation step.
 
@@ -229,6 +233,7 @@ class BaseMonteCarloEngine(BaseAnalytics):
             return sample.mean()
         beta = cov / var
         return sample.mean() - beta * (control.mean() - control_expectation)
+
 
 __all__ = [
     "BaseMonteCarloEngine",

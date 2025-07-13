@@ -9,6 +9,7 @@ from ..datasource.registry import all_datasource
 if TYPE_CHECKING:
     from ..datasource.base import BaseDataSource
 
+
 def update_all_price_history(
     intraday: bool = False, local_only: bool = False
 ) -> dict[str, dict[str, bool]]:
@@ -21,6 +22,7 @@ def update_all_price_history(
         )
     return di
 
+
 def update_all_security_mapping() -> dict[str, bool]:
     """Refresh the security mapping for every data source."""
     di = {}
@@ -31,12 +33,11 @@ def update_all_security_mapping() -> dict[str, bool]:
         )
     return di
 
+
 def update_all(
     intraday: bool = False, local_only: bool = False
 ) -> tuple[dict[str, bool], dict[str, dict[str, bool]]]:
     """Convenience wrapper to update both mappings and price histories."""
     di_mapping = update_all_security_mapping()
-    di_timeseries = update_all_price_history(
-        intraday=intraday, local_only=local_only
-    )
+    di_timeseries = update_all_price_history(intraday=intraday, local_only=local_only)
     return di_mapping, di_timeseries

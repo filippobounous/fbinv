@@ -6,6 +6,7 @@ import numpy as np
 
 from . import BaseMonteCarloEngine
 
+
 class VolatilityEngine(BaseMonteCarloEngine):
     """Engine for generating stochastic volatility paths."""
 
@@ -91,10 +92,10 @@ class VolatilityEngine(BaseMonteCarloEngine):
 
         z_prev = self._get_random_shocks((self.n_paths, n_assets))
         epsilon_prev = vol0 * z_prev
-        var_prev = vol0 ** 2
+        var_prev = vol0**2
 
         for t in range(1, self.n_steps + 1):
-            var_t = omega + alpha * epsilon_prev ** 2 + beta * var_prev
+            var_t = omega + alpha * epsilon_prev**2 + beta * var_prev
             vol_t = np.sqrt(np.maximum(var_t, 0))
             vols[t] = vol_t
             z = self._get_random_shocks((self.n_paths, n_assets))
@@ -131,9 +132,10 @@ class VolatilityEngine(BaseMonteCarloEngine):
 
         for t in range(1, self.n_steps + 1):
             z = self._get_random_shocks((self.n_paths, n_assets))
-            vols[t] = vols[t - 1] * np.exp(-0.5 * nu ** 2 * self.dt + nu * sqrt_dt * z)
+            vols[t] = vols[t - 1] * np.exp(-0.5 * nu**2 * self.dt + nu * sqrt_dt * z)
 
         return vols
+
 
 __all__ = [
     "VolatilityEngine",
