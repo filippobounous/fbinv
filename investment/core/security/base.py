@@ -11,18 +11,20 @@ from ...datasource.utils import get_datasource
 from ..mapping import BaseMappingEntity
 
 if TYPE_CHECKING:
-    from .composite import Composite
     from ...datasource.base import BaseDataSource
+    from .composite import Composite
+
 
 class BaseSecurity(BaseMappingEntity):
     """
     BaseSecurity
-    
+
     Abstraction for generalised security classes.
     Not intended to be initialised alone.
     Generic input is code, all other attributes are initialised using LocalDataSource
     through BaseMappingEntity __init__.
     """
+
     entity_type: str = "base_security"
     name: str | None = None
     figi_code: str | None = None
@@ -53,7 +55,9 @@ class BaseSecurity(BaseMappingEntity):
         if missing:
             raise ValueError(f"{self.code} is missing required values for: {missing}.")
 
-    def get_file_path(self, datasource_name: str, intraday: bool, series_type: str) -> str:
+    def get_file_path(
+        self, datasource_name: str, intraday: bool, series_type: str
+    ) -> str:
         """
         Returns the file path for the timeseries of a given security, datasource,
         type and frequency
@@ -71,7 +75,9 @@ class BaseSecurity(BaseMappingEntity):
 
         data_frequency = "intraday" if intraday else "daily"
 
-        path_name = f"{TIMESERIES_DATA_PATH}/{series_type}/{datasource_name}/{self.entity_type}"
+        path_name = (
+            f"{TIMESERIES_DATA_PATH}/{series_type}/{datasource_name}/{self.entity_type}"
+        )
         file_name = f"{code}-{data_frequency}-{series_type}.csv"
         return f"{path_name}/{file_name}"
 
@@ -85,7 +91,7 @@ class BaseSecurity(BaseMappingEntity):
         """Returns price history"""
         if (not currency) or (currency == self.currency):
             _datasource = get_datasource(datasource=datasource)
-            df =  _datasource.get_price_history(
+            df = _datasource.get_price_history(
                 security=self, intraday=intraday, local_only=local_only
             )
 
@@ -102,11 +108,13 @@ class BaseSecurity(BaseMappingEntity):
     def convert_to_currency(self, currency: str) -> "BaseSecurity" | "Composite":
         """Converts a security to its composite self, by applying a currency conversion"""
         from .composite import Composite
+
         return (
             self
-            if currency ==  self.currency
+            if currency == self.currency
             else Composite(security=self, composite_currency=currency)
         )
+
 
 __all__ = [
     "BaseSecurity",

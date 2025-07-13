@@ -1,15 +1,16 @@
-"""Local placeholder for Bloomberg data source.""" #TODO
+"""Local placeholder for Bloomberg data source."""  # TODO
 
 import datetime
 from typing import TYPE_CHECKING, ClassVar
 
 import pandas as pd
 
-from .base import BaseDataSource
 from ..utils.exceptions import DataSourceMethodException
+from .base import BaseDataSource
 
 if TYPE_CHECKING:
-    from ..core.security.registry import CurrencyCross, Equity, ETF, Fund
+    from ..core.security.registry import ETF, CurrencyCross, Equity, Fund
+
 
 class BloombergDataSource(BaseDataSource):
     """Placeholder data source for Bloomberg integration."""
@@ -18,8 +19,10 @@ class BloombergDataSource(BaseDataSource):
 
     def _get_currency_cross_price_history_from_remote(
         self,
-        security: 'CurrencyCross', intraday: bool,
-        start_date: datetime.datetime, end_date: datetime.datetime,
+        security: "CurrencyCross",
+        intraday: bool,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
     ) -> pd.DataFrame:
         """Bloomberg remote data is not implemented."""
         raise DataSourceMethodException(
@@ -28,8 +31,10 @@ class BloombergDataSource(BaseDataSource):
 
     def _get_equity_price_history_from_remote(
         self,
-        security: 'Equity', intraday: bool,
-        start_date: datetime.datetime, end_date: datetime.datetime,
+        security: "Equity",
+        intraday: bool,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
     ) -> pd.DataFrame:
         """Bloomberg remote data is not implemented."""
         raise DataSourceMethodException(
@@ -38,8 +43,10 @@ class BloombergDataSource(BaseDataSource):
 
     def _get_etf_price_history_from_remote(
         self,
-        security: 'ETF', intraday: bool,
-        start_date: datetime.datetime, end_date: datetime.datetime,
+        security: "ETF",
+        intraday: bool,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
     ) -> pd.DataFrame:
         """Bloomberg remote data is not implemented."""
         raise DataSourceMethodException(
@@ -48,8 +55,10 @@ class BloombergDataSource(BaseDataSource):
 
     def _get_fund_price_history_from_remote(
         self,
-        security: 'Fund', intraday: bool,
-        start_date: datetime.datetime, end_date: datetime.datetime,
+        security: "Fund",
+        intraday: bool,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
     ) -> pd.DataFrame:
         """Bloomberg remote data is not implemented."""
         raise DataSourceMethodException(
@@ -66,6 +75,7 @@ class BloombergDataSource(BaseDataSource):
         raise DataSourceMethodException(
             f"No remote security mapping for {self.name} datasource."
         )
+
 
 __all__ = [
     "BloombergDataSource",

@@ -7,17 +7,18 @@ models, optional rolling windows, time lags and more specialised
 measures such as partial and semi correlations.
 """
 
-from typing import TYPE_CHECKING, Callable, Any
+from typing import TYPE_CHECKING, Any, Callable
 
 import numpy as np
 import pandas as pd
 
+from ..utils.consts import DEFAULT_CORR_MODEL, DEFAULT_RET_WIN_SIZE
 from .base import BaseAnalytics
-from ..utils.consts import DEFAULT_RET_WIN_SIZE, DEFAULT_CORR_MODEL
 
 if TYPE_CHECKING:
     from ..core.portfolio import Portfolio
     from ..core.security import BaseSecurity
+
 
 class CorrelationCalculator(BaseAnalytics):
     """Calculator for correlations between securities and portfolios.
@@ -90,9 +91,7 @@ class CorrelationCalculator(BaseAnalytics):
         all_objects = self.securities + self.portfolios
         for obj in all_objects:
             if use_returns:
-                df = obj.get_returns(
-                    use_ln_ret=log_returns, ret_win_size=ret_win_size
-                )
+                df = obj.get_returns(use_ln_ret=log_returns, ret_win_size=ret_win_size)
                 s = df.set_index("as_of_date")["return"].rename(obj.code)
             else:
                 df = obj.get_price_history()
@@ -369,6 +368,7 @@ class CorrelationCalculator(BaseAnalytics):
             np.fill_diagonal(result.values, 1.0)
             return result
         return result
+
 
 __all__ = [
     "CorrelationCalculator",

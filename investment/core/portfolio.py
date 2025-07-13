@@ -2,30 +2,32 @@
 
 from __future__ import annotations
 
-from typing import ClassVar
 import warnings
+from typing import ClassVar
 
 import pandas as pd
 from pydantic import ConfigDict, Field
 
-from ..config import PORTFOLIO_PATH, DEFAULT_NAME
-from ..datasource.local import LocalDataSource, BaseDataSource
+from ..config import DEFAULT_NAME, PORTFOLIO_PATH
+from ..datasource.local import BaseDataSource, LocalDataSource
+from ..utils.consts import DEFAULT_CURRENCY, OC, OHLC
+from ..utils.date_utils import today_midnight
+from ..utils.exceptions import TransactionsException
 from .mapping import BaseMappingEntity
 from .security.base import BaseSecurity
 from .security.generic import Generic
 from .transactions import Transactions
-from ..utils.consts import OHLC, OC, DEFAULT_CURRENCY
-from ..utils.date_utils import today_midnight
-from ..utils.exceptions import TransactionsException
+
 
 class Portfolio(BaseMappingEntity):
     """
     Portfolio.
-    
+
     Groups together transactions made by a portfolio in order to perform
     further analysis on them as a whole. Initialised with:
         code (str), by default, if this is not provided it uses DEFAULT_NAME
     """
+
     entity_type: ClassVar[str] = "portfolio"
     owner: str | None = None
     has_cash: bool | None = None
@@ -54,7 +56,7 @@ class Portfolio(BaseMappingEntity):
         try:
             return pd.read_csv(
                 self._get_path(label="transactions"),
-                parse_dates=['as_of_date'],
+                parse_dates=["as_of_date"],
             )
         except FileNotFoundError as exc:
             raise TransactionsException(
@@ -73,7 +75,9 @@ class Portfolio(BaseMappingEntity):
             Transactions().update()
             self._load_cash_and_holdings()
         else:
-            raise TransactionsException(f"Missing transactions updateable file for {self.code}")
+            raise TransactionsException(
+                f"Missing transactions updateable file for {self.code}"
+            )
 
     def _load_cash_and_holdings(self) -> None:
         """Populate holdings and cash attributes from disk."""
@@ -87,10 +91,7 @@ class Portfolio(BaseMappingEntity):
 
     def _get_cash(self) -> None:
         """Load cash positions from disk."""
-        df = pd.read_csv(
-            self._get_path(label="cash"),
-            parse_dates=['as_of_date']
-        )
+        df = pd.read_csv(self._get_path(label="cash"), parse_dates=["as_of_date"])
 
         if self.account:
             df = df.loc[df.account == self.account]
@@ -105,26 +106,25 @@ class Portfolio(BaseMappingEntity):
         df = self.transactions
 
         if self.account:
-            df = df.loc[df['account'] == self.account]
+            df = df.loc[df["account"] == self.account]
 
         if self.currency:
-            df = df.loc[df['currency'] == self.currency]
+            df = df.loc[df["currency"] == self.currency]
 
-        df['cum_quantity'] = df.groupby('figi_code')['quantity'].cumsum()
-        df['cum_value'] = df.groupby('figi_code')['value'].cumsum()
-        df['average'] = df['cum_value'] / df['cum_quantity']
+        df["cum_quantity"] = df.groupby("figi_code")["quantity"].cumsum()
+        df["cum_value"] = df.groupby("figi_code")["value"].cumsum()
+        df["average"] = df["cum_value"] / df["cum_quantity"]
 
         result = df[
-            ['as_of_date', 'figi_code', 'cum_quantity', 'average', 'currency']
+            ["as_of_date", "figi_code", "cum_quantity", "average", "currency"]
         ].copy()
-        result = result.rename(columns={
-            'cum_quantity': 'quantity'
-        })
+        result = result.rename(columns={"cum_quantity": "quantity"})
         result["entry_value"] = result["quantity"] * result["average"]
 
         result = result.merge(
             LocalDataSource().get_security_mapping()[["figi_code", "code"]],
-            on="figi_code", how="left"
+            on="figi_code",
+            how="left",
         )
 
         self.holdings = result
@@ -138,7 +138,9 @@ class Portfolio(BaseMappingEntity):
     ) -> pd.DataFrame:
         """Return time series of portfolio value by currency."""
         if intraday:
-            warnings.warn("Portfolio does not handle intraday, defaulting to single day.")
+            warnings.warn(
+                "Portfolio does not handle intraday, defaulting to single day."
+            )
 
         df = self.get_holdings_price_history(
             datasource=datasource,
@@ -147,11 +149,11 @@ class Portfolio(BaseMappingEntity):
         )
 
         cols = OC + ["net", "entry"]
-        df = df.groupby("as_of_date")[
-            [f"{i}_value" for i in cols]
-        ].sum().rename(columns={
-            f"{i}_value": i for i in cols
-        })
+        df = (
+            df.groupby("as_of_date")[[f"{i}_value" for i in cols]]
+            .sum()
+            .rename(columns={f"{i}_value": i for i in cols})
+        )
 
         return df
 
@@ -159,7 +161,7 @@ class Portfolio(BaseMappingEntity):
         self,
         datasource: "BaseDataSource" | None = None,
         local_only: bool = True,
-        currency: str | None = None
+        currency: str | None = None,
     ) -> pd.DataFrame:
         """Return time series of holdings values."""
         df_holdings = self._prepare_holdings_timeseries()
@@ -188,10 +190,12 @@ class Portfolio(BaseMappingEntity):
         df_pivot = df.pivot(
             index="as_of_date",
             columns=["currency", "figi_code", "code"],
-            values=["quantity", "average", "entry_value"]
+            values=["quantity", "average", "entry_value"],
         )
 
-        full_date_range = pd.date_range(self.holdings['as_of_date'].min(), today_midnight())
+        full_date_range = pd.date_range(
+            self.holdings["as_of_date"].min(), today_midnight()
+        )
         week_mask = full_date_range.to_series().dt.weekday < 5
         weekdays_only = full_date_range[week_mask]
 
@@ -200,27 +204,34 @@ class Portfolio(BaseMappingEntity):
         df_pivot.index.name = "as_of_date"
 
         # flatten multiindex
-        df_pivot.columns = ['-'.join(col).strip() for col in df_pivot.columns.values]
+        df_pivot.columns = ["-".join(col).strip() for col in df_pivot.columns.values]
 
         # melt everything except 'as_of_date'
         df_pivot = df_pivot.reset_index()
 
-        df_melted = df_pivot.melt(id_vars="as_of_date", var_name="key", value_name="value")
+        df_melted = df_pivot.melt(
+            id_vars="as_of_date", var_name="key", value_name="value"
+        )
 
         # split 'key' into separate columns
         # ^(quantity|average|entry_value) → captures the value type
         # -(\w+) → captures the currency
         # -([^-]+) → captures the FIGI code (up to the next -)
         # -(.+)$ → captures the final code, which may contain underscores
-        df_melted[['value_type', 'currency', 'figi_code', 'code']] = df_melted['key'].str.extract(
-            r'^(quantity|average|entry_value)-(\w+)-([^-]+)-(.+)$'
-        )
+        df_melted[["value_type", "currency", "figi_code", "code"]] = df_melted[
+            "key"
+        ].str.extract(r"^(quantity|average|entry_value)-(\w+)-([^-]+)-(.+)$")
 
         # rearrange and format
-        df = df_melted.drop(columns="key").pivot(
-            index=["as_of_date", "currency", "figi_code", "code"],
-            columns="value_type", values="value"
-        ).reset_index()
+        df = (
+            df_melted.drop(columns="key")
+            .pivot(
+                index=["as_of_date", "currency", "figi_code", "code"],
+                columns="value_type",
+                values="value",
+            )
+            .reset_index()
+        )
         df.columns.name = ""
 
         return df[df.quantity != 0.0].reset_index(drop=True)
@@ -230,7 +241,7 @@ class Portfolio(BaseMappingEntity):
         df: pd.DataFrame,
         datasource: "BaseDataSource" | None = None,
         local_only: bool = True,
-        currency: str | None = None
+        currency: str | None = None,
     ) -> pd.DataFrame:
         "Combine holdings timeseries with security price history"
         security_ph_list = []
@@ -251,9 +262,14 @@ class Portfolio(BaseMappingEntity):
 
         # forward-filling values
         df.sort_values(by=["code", "figi_code", "as_of_date"], inplace=True)
-        df = df.set_index(["code", "figi_code"]).groupby(level=0, group_keys=False).ffill()
+        df = (
+            df.set_index(["code", "figi_code"])
+            .groupby(level=0, group_keys=False)
+            .ffill()
+        )
 
         return df.set_index("as_of_date", append=True)
+
 
 __all__ = [
     "Portfolio",

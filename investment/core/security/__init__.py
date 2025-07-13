@@ -7,7 +7,7 @@ from .etf import ETF
 from .fund import Fund
 from .generic import Generic
 from .isin import ISINSecurity
-from .registry import security_registry, all_securities
+from .registry import all_securities, security_registry
 
 __all__ = [
     "Composite",

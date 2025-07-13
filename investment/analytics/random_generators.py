@@ -6,6 +6,7 @@ import numpy as np
 
 from .base import BaseAnalytics
 
+
 class RandomGenerator(BaseAnalytics):
     """Wrapper around ``numpy.random.Generator`` with helper methods."""
 
@@ -65,9 +66,7 @@ class RandomGenerator(BaseAnalytics):
         return self._rng.normal(loc=mean, scale=std, size=size)
 
     def uniform(
-        self,
-        low: float = 0.0, high: float = 1.0,
-        size: tuple[int, ...] | None = None
+        self, low: float = 0.0, high: float = 1.0, size: tuple[int, ...] | None = None
     ) -> np.ndarray:
         """Return draws from a uniform distribution.
 
@@ -90,6 +89,7 @@ class RandomGenerator(BaseAnalytics):
     def set_seed(self, seed: int | None) -> None:
         """Reset the underlying random number generator with a new seed."""
         self._rng = np.random.default_rng(seed)
+
 
 __all__ = [
     "RandomGenerator",
