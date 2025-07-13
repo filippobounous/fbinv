@@ -4,6 +4,7 @@ import datetime
 
 from .mapping import BaseMappingEntity
 
+
 class Photo(BaseMappingEntity):
     """Model representing a photo linked to a mapping entity."""
 
@@ -24,6 +25,7 @@ class Photo(BaseMappingEntity):
             "photographer",
             "angle",
         ]
+
 
 __all__ = [
     "Photo",

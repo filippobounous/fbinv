@@ -2,6 +2,7 @@
 
 from ..mapping import BaseMappingEntity
 
+
 class BaseItem(BaseMappingEntity):
     """Base class for any item stored in the inventory."""
 
@@ -20,6 +21,7 @@ class BaseItem(BaseMappingEntity):
             "category",
             "subcategory",
         ]
+
 
 __all__ = [
     "BaseItem",

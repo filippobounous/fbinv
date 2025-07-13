@@ -2,11 +2,12 @@
 
 import datetime
 from pathlib import Path
-from typing import ClassVar, Any
+from typing import Any, ClassVar
 
 from pydantic import BaseModel, ConfigDict
 
 from ..config import BASE_PATH
+
 
 class BaseDataSource(BaseModel):
     """Minimal base class for inventory data sources."""
@@ -32,7 +33,7 @@ class BaseDataSource(BaseModel):
         if not folder.is_dir():
             raise NotADirectoryError(f"{path} is not a directory")
         for file_path in folder.iterdir():
-            if file_path.is_file() and not file_path.name.startswith('.'):
+            if file_path.is_file() and not file_path.name.startswith("."):
                 file_stem = file_path.stem
                 last_modified_timestamp = file_path.stat().st_mtime
                 last_modified_datetime = datetime.datetime.fromtimestamp(
@@ -46,6 +47,7 @@ class BaseDataSource(BaseModel):
     def mapping_path(name: str) -> str:
         """Return the CSV path for a given mapping name."""
         return f"{BASE_PATH}/{name}_mapping.csv"
+
 
 __all__ = [
     "BaseDataSource",

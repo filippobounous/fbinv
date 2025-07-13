@@ -2,6 +2,7 @@
 
 from .base import BaseItem
 
+
 class Book(BaseItem):
     """A book item with language and format information."""
 
@@ -15,6 +16,7 @@ class Book(BaseItem):
         return super().required_fields + [
             "language",
         ]
+
 
 __all__ = [
     "Book",

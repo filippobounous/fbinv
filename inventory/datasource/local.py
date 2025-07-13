@@ -2,15 +2,16 @@
 
 from __future__ import annotations
 
-from typing import Any, ClassVar, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, ClassVar
 
 import pandas as pd
 
-from .base import BaseDataSource
 from ..utils.exceptions import SecurityMappingError
+from .base import BaseDataSource
 
 if TYPE_CHECKING:
     from ..core.mapping import BaseMappingEntity
+
 
 class LocalDataSource(BaseDataSource):
     """Data source that reads from local CSV files."""
@@ -26,7 +27,9 @@ class LocalDataSource(BaseDataSource):
         df.to_csv(self.mapping_path(name), index=False)
 
     @staticmethod
-    def _load(df: pd.DataFrame, entity: "BaseMappingEntity" | None = None) -> dict[str, Any]:
+    def _load(
+        df: pd.DataFrame, entity: "BaseMappingEntity" | None = None
+    ) -> dict[str, Any]:
         """Convert a single CSV row to a dictionary."""
         if len(df) > 1:
             raise SecurityMappingError(
@@ -49,6 +52,7 @@ class LocalDataSource(BaseDataSource):
         df = self.get_mapping(entity.entity_type)
         row = df.loc[df.code == entity.code]
         return self._load(df=row, entity=entity)
+
 
 __all__ = [
     "LocalDataSource",

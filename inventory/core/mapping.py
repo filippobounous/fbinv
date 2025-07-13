@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict
 
 from ..datasource import LocalDataSource
 
+
 class BaseMappingEntity(BaseModel):
     """Base object populated from local mapping data.
 
@@ -53,7 +54,7 @@ class BaseMappingEntity(BaseModel):
             if hasattr(self, key):
                 setattr(self, key, el)
 
-    @property        
+    @property
     def missing_fields(self) -> list[str]:
         """Return a list of required arguments that are missing."""
         return [arg for arg in self.required_fields if getattr(self, arg, None) is None]
@@ -67,6 +68,7 @@ class BaseMappingEntity(BaseModel):
     @abstractmethod
     def required_fields(self) -> list[str]:
         """Return a list of required fields for the entity."""
+
 
 __all__ = [
     "BaseMappingEntity",
