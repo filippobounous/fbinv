@@ -9,17 +9,14 @@ derive cumulative and annualised performance statistics, drawdown measures and
 risk‑adjusted ratios such as Sharpe and Sortino.
 """
 
-from typing import Callable, Any
+from typing import Any, Callable, Self
 
 import numpy as np
 import pandas as pd
 
+from ..utils.consts import DEFAULT_METRIC_WIN_SIZE, DEFAULT_RISK_FREE_RATE, TRADING_DAYS
 from .base import BaseAnalytics
-from ..utils.consts import (
-    TRADING_DAYS,
-    DEFAULT_METRIC_WIN_SIZE,
-    DEFAULT_RISK_FREE_RATE,
-)
+
 
 class PerformanceMetrics(BaseAnalytics):
     """Collection of common portfolio performance calculations.
@@ -80,7 +77,7 @@ class PerformanceMetrics(BaseAnalytics):
 
     @classmethod
     def cumulative_return(
-        cls,
+        cls: type[Self],
         df: pd.DataFrame,
         metric_win_size: int = DEFAULT_METRIC_WIN_SIZE,
     ) -> pd.DataFrame:
@@ -107,7 +104,7 @@ class PerformanceMetrics(BaseAnalytics):
 
     @classmethod
     def annualised_return(
-        cls,
+        cls: type[Self],
         df: pd.DataFrame,
         metric_win_size: int = DEFAULT_METRIC_WIN_SIZE,
         periods_per_year: int = TRADING_DAYS,
@@ -148,7 +145,7 @@ class PerformanceMetrics(BaseAnalytics):
         )
 
     @classmethod
-    def drawdown_series(cls, df: pd.DataFrame) -> pd.DataFrame:
+    def drawdown_series(cls: type[Self], df: pd.DataFrame) -> pd.DataFrame:
         """Series of drawdowns as percentages from peak equity.
 
         Parameters
@@ -170,7 +167,7 @@ class PerformanceMetrics(BaseAnalytics):
 
     @classmethod
     def max_drawdown(
-        cls,
+        cls: type[Self],
         df: pd.DataFrame,
         metric_win_size: int = DEFAULT_METRIC_WIN_SIZE,
     ) -> pd.DataFrame:
@@ -187,6 +184,7 @@ class PerformanceMetrics(BaseAnalytics):
             ``as_of_date`` and ``value`` of the maximum drawdown for each
             rolling window.
         """
+
         def func(x: pd.Series) -> float:
             cum_returns = (1 + x).cumprod()
             running_max = cum_returns.cummax()
@@ -199,7 +197,7 @@ class PerformanceMetrics(BaseAnalytics):
 
     @classmethod
     def sharpe_ratio(
-        cls,
+        cls: type[Self],
         df: pd.DataFrame,
         metric_win_size: int = DEFAULT_METRIC_WIN_SIZE,
         risk_free_rate: float = DEFAULT_RISK_FREE_RATE,
@@ -241,7 +239,7 @@ class PerformanceMetrics(BaseAnalytics):
 
     @classmethod
     def sortino_ratio(
-        cls,
+        cls: type[Self],
         df: pd.DataFrame,
         metric_win_size: int = DEFAULT_METRIC_WIN_SIZE,
         risk_free_rate: float = DEFAULT_RISK_FREE_RATE,
@@ -283,7 +281,7 @@ class PerformanceMetrics(BaseAnalytics):
 
     @classmethod
     def downside_volatility(
-        cls,
+        cls: type[Self],
         df: pd.DataFrame,
         metric_win_size: int = DEFAULT_METRIC_WIN_SIZE,
         periods_per_year: int = TRADING_DAYS,
@@ -321,7 +319,7 @@ class PerformanceMetrics(BaseAnalytics):
 
     @classmethod
     def calmar_ratio(
-        cls,
+        cls: type[Self],
         df: pd.DataFrame,
         metric_win_size: int = DEFAULT_METRIC_WIN_SIZE,
         periods_per_year: int = TRADING_DAYS,
@@ -359,7 +357,7 @@ class PerformanceMetrics(BaseAnalytics):
 
     @classmethod
     def omega_ratio(
-        cls,
+        cls: type[Self],
         df: pd.DataFrame,
         metric_win_size: int = DEFAULT_METRIC_WIN_SIZE,
         target_return: float = DEFAULT_RISK_FREE_RATE,
@@ -403,7 +401,7 @@ class PerformanceMetrics(BaseAnalytics):
 
     @classmethod
     def hit_ratio(
-        cls,
+        cls: type[Self],
         df: pd.DataFrame,
         metric_win_size: int = DEFAULT_METRIC_WIN_SIZE,
     ) -> pd.DataFrame:
@@ -427,6 +425,7 @@ class PerformanceMetrics(BaseAnalytics):
 
         result = cls._apply_window(returns, func, metric_win_size)
         return cls._to_dataframe(result, "hit_ratio", metric_win_size)
+
 
 __all__ = [
     "PerformanceMetrics",

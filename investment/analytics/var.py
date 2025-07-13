@@ -7,12 +7,13 @@ and converted to simple returns.
 """
 
 from statistics import NormalDist
-from typing import Callable
+from typing import Callable, Self
 
 import pandas as pd
 
-from .base import BaseAnalytics
 from ..utils.consts import DEFAULT_CONFIDENCE_LEVEL, DEFAULT_VAR_WIN_SIZE
+from .base import BaseAnalytics
+
 
 class VaRCalculator(BaseAnalytics):
     """Value-at-Risk related calculations."""
@@ -57,7 +58,7 @@ class VaRCalculator(BaseAnalytics):
 
     @classmethod
     def historical_var(
-        cls,
+        cls: type[Self],
         df: pd.DataFrame,
         var_win_size: int = DEFAULT_VAR_WIN_SIZE,
         confidence_level: float = DEFAULT_CONFIDENCE_LEVEL,
@@ -77,7 +78,7 @@ class VaRCalculator(BaseAnalytics):
 
     @classmethod
     def parametric_var(
-        cls,
+        cls: type[Self],
         df: pd.DataFrame,
         var_win_size: int = DEFAULT_VAR_WIN_SIZE,
         confidence_level: float = DEFAULT_CONFIDENCE_LEVEL,
@@ -99,7 +100,7 @@ class VaRCalculator(BaseAnalytics):
 
     @classmethod
     def conditional_var(
-        cls,
+        cls: type[Self],
         df: pd.DataFrame,
         var_win_size: int = DEFAULT_VAR_WIN_SIZE,
         confidence_level: float = DEFAULT_CONFIDENCE_LEVEL,
@@ -119,6 +120,7 @@ class VaRCalculator(BaseAnalytics):
 
         result = cls._apply_window(returns, func, var_win_size)
         return cls._to_dataframe(result, "conditional", var_win_size, confidence_level)
+
 
 __all__ = [
     "VaRCalculator",
