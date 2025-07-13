@@ -1,6 +1,6 @@
 """Setup script for the fball package."""
 
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 setup(
     name="fball",

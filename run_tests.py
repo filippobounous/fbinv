@@ -3,8 +3,8 @@
 from pathlib import Path
 from typing import Sequence
 
-from dotenv import load_dotenv
 import pytest
+from dotenv import load_dotenv
 
 
 def run_tests(args: Sequence[str] | None = None) -> int:

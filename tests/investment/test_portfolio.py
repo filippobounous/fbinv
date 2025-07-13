@@ -58,9 +58,12 @@ class PortfolioTestCase(unittest.TestCase):
         )
         mapping_df = pd.DataFrame({"figi_code": ["AAA"], "code": ["AAA"]})
         pf = self._make_portfolio()
-        with mock.patch("pandas.read_csv", return_value=tr_df), mock.patch(
-            "investment.core.portfolio.LocalDataSource.get_security_mapping",
-            return_value=mapping_df,
+        with (
+            mock.patch("pandas.read_csv", return_value=tr_df),
+            mock.patch(
+                "investment.core.portfolio.LocalDataSource.get_security_mapping",
+                return_value=mapping_df,
+            ),
         ):
             pf._get_holdings()
         expected = tr_df.copy()
@@ -131,10 +134,13 @@ class PortfolioTestCase(unittest.TestCase):
                 "entry_value": [1000.0],
             }
         )
-        with mock.patch.object(
-            Portfolio, "_prepare_holdings_timeseries", return_value=base_df
-        ), mock.patch.object(
-            Portfolio, "_combine_with_security_price_history", return_value=base_df
+        with (
+            mock.patch.object(
+                Portfolio, "_prepare_holdings_timeseries", return_value=base_df
+            ),
+            mock.patch.object(
+                Portfolio, "_combine_with_security_price_history", return_value=base_df
+            ),
         ):
             result = pf.get_holdings_price_history()
         pd.testing.assert_frame_equal(result, base_df)
@@ -158,10 +164,13 @@ class PortfolioTestCase(unittest.TestCase):
             }
         )
         base_no_price = base.drop(columns=consts.OHLC)
-        with mock.patch.object(
-            Portfolio, "_prepare_holdings_timeseries", return_value=base_no_price
-        ), mock.patch.object(
-            Portfolio, "_combine_with_security_price_history", return_value=base
+        with (
+            mock.patch.object(
+                Portfolio, "_prepare_holdings_timeseries", return_value=base_no_price
+            ),
+            mock.patch.object(
+                Portfolio, "_combine_with_security_price_history", return_value=base
+            ),
         ):
             result = pf.get_holdings_price_history()
         self.assertIn("open_value", result.columns)
@@ -214,12 +223,13 @@ class PortfolioTestCase(unittest.TestCase):
 
     def test_init_triggers_loading(self):
         """Ensure ``__init__`` loads holdings and cash."""
-        with mock.patch.object(
-            Portfolio, "_load_cash_and_holdings"
-        ) as mch, mock.patch.dict(
-            Portfolio.__fields__,
-            {"entity_type": mock.Mock(default="portfolio")},
-            clear=False,
+        with (
+            mock.patch.object(Portfolio, "_load_cash_and_holdings") as mch,
+            mock.patch.dict(
+                Portfolio.__fields__,
+                {"entity_type": mock.Mock(default="portfolio")},
+                clear=False,
+            ),
         ):
             pf = Portfolio("TEST")
         mch.assert_called_once()
@@ -228,17 +238,19 @@ class PortfolioTestCase(unittest.TestCase):
     def test_load_cash_and_holdings_calls(self):
         """_load_cash_and_holdings delegates to cash and holdings helpers."""
         pf = self._make_portfolio(has_cash=True)
-        with mock.patch.object(pf, "_get_holdings") as gh, mock.patch.object(
-            pf, "_get_cash"
-        ) as gc:
+        with (
+            mock.patch.object(pf, "_get_holdings") as gh,
+            mock.patch.object(pf, "_get_cash") as gc,
+        ):
             pf._load_cash_and_holdings()
         gh.assert_called_once()
         gc.assert_called_once()
 
         pf = self._make_portfolio(has_cash=True, ignore_cash=True)
-        with mock.patch.object(pf, "_get_holdings") as gh, mock.patch.object(
-            pf, "_get_cash"
-        ) as gc:
+        with (
+            mock.patch.object(pf, "_get_holdings") as gh,
+            mock.patch.object(pf, "_get_cash") as gc,
+        ):
             pf._load_cash_and_holdings()
         gh.assert_called_once()
         gc.assert_not_called()
@@ -246,9 +258,10 @@ class PortfolioTestCase(unittest.TestCase):
     def test_update_calls_transactions_update(self):
         """update refreshes transactions and reloads data."""
         pf = self._make_portfolio()
-        with mock.patch(
-            "investment.core.portfolio.Transactions.update"
-        ) as tu, mock.patch.object(pf, "_load_cash_and_holdings") as lch:
+        with (
+            mock.patch("investment.core.portfolio.Transactions.update") as tu,
+            mock.patch.object(pf, "_load_cash_and_holdings") as lch,
+        ):
             pf.update()
         tu.assert_called_once()
         lch.assert_called_once()
@@ -256,9 +269,10 @@ class PortfolioTestCase(unittest.TestCase):
     def test_update_invalid_code(self):
         """update raises when Portfolio code mismatches."""
         pf = self._make_portfolio(code="OTHER")
-        with mock.patch(
-            "investment.core.portfolio.Transactions.update"
-        ) as tu, mock.patch.object(pf, "_load_cash_and_holdings") as lch:
+        with (
+            mock.patch("investment.core.portfolio.Transactions.update") as tu,
+            mock.patch.object(pf, "_load_cash_and_holdings") as lch,
+        ):
             with self.assertRaises(Exception):
                 pf.update()
         tu.assert_not_called()
@@ -380,9 +394,12 @@ class PortfolioTestCase(unittest.TestCase):
         )
         mapping_df = pd.DataFrame({"figi_code": ["AAA"], "code": ["AAA"]})
         pf = self._make_portfolio(account="ACC1", currency="USD")
-        with mock.patch("pandas.read_csv", return_value=tr_df), mock.patch(
-            "investment.core.portfolio.LocalDataSource.get_security_mapping",
-            return_value=mapping_df,
+        with (
+            mock.patch("pandas.read_csv", return_value=tr_df),
+            mock.patch(
+                "investment.core.portfolio.LocalDataSource.get_security_mapping",
+                return_value=mapping_df,
+            ),
         ):
             pf._get_holdings()
         expected = pd.DataFrame(

@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict
 from ..datasource import LocalDataSource
 
 
+
 class BaseMappingEntity(BaseModel):
     """Base object populated from local mapping data.
 

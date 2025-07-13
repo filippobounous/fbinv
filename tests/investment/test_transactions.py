@@ -29,9 +29,10 @@ class TransactionsTestCase(unittest.TestCase):
         )
 
         tx = Transactions()
-        with mock.patch.object(
-            Transactions, "_load_transactions", return_value=raw_df
-        ), mock.patch.object(pd.DataFrame, "to_csv", autospec=True) as m_csv:
+        with (
+            mock.patch.object(Transactions, "_load_transactions", return_value=raw_df),
+            mock.patch.object(pd.DataFrame, "to_csv", autospec=True) as m_csv,
+        ):
             with self.assertWarns(UserWarning):
                 tx.extract_and_save_investment_transactions()
 
@@ -70,9 +71,12 @@ class TransactionsTestCase(unittest.TestCase):
         )
 
         tx = Transactions()
-        with mock.patch.object(
-            Transactions, "_load_transactions", return_value=clean_df
-        ), mock.patch.object(pd.DataFrame, "to_csv", autospec=True) as m_csv:
+        with (
+            mock.patch.object(
+                Transactions, "_load_transactions", return_value=clean_df
+            ),
+            mock.patch.object(pd.DataFrame, "to_csv", autospec=True) as m_csv,
+        ):
             with warnings.catch_warnings(record=True) as w:
                 tx.extract_and_save_investment_transactions()
             self.assertEqual(len(w), 0)
@@ -145,8 +149,9 @@ class TransactionsTestCase(unittest.TestCase):
             captured["path"] = path
             captured["index"] = index
 
-        with mock.patch.object(tr, "_load_transactions", return_value=raw), mock.patch(
-            "pandas.DataFrame.to_csv", new=fake_to_csv
+        with (
+            mock.patch.object(tr, "_load_transactions", return_value=raw),
+            mock.patch("pandas.DataFrame.to_csv", new=fake_to_csv),
         ):
             with self.assertWarns(UserWarning):
                 tr.extract_and_save_investment_transactions()
@@ -192,8 +197,9 @@ class TransactionsTestCase(unittest.TestCase):
             captured["path"] = path
             captured["index"] = index
 
-        with mock.patch.object(tr, "_load_transactions", return_value=raw), mock.patch(
-            "pandas.DataFrame.to_csv", new=fake_to_csv
+        with (
+            mock.patch.object(tr, "_load_transactions", return_value=raw),
+            mock.patch("pandas.DataFrame.to_csv", new=fake_to_csv),
         ):
             tr.load_and_save_cash_positions()
 
@@ -215,13 +221,16 @@ class TransactionsTestCase(unittest.TestCase):
     def test_update_calls_helpers(self):
         """``update`` invokes both extraction helpers."""
         tr = self._make_transactions()
-        with mock.patch.object(
-            Transactions,
-            "extract_and_save_investment_transactions",
-            autospec=True,
-        ) as eit, mock.patch.object(
-            Transactions, "load_and_save_cash_positions", autospec=True
-        ) as lsc:
+        with (
+            mock.patch.object(
+                Transactions,
+                "extract_and_save_investment_transactions",
+                autospec=True,
+            ) as eit,
+            mock.patch.object(
+                Transactions, "load_and_save_cash_positions", autospec=True
+            ) as lsc,
+        ):
             tr.update()
         eit.assert_called_once_with(tr)
         lsc.assert_called_once_with(tr)
