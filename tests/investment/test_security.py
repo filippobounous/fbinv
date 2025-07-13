@@ -74,11 +74,12 @@ class SecurityTestCase(TestCase):
             }
         )
         ds = TestDataSource()
-        with mock.patch(
-            "investment.core.security.base.get_datasource", return_value=ds
-        ) as mock_gds, mock.patch.object(
-            ds, "get_price_history", return_value=df
-        ) as gp:
+        with (
+            mock.patch(
+                "investment.core.security.base.get_datasource", return_value=ds
+            ) as mock_gds,
+            mock.patch.object(ds, "get_price_history", return_value=df) as gp,
+        ):
             result = sec.get_price_history(datasource=ds)
         mock_gds.assert_called_once_with(datasource=ds)
         gp.assert_called_once_with(security=sec, intraday=False, local_only=True)
