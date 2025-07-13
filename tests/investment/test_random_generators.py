@@ -6,6 +6,7 @@ import numpy as np
 
 from investment.analytics import RandomGenerator
 
+
 class RandomGeneratorTests(unittest.TestCase):
     """Test cases for :class:`RandomGenerator`."""
 

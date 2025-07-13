@@ -1,26 +1,28 @@
 """Unit tests for investment datasource modules."""
 
 import datetime
-from unittest import mock
-from unittest import TestCase
+from unittest import TestCase, mock
 
 import pandas as pd
 
+from investment.core.security import CurrencyCross, Equity
 from investment.datasource import (
     AlphaVantageDataSource,
+    BaseDataSource,
     BloombergDataSource,
     FinancialTimesDataSource,
     LocalDataSource,
     OpenFigiDataSource,
     TwelveDataDataSource,
     YahooFinanceDataSource,
-    BaseDataSource
 )
-from investment.core.security import CurrencyCross, Equity
 from investment.datasource.test import TestDataSource
 from investment.utils.exceptions import (
-    DataSourceMethodException, AlphaVantageException, TwelveDataException,
+    AlphaVantageException,
+    DataSourceMethodException,
+    TwelveDataException,
 )
+
 
 class BaseDataSourceTestCase(TestCase):
     """Base class that patches the local datasource used by security objects."""
@@ -32,6 +34,7 @@ class BaseDataSourceTestCase(TestCase):
         )
         self.addCleanup(patcher.stop)
         patcher.start()
+
 
 class AlphaVantageTests(BaseDataSourceTestCase):
     """Tests for :class:`AlphaVantageDataSource`."""
@@ -54,11 +57,14 @@ class AlphaVantageTests(BaseDataSourceTestCase):
         df = pd.DataFrame({"as_of_date": pd.to_datetime(["2020-01-01", "2020-01-02"])})
         with mock.patch(
             "investment.datasource.alpha_vantage.today_midnight",
-            return_value=datetime.datetime(2020, 1, 10)
+            return_value=datetime.datetime(2020, 1, 10),
         ):
-            start, end = ds._default_start_and_end_date(df=df, symbol="AAA", intraday=False)
+            start, end = ds._default_start_and_end_date(
+                df=df, symbol="AAA", intraday=False
+            )
         self.assertEqual(start, pd.Timestamp("2020-01-01"))
         self.assertEqual(end, datetime.datetime(2020, 1, 9))
+
 
 class PlaceholderDataSourceTests(BaseDataSourceTestCase):
     """Tests for datasources that only raise :class:`DataSourceMethodException`."""
@@ -70,7 +76,9 @@ class PlaceholderDataSourceTests(BaseDataSourceTestCase):
         self.start = datetime.datetime(2020, 1, 1)
         self.end = datetime.datetime(2020, 1, 2)
 
-    def assert_all_methods_raise(self, ds: "BaseDataSource", include_update: bool = True):
+    def assert_all_methods_raise(
+        self, ds: "BaseDataSource", include_update: bool = True
+    ):
         """Check that all methods raise DataSourceMethodException."""
         methods = [
             ds._get_currency_cross_price_history_from_remote,
@@ -102,13 +110,16 @@ class PlaceholderDataSourceTests(BaseDataSourceTestCase):
         """OpenFIGI methods, except mapping updates, raise :class:`DataSourceMethodException`."""
         self.assert_all_methods_raise(OpenFigiDataSource(), include_update=False)
 
+
 class LocalDataSourceTests(BaseDataSourceTestCase):
     """Tests for :class:`LocalDataSource`."""
 
     def test_load_valid_row(self):
         """Loading a row removes null columns and returns the expected record."""
         ds = LocalDataSource()
-        df = pd.DataFrame({"code": ["AAA"], "name": ["test"], "value": [1], "null": [pd.NA]})
+        df = pd.DataFrame(
+            {"code": ["AAA"], "name": ["test"], "value": [1], "null": [pd.NA]}
+        )
         result = ds._load(df, Equity("AAA"))
         self.assertEqual(result["name"], "test")
         self.assertNotIn("null", result)
@@ -131,7 +142,9 @@ class LocalDataSourceTests(BaseDataSourceTestCase):
         """Ensure helper methods return portfolio names and security codes."""
         ds = LocalDataSource()
         with mock.patch.object(
-            ds, "_get_file_names_in_path", return_value={"AAA": datetime.datetime(2020,1,1)}
+            ds,
+            "_get_file_names_in_path",
+            return_value={"AAA": datetime.datetime(2020, 1, 1)},
         ):
             result = ds.get_all_portfolios()
         self.assertIn("AAA", result)
@@ -140,6 +153,7 @@ class LocalDataSourceTests(BaseDataSourceTestCase):
         ):
             result2 = ds.get_all_securities()
         self.assertEqual(result2, ["AAA"])
+
 
 class OpenFigiDataSourceTests(BaseDataSourceTestCase):
     """Tests for :class:`OpenFigiDataSource`."""
@@ -154,6 +168,7 @@ class OpenFigiDataSourceTests(BaseDataSourceTestCase):
         self.assertIn("ticker", result.columns)
         self.assertEqual(result.loc[0, "figi"], "AAA")
 
+
 class YahooFinanceDataSourceTests(BaseDataSourceTestCase):
     """Tests for :class:`YahooFinanceDataSource`."""
 
@@ -162,7 +177,7 @@ class YahooFinanceDataSourceTests(BaseDataSourceTestCase):
         ds = YahooFinanceDataSource()
         df = pd.DataFrame(
             {("Open", ""): [1], ("Close", ""): [2]},
-            index=pd.DatetimeIndex(["2020-01-01"], name="Date")
+            index=pd.DatetimeIndex(["2020-01-01"], name="Date"),
         )
         result = ds._format_price_history_from_remote(df)
         self.assertEqual(list(result.columns), ["as_of_date", "open", "close"])
@@ -173,7 +188,9 @@ class YahooFinanceDataSourceTests(BaseDataSourceTestCase):
         start = datetime.datetime(2020, 1, 1)
         end = datetime.datetime(2020, 1, 2)
         with mock.patch("yfinance.download", return_value=pd.DataFrame()) as dl:
-            ds._time_series(symbol="AAA", intraday=False, start_date=start, end_date=end)
+            ds._time_series(
+                symbol="AAA", intraday=False, start_date=start, end_date=end
+            )
         dl.assert_called_once()
         args, kwargs = dl.call_args
         self.assertEqual(args[0], "AAA")
@@ -185,11 +202,14 @@ class YahooFinanceDataSourceTests(BaseDataSourceTestCase):
         df = pd.DataFrame({"as_of_date": pd.to_datetime(["2020-01-05", "2020-01-06"])})
         with mock.patch(
             "investment.datasource.yahoo_finance.today_midnight",
-            return_value=datetime.datetime(2020,1,10)
+            return_value=datetime.datetime(2020, 1, 10),
         ):
-            start, end = ds._default_start_and_end_date(df=df, symbol="AAA", intraday=False)
+            start, end = ds._default_start_and_end_date(
+                df=df, symbol="AAA", intraday=False
+            )
         self.assertEqual(start, pd.Timestamp("2020-01-05"))
-        self.assertEqual(end, datetime.datetime(2020,1,9))
+        self.assertEqual(end, datetime.datetime(2020, 1, 9))
+
 
 class TwelveDataDataSourceTests(BaseDataSourceTestCase):
     """Tests for :class:`TwelveDataDataSource`."""
@@ -216,8 +236,8 @@ class TwelveDataDataSourceTests(BaseDataSourceTestCase):
     def test_get_dates(self):
         """Date expansion should add a buffer to the end date."""
         ds = TwelveDataDataSource()
-        start = datetime.datetime(2020,1,1)
-        end = datetime.datetime(2020,1,3)
+        start = datetime.datetime(2020, 1, 1)
+        end = datetime.datetime(2020, 1, 3)
         result = ds._get_dates(start_date=start, end_date=end, intraday=False)
         self.assertEqual(result, [(start, end + datetime.timedelta(days=2))])
 
@@ -235,14 +255,17 @@ class TwelveDataDataSourceTests(BaseDataSourceTestCase):
         df = pd.DataFrame()
         with (
             mock.patch.object(
-                ds, "_check_start_date_for_security",
-                return_value=datetime.datetime(2020,1,1)
+                ds,
+                "_check_start_date_for_security",
+                return_value=datetime.datetime(2020, 1, 1),
             ),
             mock.patch(
                 "investment.datasource.twelve_data.today_midnight",
-                return_value=datetime.datetime(2020,1,10)
-            )
+                return_value=datetime.datetime(2020, 1, 10),
+            ),
         ):
-            start, end = ds._default_start_and_end_date(df=df, symbol="AAA", intraday=False)
-        self.assertEqual(start, datetime.datetime(2020,1,1))
-        self.assertEqual(end, datetime.datetime(2020,1,9))
+            start, end = ds._default_start_and_end_date(
+                df=df, symbol="AAA", intraday=False
+            )
+        self.assertEqual(start, datetime.datetime(2020, 1, 1))
+        self.assertEqual(end, datetime.datetime(2020, 1, 9))

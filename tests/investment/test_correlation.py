@@ -8,6 +8,7 @@ import pandas as pd
 
 from investment.analytics import CorrelationCalculator
 
+
 class CorrelationCalculatorTests(unittest.TestCase):
     """Test cases for :class:`CorrelationCalculator`."""
 
@@ -53,10 +54,12 @@ class CorrelationCalculatorTests(unittest.TestCase):
 
     def test_semi_and_lagged(self):
         """Compute semi-correlation and lagged correlations."""
-        data = pd.DataFrame({
-            "a": [1.0, 2.0, 3.0, 4.0],
-            "b": [2.0, 1.0, 4.0, 3.0],
-        })
+        data = pd.DataFrame(
+            {
+                "a": [1.0, 2.0, 3.0, 4.0],
+                "b": [2.0, 1.0, 4.0, 3.0],
+            }
+        )
         calc = CorrelationCalculator()
         with mock.patch.object(calc, "_gather_series", return_value=data):
             semi = calc.semi(use_returns=False, downside=True)
@@ -77,9 +80,9 @@ class CorrelationCalculatorTests(unittest.TestCase):
         self.assertIn(0, lagged)
         self.assertIn(1, lagged)
         pd.testing.assert_frame_equal(lagged[0], corr0)
-        expected_lag1 = pd.DataFrame(index=["a","b"], columns=["a","b"], dtype=float)
+        expected_lag1 = pd.DataFrame(index=["a", "b"], columns=["a", "b"], dtype=float)
         val = data["a"].corr(data["b"].shift(1))
-        expected_lag1.loc["a","b"] = val
-        expected_lag1.loc["b","a"] = val
+        expected_lag1.loc["a", "b"] = val
+        expected_lag1.loc["b", "a"] = val
         np.fill_diagonal(expected_lag1.values, 1.0)
         pd.testing.assert_frame_equal(lagged[1], expected_lag1)
