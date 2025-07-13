@@ -25,6 +25,18 @@ class Decor(BaseItem):
     appraisal_currency: str
     appraisal_entity: str
 
+    @property
+    def required_fields(self) -> list[str]:
+        """Return a list of required fields for the entity."""
+        return super().required_fields + [
+            "date_period",
+            "quantity",
+            "appraisal_date",
+            "appraisal_value",
+            "appraisal_currency",
+            "appraisal_entity",
+        ]
+
 __all__ = [
     "Decor",
 ]

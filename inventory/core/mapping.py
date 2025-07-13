@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from abc import abstractmethod
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict
@@ -22,11 +23,12 @@ class BaseMappingEntity(BaseModel):
     entity_type: str
     id: int
     code: str
-    name: str
+    name: str | None = None
     description: str | None = None
     notes: str | None = None
     version: int
     is_deleted: bool
+
     _local_datasource: LocalDataSource = LocalDataSource
     model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
 
@@ -50,6 +52,21 @@ class BaseMappingEntity(BaseModel):
         for key, el in di.items():
             if hasattr(self, key):
                 setattr(self, key, el)
+
+    @property        
+    def missing_fields(self) -> list[str]:
+        """Return a list of required arguments that are missing."""
+        return [arg for arg in self.required_fields if getattr(self, arg, None) is None]
+
+    @property
+    def base_required_fields(self) -> list[str]:
+        """Return a list of required fields for the entity."""
+        return ["entity_type", "id", "code", "version", "is_deleted"]
+
+    @property
+    @abstractmethod
+    def required_fields(self) -> list[str]:
+        """Return a list of required fields for the entity."""
 
 __all__ = [
     "BaseMappingEntity",
