@@ -18,15 +18,18 @@ app = FastAPI(
     dependencies=[Depends(create_api_key_dependency(FASTAPI_INVENTORY_API_KEY))],
 )
 
+
 @app.get("/")
 async def read_inventory_root() -> dict[str, str]:
     """Basic message showing the inventory API is running."""
     return {"message": "Welcome to the Inventory API"}
 
+
 @app.get("/health")
 async def inventory_health_check() -> dict[str, str]:
     """Simple health check for the inventory API."""
     return {"status": "ok"}
+
 
 for router in ROUTERS:
     app.include_router(router)
