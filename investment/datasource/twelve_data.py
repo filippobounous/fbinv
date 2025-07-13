@@ -1,10 +1,10 @@
 """Data source wrapper for Twelve Data."""
 
 import datetime
-import warnings
 from itertools import product
 from time import sleep
 from typing import TYPE_CHECKING, Any, ClassVar
+import warnings
 
 import pandas as pd
 from pydantic import ConfigDict
@@ -12,10 +12,10 @@ from tqdm import tqdm
 from twelvedata import TDClient
 from twelvedata.exceptions import TwelveDataError
 
+from .base import BaseDataSource
 from ..config import TWELVE_DATA_API_KEY
 from ..utils.date_utils import today_midnight
 from ..utils.exceptions import TwelveDataException
-from .base import BaseDataSource
 
 if TYPE_CHECKING:
     from ..core.security.registry import (ETF, BaseSecurity, CurrencyCross,

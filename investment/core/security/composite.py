@@ -6,10 +6,10 @@ from typing import TYPE_CHECKING
 
 import pandas as pd
 
-from ...utils.consts import OC
-from ..utils import get_currency_cross
 from .base import BaseSecurity
 from .currency_cross import CurrencyCross
+from ..utils import get_currency_cross
+from ...utils.consts import OC
 
 if TYPE_CHECKING:
     from ...datasource.base import BaseDataSource
