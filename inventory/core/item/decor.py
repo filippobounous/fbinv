@@ -30,6 +30,7 @@ class Decor(BaseItem):
     def required_fields(self) -> list[str]:
         """Return a list of required fields for the entity."""
         return super().required_fields + [
+            "origin_region",
             "date_period",
             "quantity",
             "appraisal_date",
