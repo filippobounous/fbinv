@@ -1,8 +1,9 @@
 """Factory class used to initialise the correct security from a given code"""
 
-from typing import ClassVar
+from typing import ClassVar, Type
 
 from .base import BaseSecurity
+
 
 class Generic:
     """
@@ -18,7 +19,9 @@ class Generic:
 
     entity_type: ClassVar[str] = "generic"
 
-    def __new__(cls, code: str | None = None, **kwargs) -> "BaseSecurity":
+    def __new__(
+        cls: Type["Generic"], code: str | None = None, **kwargs
+    ) -> "BaseSecurity":
         """Initialise the wrapped security from local mapping."""
         from ...datasource.local import LocalDataSource
 
@@ -26,6 +29,7 @@ class Generic:
             kwargs["code"] = code
 
         return LocalDataSource().load_generic_security(**kwargs)
+
 
 __all__ = [
     "Generic",
