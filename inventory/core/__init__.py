@@ -5,6 +5,8 @@ from .item import BaseItem, Book, Decor, Music
 from .mapping import BaseMappingEntity
 from .photo import Photo
 from .room import Room
+from .category import Category
+from .subcategory import Subcategory
 
 __all__ = [
     "House",
@@ -15,4 +17,6 @@ __all__ = [
     "BaseMappingEntity",
     "Photo",
     "Room",
+    "Category",
+    "Subcategory",
 ]

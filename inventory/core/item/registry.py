@@ -1,4 +1,4 @@
-"""Full registy of BaseSecuirty subclasses"""
+"""Full registy of BaseItem subclasses"""
 
 from typing import TYPE_CHECKING
 
