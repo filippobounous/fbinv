@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 from abc import abstractmethod
+import datetime
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 
 from ..datasource import LocalDataSource
-
 
 
 class BaseMappingEntity(BaseModel):
@@ -30,6 +30,7 @@ class BaseMappingEntity(BaseModel):
     notes: str | None = None
     version: int
     is_deleted: bool
+    sys_create_time: datetime.datetime
 
     _local_datasource: LocalDataSource = LocalDataSource
     model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)

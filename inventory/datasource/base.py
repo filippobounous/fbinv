@@ -9,7 +9,6 @@ from pydantic import BaseModel, ConfigDict
 from ..config import BASE_PATH
 
 
-
 class BaseDataSource(BaseModel):
     """Minimal base class for inventory data sources."""
 
