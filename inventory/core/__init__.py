@@ -7,6 +7,7 @@ from .photo import Photo
 from .room import Room
 from .category import Category
 from .subcategory import Subcategory
+from .registry import all_entities, entity_registry
 
 __all__ = [
     "House",
@@ -19,4 +20,6 @@ __all__ = [
     "Room",
     "Category",
     "Subcategory",
+    "all_entities",
+    "entity_registry",
 ]
