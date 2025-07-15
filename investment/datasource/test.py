@@ -116,7 +116,7 @@ class TestDataSource(BaseDataSource):
 
     def load_generic_security(self, **kwargs) -> "BaseSecurity":
         """Return a generic BaseSecurity instance for tests."""
-        from ..core.security.base import BaseSecurity
+        from ..core.security.base import BaseSecurity # TODO avoid circular import
 
         class DummySecurity(BaseSecurity):
             """Dummy security class for testing purposes."""

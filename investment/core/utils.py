@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 def get_currency_cross(origin_currency: str, result_currency: str) -> "CurrencyCross":
     """Create a :class:`CurrencyCross` from two currency codes."""
-    from .security.currency_cross import CurrencyCross
+    from .security.currency_cross import CurrencyCross # TODO avoid circular import
 
     ccy = CurrencyCross(code=f"{origin_currency}{result_currency}")
     return ccy

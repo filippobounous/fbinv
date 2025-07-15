@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 def get_datasource(datasource: "BaseDataSource" | None = None) -> "BaseDataSource":
     """Return the provided data source or the default one."""
-    from .registry import default_timeseries_datasource
+    from .registry import default_timeseries_datasource # TODO avoid circular import
 
     if datasource is None:
         datasource = default_timeseries_datasource

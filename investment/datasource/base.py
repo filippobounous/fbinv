@@ -22,7 +22,7 @@ from ..utils.exceptions import (
 from ..utils.warnings import warnings
 
 if TYPE_CHECKING:
-    from ..core.security import BaseSecurity
+    from ..core.security.base import BaseSecurity
     from ..core.security.registry import ETF, CurrencyCross, Equity, Fund
 
 
@@ -344,7 +344,7 @@ class BaseDataSource(BaseModel):
 
     def update_price_history(self, intraday: bool = False, **kwargs) -> dict[str, bool]:
         """Update price histories for all known securities."""
-        from .local import LocalDataSource
+        from .local import LocalDataSource # TODO avoid circular import
 
         li = LocalDataSource().get_all_securities(as_instance=True)
 
@@ -362,7 +362,7 @@ class BaseDataSource(BaseModel):
 
     def update_security_mapping(self) -> pd.DataFrame:
         """Update the local mapping file using the remote API."""
-        from .registry import LocalDataSource
+        from .registry import LocalDataSource # TODO avoid circular import
 
         try:
             df = LocalDataSource().get_security_mapping()
@@ -379,7 +379,7 @@ class BaseDataSource(BaseModel):
         self, start_date: datetime.datetime | None = None, intraday: bool = False
     ) -> dict[str, bool]:
         """Update security mapping and all price histories."""
-        from .local import LocalDataSource
+        from .local import LocalDataSource # TODO avoid circular import
 
         df_mapping = self.update_security_mapping()
         di = self.update_price_history(start_date=start_date, intraday=intraday)

@@ -23,7 +23,7 @@ class Generic:
         cls: Type["Generic"], code: str | None = None, **kwargs
     ) -> "BaseSecurity":
         """Initialise the wrapped security from local mapping."""
-        from ...datasource.local import LocalDataSource
+        from ...datasource.local import LocalDataSource # TODO avoid circular import
 
         if code is not None:
             kwargs["code"] = code
