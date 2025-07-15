@@ -17,7 +17,7 @@ class BaseAnalytics:
     @staticmethod
     def _validate(df: DataFrame) -> Series:
         """Validate input DataFrame and return simple returns series."""
-        from . import ReturnsCalculator
+        from . import ReturnsCalculator # TODO avoid circular import
 
         if df.empty:
             raise ValueError("Input DataFrame is empty.")

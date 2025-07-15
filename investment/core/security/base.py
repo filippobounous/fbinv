@@ -40,7 +40,7 @@ class BaseSecurity(BaseMappingEntity):
 
     def __init__(self, code: str | None = None, **kwargs) -> None:
         """Initialise security attributes from local mapping data."""
-        from ...datasource.registry import datasource_codes
+        from ...datasource.registry import datasource_codes # TODO avoid circular import
 
         if code is not None:
             kwargs["code"] = code
@@ -62,7 +62,7 @@ class BaseSecurity(BaseMappingEntity):
         Returns the file path for the timeseries of a given security, datasource,
         type and frequency
         """
-        from ...datasource.registry import LocalDataSource, OpenFigiDataSource
+        from ...datasource.registry import LocalDataSource, OpenFigiDataSource # TODO avoid circular import
 
         if datasource_name == LocalDataSource.name:
             _code = "code"
@@ -107,7 +107,7 @@ class BaseSecurity(BaseMappingEntity):
 
     def convert_to_currency(self, currency: str) -> "BaseSecurity" | "Composite":
         """Converts a security to its composite self, by applying a currency conversion"""
-        from .composite import Composite
+        from .composite import Composite # TODO avoid circular import
 
         return (
             self

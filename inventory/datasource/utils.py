@@ -1,8 +1,10 @@
-"""Helpers for selecting the default data source."""
+"""Helpers for selecting the default inventory data source."""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+
+from .registry import default_datasource
 
 if TYPE_CHECKING:
     from .base import BaseDataSource
@@ -10,11 +12,8 @@ if TYPE_CHECKING:
 
 def get_datasource(datasource: "BaseDataSource" | None = None) -> "BaseDataSource":
     """Return the provided data source or the default one."""
-    from .registry import default_timeseries_datasource # TODO avoid circular import
-
     if datasource is None:
-        datasource = default_timeseries_datasource
-
+        datasource = default_datasource
     return datasource
 
 

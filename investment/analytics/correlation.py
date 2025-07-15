@@ -17,7 +17,7 @@ from .base import BaseAnalytics
 
 if TYPE_CHECKING:
     from ..core.portfolio import Portfolio
-    from ..core.security import BaseSecurity
+    from ..core.security.base import BaseSecurity
 
 
 class CorrelationCalculator(BaseAnalytics):

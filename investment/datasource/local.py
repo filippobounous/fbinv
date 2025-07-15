@@ -126,7 +126,7 @@ class LocalDataSource(BaseDataSource):
 
     def load_generic_security(self, **kwargs) -> "BaseSecurity":
         """Instantiate a security based on mapping information."""
-        from ..core.security.registry import security_registry
+        from ..core.security.registry import security_registry # TODO avoid circular import
 
         df = self.get_security_mapping()
         row = df[df.code == kwargs["code"]]
@@ -170,7 +170,7 @@ class LocalDataSource(BaseDataSource):
             Union[dict[str, datetime.datetime], list[Portfolio]]:Dictionary of file names
             and last modified date or List of Portfolios
         """
-        from ..core.portfolio import Portfolio
+        from ..core.portfolio import Portfolio # TODO avoid circular import
 
         di = self._get_file_names_in_path(path=PORTFOLIO_PATH)
         if as_instance:
@@ -181,7 +181,7 @@ class LocalDataSource(BaseDataSource):
         self, column: str = "code", as_instance: bool = False
     ) -> list[str | "BaseSecurity"]:
         """List all available securities."""
-        from ..core.security.registry import security_registry
+        from ..core.security.registry import security_registry # TODO avoid circular import
 
         li = []
 
