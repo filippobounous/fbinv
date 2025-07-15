@@ -50,7 +50,13 @@ class LocalDataSource(BaseDataSource):
     def load_entity(self, entity: "BaseMappingEntity") -> dict[str, Any]:
         """Return mapping data for the given entity."""
         df = self.get_mapping(entity.entity_type)
-        row = df.loc[df.code == entity.code]
+        if entity.version is None:
+            row = df.loc[df.code == entity.code]
+            if "version" in row.columns and len(row) > 1:
+                row = row.sort_values("version").iloc[[-1]]
+        else:
+            row = df.loc[(df.code == entity.code) & (df.version == entity.version)]
+
         return self._load(df=row, entity=entity)
 
 
