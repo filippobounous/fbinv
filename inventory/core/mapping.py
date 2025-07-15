@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from abc import abstractmethod
 import datetime
+from abc import abstractmethod
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict
@@ -23,14 +23,14 @@ class BaseMappingEntity(BaseModel):
     """
 
     entity_type: str
-    id: int
+    id: int | None = None
     code: str
     name: str | None = None
     description: str | None = None
     notes: str | None = None
-    version: int
-    is_deleted: bool
-    sys_create_time: datetime.datetime
+    version: int | None = None
+    is_deleted: bool | None = None
+    sys_create_time: datetime.datetime | None = None
 
     _local_datasource: LocalDataSource = LocalDataSource
     model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
