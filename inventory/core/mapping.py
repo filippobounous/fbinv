@@ -2,13 +2,19 @@
 
 from __future__ import annotations
 
-from abc import abstractmethod
 import datetime
+from abc import abstractmethod
+from pathlib import Path
 from typing import Any
 
+import pandas as pd
 from pydantic import BaseModel, ConfigDict
 
-from ..datasource import LocalDataSource
+from ..datasource import (
+    LocalDataSource,
+    datasource_registry,
+    default_datasource,
+)
 
 
 class BaseMappingEntity(BaseModel):
@@ -59,7 +65,11 @@ class BaseMappingEntity(BaseModel):
     @property
     def missing_fields(self) -> list[str]:
         """Return a list of required arguments that are missing."""
-        return [arg for arg in self.required_fields if getattr(self, arg, None) is None]
+        missing = []
+        for arg in self.required_fields:
+            if getattr(self, arg, None) is None:
+                missing.append(arg)
+        return missing
 
     @property
     def base_required_fields(self) -> list[str]:
@@ -70,6 +80,23 @@ class BaseMappingEntity(BaseModel):
     @abstractmethod
     def required_fields(self) -> list[str]:
         """Return a list of required fields for the entity."""
+
+    def edit(self, **kwargs: Any) -> None:
+        """Update attributes and increment version/time stamp."""
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+        self.version += 1
+        self.sys_create_time = datetime.datetime.now(datetime.timezone.utc)
+
+    def save(self, datasource_name: str = default_datasource.name) -> None:
+        """Append the current entity to the specified datasource CSV."""
+        ds_cls = datasource_registry.get(datasource_name)
+        if ds_cls is None:
+            raise KeyError(f"Datasource '{datasource_name}' not found")
+        ds = ds_cls()
+        path = Path(ds.mapping_path(self.entity_type))
+        df = pd.DataFrame([self.model_dump()])
+        df.to_csv(path, mode="a", index=False, header=not path.exists())
 
 
 __all__ = [
