@@ -56,7 +56,6 @@ class LocalDataSource(BaseDataSource):
     def load_all_entities(
         self,
         entity_type: str,
-        *,
         as_instance: bool = False,
         include_deleted: bool = False,
     ) -> list[dict[str, Any]] | list["BaseMappingEntity"]:
