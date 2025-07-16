@@ -17,7 +17,6 @@ class BaseAnalytics:
     @staticmethod
     def _validate(df: DataFrame) -> Series:
         """Validate input DataFrame and return simple returns series."""
-        from . import ReturnsCalculator # TODO avoid circular import
 
         if df.empty:
             raise ValueError("Input DataFrame is empty.")
@@ -26,8 +25,9 @@ class BaseAnalytics:
         if not isinstance(df.index, DatetimeIndex):
             raise ValueError("DataFrame index must be a DatetimeIndex.")
 
-        ret_df = ReturnsCalculator(use_ln_ret=False, ret_win_size=1).calculate(df)
-        return ret_df.set_index("as_of_date")["return"]
+        returns = df.sort_index()["close"].pct_change().dropna()
+        returns.index.name = "as_of_date"
+        return returns
 
 
 __all__ = [
